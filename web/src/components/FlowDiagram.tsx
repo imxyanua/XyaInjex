@@ -9,7 +9,8 @@ export function FlowDiagram({
 }) {
   const stages: string[] = ["Original context"];
   if (breakout.quote_closed) stages.push("Quote closure");
-  if (injected) stages.push("Command injection");
+  if (breakout.command_injected) stages.push("Command injection");
+  if (breakout.substitution_injected) stages.push("Command substitution");
   if (breakout.comment_terminated) stages.push("Comment truncation");
   stages.push(injected ? "Execution" : "No breakout");
 

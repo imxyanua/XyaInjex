@@ -47,6 +47,12 @@ def detect_breakout(
     separators = [ev.token for ev in injected]
     command_injected = len(injected) > 0
 
+    # A command substitution opened by the payload executes code even without a
+    # top level separator (e.g. $(id) inside double quotes or a heredoc body).
+    substitution_injected = any(
+        payload_start <= idx < payload_end for idx in st.sub_opens
+    )
+
     comment_terminated = (
         st.comment is not None
         and st.comment.stack_depth == 0
@@ -60,7 +66,14 @@ def detect_breakout(
     else:
         quote_closed = escaped_context
 
-    breakout_index = injected[0].index if injected else None
+    if injected:
+        breakout_index = injected[0].index
+    elif substitution_injected:
+        breakout_index = next(
+            idx for idx in st.sub_opens if payload_start <= idx < payload_end
+        )
+    else:
+        breakout_index = None
 
     return Breakout(
         context=context,
@@ -70,6 +83,7 @@ def detect_breakout(
         separators=separators,
         commands_created=len(injected),
         breakout_index=breakout_index,
+        substitution_injected=substitution_injected,
     )
 
 
@@ -81,6 +95,10 @@ def score_risk(breakout: Breakout, syntax_valid: bool) -> Risk:
         # A command boundary was created but the residual command is broken;
         # still commonly exploitable but less reliable.
         return Risk.HIGH
+
+    if breakout.substitution_injected:
+        # Command substitution executes code even without a separator.
+        return Risk.HIGH if syntax_valid else Risk.MEDIUM
 
     if breakout.context == Context.UNQUOTED:
         # Unquoted input needs no quote closure; argument level control is
