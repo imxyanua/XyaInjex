@@ -17,6 +17,7 @@ except ImportError as exc:  # pragma: no cover - import guard
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .mutation import mutate
+from .prompt import analyze_prompt
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
 
@@ -39,8 +40,8 @@ class MutateRequest(BaseModel):
 
 def _require_lang(lang: str) -> str:
     key = lang.strip().lower()
-    if key not in ("shell", "sql", "template"):
-        raise ValueError("lang must be 'shell', 'sql', or 'template'")
+    if key not in ("shell", "sql", "template", "prompt"):
+        raise ValueError("lang must be 'shell', 'sql', 'template', or 'prompt'")
     return key
 
 
@@ -53,6 +54,8 @@ def health() -> dict:
 def analyze_endpoint(req: AnalyzeRequest) -> dict:
     try:
         lang = _require_lang(req.lang)
+        if lang == "prompt":
+            return analyze_prompt(req.template, req.payload).to_dict()
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")
             return analyze_sql(req.template, req.payload, dialect).to_dict()
@@ -69,6 +72,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
 def mutate_endpoint(req: MutateRequest) -> dict:
     try:
         lang = _require_lang(req.lang)
+        if lang == "prompt":
+            raise ValueError("mutate is not supported for lang 'prompt'")
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")
             return mutate_sql(req.template, dialect=dialect).to_dict()
