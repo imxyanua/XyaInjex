@@ -8,17 +8,31 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .models import Context, Risk
+from .models import Context, Dialect, Risk
 from .shell.context import analyze_context
 
-# Command separators ordered from most to least commonly effective.
-_SEPARATORS = [";", "&&", "||", "|", "\n", "&"]
+# Per-dialect separators, substitution wrappers, and terminator tokens.
+_POSIX_SEPARATORS = [";", "&&", "||", "|", "\n", "&"]
+_POSIX_SUBSTITUTIONS = ["$({cmd})", "`{cmd}`"]
+_POSIX_TERMINATORS = ["#", " #", ";#", "%23", ""]
 
-# Command substitution wrappers, applied around the demo command.
-_SUBSTITUTIONS = ["$({cmd})", "`{cmd}`"]
+_CMD_SEPARATORS = ["&", "&&", "||", "|", "\n"]
+_CMD_SUBSTITUTIONS: list[str] = []
+_CMD_TERMINATORS = ["", " "]
 
-# Comment / terminator tokens used to swallow trailing template content.
-_TERMINATORS = ["#", " #", ";#", "%23", ""]
+_POWERSHELL_SEPARATORS = [";", "|", "&&", "||", "&", "\n"]
+_POWERSHELL_SUBSTITUTIONS = ["$({cmd})"]
+_POWERSHELL_TERMINATORS = ["#", " #", ";#", ""]
+
+_DIALECT_TOKENS = {
+    Dialect.POSIX: (_POSIX_SEPARATORS, _POSIX_SUBSTITUTIONS, _POSIX_TERMINATORS),
+    Dialect.CMD: (_CMD_SEPARATORS, _CMD_SUBSTITUTIONS, _CMD_TERMINATORS),
+    Dialect.POWERSHELL: (
+        _POWERSHELL_SEPARATORS,
+        _POWERSHELL_SUBSTITUTIONS,
+        _POWERSHELL_TERMINATORS,
+    ),
+}
 
 _RISK_ORDER = {
     Risk.CRITICAL: 4,
@@ -41,6 +55,7 @@ class Candidate:
 @dataclass
 class MutationResult:
     template: str
+    dialect: Dialect
     context: Context
     generated: int
     valid: int
@@ -53,6 +68,7 @@ class MutationResult:
     def to_dict(self) -> dict:
         return {
             "template": self.template,
+            "dialect": self.dialect.value,
             "context": self.context.value,
             "generated": self.generated,
             "valid": self.valid,
@@ -79,8 +95,11 @@ def _closers(context: Context) -> list[str]:
     return [quote, ""]
 
 
-def _generate(context: Context, command: str) -> list[tuple[str, str]]:
-    """Return (payload, strategy) pairs to try for a context."""
+def _generate(
+    context: Context, command: str, dialect: Dialect
+) -> list[tuple[str, str]]:
+    """Return (payload, strategy) pairs to try for a context and dialect."""
+    separators, substitutions, terminators = _DIALECT_TOKENS[dialect]
     seen: set[str] = set()
     out: list[tuple[str, str]] = []
 
@@ -90,32 +109,36 @@ def _generate(context: Context, command: str) -> list[tuple[str, str]]:
             out.append((payload, strategy))
 
     for closer in _closers(context):
-        for sep in _SEPARATORS:
-            for term in _TERMINATORS:
+        for sep in separators:
+            for term in terminators:
                 add(f"{closer}{sep}{command}{term}", "separator")
                 add(f"{closer}{sep} {command} {term}".rstrip(), "separator-spaced")
-        for sub in _SUBSTITUTIONS:
+        for sub in substitutions:
             wrapped = sub.format(cmd=command)
-            for term in _TERMINATORS:
+            for term in terminators:
                 add(f"{closer}{wrapped}{term}", "substitution")
 
     return out
 
 
-def mutate(template: str, command: str = "id") -> MutationResult:
+def mutate(
+    template: str, command: str = "id", dialect: Dialect = Dialect.POSIX
+) -> MutationResult:
     """Generate and rank breakout payloads for ``template``.
 
     ``command`` is the demonstration command embedded in generated payloads.
+    ``dialect`` selects the command language whose separators and terminators
+    are used.
     """
     # Local import avoids a circular import at module load time.
     from .analyzer import analyze
 
-    context = analyze_context(template)
-    generated = _generate(context, command)
+    context = analyze_context(template, dialect)
+    generated = _generate(context, command, dialect)
 
     candidates: list[Candidate] = []
     for payload, strategy in generated:
-        result = analyze(template, payload)
+        result = analyze(template, payload, dialect)
         if result.breakout.command_injected:
             candidates.append(
                 Candidate(
@@ -134,6 +157,7 @@ def mutate(template: str, command: str = "id") -> MutationResult:
 
     return MutationResult(
         template=template,
+        dialect=dialect,
         context=context,
         generated=len(generated),
         valid=len(candidates),
