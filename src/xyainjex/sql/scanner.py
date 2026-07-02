@@ -12,7 +12,14 @@ reason about whether a payload escapes a string literal and injects SQL code.
 from __future__ import annotations
 
 from ..models import SqlDialect
-from ..scan import BACKTICK, DOUBLE, SINGLE, BaseScanner, CommentEvent
+from ..scan import BACKTICK, DOUBLE, SINGLE, BaseScanner, CommentEvent, Frame
+
+# Extra frame kinds for dialect-specific quoting.
+BRACKET = "[]"  # MSSQL bracket-quoted identifier [col]
+DOLLAR = "$$"  # PostgreSQL dollar-quoted string $tag$...$tag$
+QQUOTE = "q'"  # Oracle alternative quoting q'[...]'
+
+_ORACLE_QQUOTE_CLOSE = {"[": "]", "(": ")", "{": "}", "<": ">"}
 
 # SQL keywords whose appearance at the top level, after the injection point,
 # signals that the payload is being interpreted as code rather than data.
@@ -50,6 +57,18 @@ def _is_word(ch: str) -> bool:
     return ch.isalnum() or ch == "_"
 
 
+def _dollar_quote(s: str, i: int, n: int) -> str | None:
+    """Return the ``$tag$`` opener at ``i``, or None (e.g. a ``$1`` param)."""
+    j = i + 1
+    if j < n and s[j].isdigit():
+        return None
+    while j < n and (s[j].isalnum() or s[j] == "_"):
+        j += 1
+    if j < n and s[j] == "$":
+        return s[i : j + 1]
+    return None
+
+
 class SqlScanner(BaseScanner):
     """Incremental SQL scanner, fed in one or more chunks."""
 
@@ -57,6 +76,10 @@ class SqlScanner(BaseScanner):
         super().__init__()
         self.dialect = dialect
         self._backslash = dialect in _BACKSLASH_DIALECTS
+        self._hash_comment = dialect == SqlDialect.MYSQL
+        self._brackets = dialect == SqlDialect.MSSQL
+        self._dollar = dialect == SqlDialect.POSTGRES
+        self._qquote = dialect == SqlDialect.ORACLE
         self.in_block = False
 
     def feed(self, text: str, *, offset: int = 0, record: bool = True):
@@ -118,6 +141,24 @@ class SqlScanner(BaseScanner):
                 i += 1
                 continue
 
+            if top == BRACKET:  # MSSQL [identifier]
+                if c == "]":
+                    if i + 1 < n and s[i + 1] == "]":  # ]] escape
+                        i += 2
+                        continue
+                    st.stack.pop()
+                i += 1
+                continue
+
+            if top in (DOLLAR, QQUOTE):  # tagged string, closes on its marker
+                marker = st.stack[-1].label
+                if s.startswith(marker, i):
+                    st.stack.pop()
+                    i += len(marker)
+                    continue
+                i += 1
+                continue
+
             # Outside quotes.
             if c == "'":
                 self._push(SINGLE)
@@ -131,13 +172,36 @@ class SqlScanner(BaseScanner):
                 self._push(BACKTICK)
                 i += 1
                 continue
+            if self._brackets and c == "[":
+                self._push(BRACKET)
+                i += 1
+                continue
+            if self._dollar and c == "$":
+                opener = _dollar_quote(s, i, n)
+                if opener is not None:
+                    st.stack.append(Frame(DOLLAR, label=opener))
+                    i += len(opener)
+                    continue
+            if (
+                self._qquote
+                and c in "qQ"
+                and i + 1 < n
+                and s[i + 1] == "'"
+                and i + 2 < n
+                and self._word_boundary(s, i, offset)
+            ):
+                delim = s[i + 2]
+                close = _ORACLE_QQUOTE_CLOSE.get(delim, delim)
+                st.stack.append(Frame(QQUOTE, label=close + "'"))
+                i += 3
+                continue
 
             # Comments.
             if c == "-" and i + 1 < n and s[i + 1] == "-":
                 self._record_comment(i + offset, record)
                 i += 2
                 continue
-            if c == "#":
+            if c == "#" and self._hash_comment:
                 self._record_comment(i + offset, record)
                 i += 1
                 continue

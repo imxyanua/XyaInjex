@@ -74,9 +74,11 @@ SQL injection:
 
 - Context analyzer that classifies the injection point as a string literal,
   quoted identifier, or numeric/expression position.
-- Dialects: MySQL, PostgreSQL, MSSQL, SQLite, and ANSI (double quotes are
-  string literals in MySQL, identifiers elsewhere; backslash escaping in
-  MySQL).
+- Dialects: MySQL, PostgreSQL, MSSQL, SQLite, ANSI, and Oracle, with
+  dialect-specific quoting: double quotes are string literals in MySQL and
+  identifiers elsewhere, backslash escaping in MySQL, MSSQL bracket identifiers
+  `[col]`, PostgreSQL dollar-quoted strings `$tag$...$tag$`, and Oracle
+  alternative quoting `q'[...]'`.
 - Breakout detector that reports string closure, injected SQL tokens at the top
   level (OR, AND, UNION, stacked `;`, and more), comment truncation (`--`, `#`,
   `/* */`), and a risk rating.

@@ -10,7 +10,7 @@ export const LANGS: { value: Lang; label: string }[] = [
 
 export const DIALECTS: Record<Lang, string[]> = {
   shell: ["posix", "cmd", "powershell"],
-  sql: ["mysql", "postgres", "mssql", "sqlite", "ansi"],
+  sql: ["mysql", "postgres", "mssql", "sqlite", "ansi", "oracle"],
   template: [
     "jinja2",
     "twig",
