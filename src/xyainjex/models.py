@@ -25,6 +25,19 @@ class SqlDialect(Enum):
     ANSI = "ansi"
 
 
+class TemplateEngine(Enum):
+    """Template engine whose delimiter syntax governs SSTI analysis."""
+
+    JINJA2 = "jinja2"
+    TWIG = "twig"
+    LIQUID = "liquid"
+    NUNJUCKS = "nunjucks"
+    FREEMARKER = "freemarker"
+    ERB = "erb"
+    HANDLEBARS = "handlebars"
+    VELOCITY = "velocity"
+
+
 class Context(Enum):
     """Lexical context that surrounds the injection point."""
 
@@ -39,6 +52,12 @@ class Context(Enum):
     SQL_STRING = "sql_string"
     SQL_IDENTIFIER = "sql_identifier"
     SQL_NUMERIC = "sql_numeric"
+    # Template contexts
+    TEMPLATE_TEXT = "template_text"
+    TEMPLATE_EXPRESSION = "template_expression"
+    TEMPLATE_STATEMENT = "template_statement"
+    TEMPLATE_COMMENT = "template_comment"
+    TEMPLATE_STRING = "template_string"
 
     @property
     def quote_char(self) -> str | None:
@@ -96,7 +115,7 @@ class AnalysisResult:
     template: str
     payload: str
     rendered: str
-    dialect: Dialect | SqlDialect
+    dialect: Dialect | SqlDialect | TemplateEngine
     context: Context
     breakout: Breakout
     balance: Balance

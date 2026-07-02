@@ -15,9 +15,10 @@ except ImportError as exc:  # pragma: no cover - import guard
     ) from exc
 
 from .analyzer import analyze
-from .dialects import parse_dialect, parse_sql_dialect
+from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .mutation import mutate
 from .sql import analyze_sql, mutate_sql
+from .template import analyze_template, mutate_template
 
 app = FastAPI(title="XyaInjex", version="0.1.0")
 
@@ -38,8 +39,8 @@ class MutateRequest(BaseModel):
 
 def _require_lang(lang: str) -> str:
     key = lang.strip().lower()
-    if key not in ("shell", "sql"):
-        raise ValueError("lang must be 'shell' or 'sql'")
+    if key not in ("shell", "sql", "template"):
+        raise ValueError("lang must be 'shell', 'sql', or 'template'")
     return key
 
 
@@ -55,6 +56,9 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")
             return analyze_sql(req.template, req.payload, dialect).to_dict()
+        if lang == "template":
+            engine = parse_template_engine(req.dialect or "jinja2")
+            return analyze_template(req.template, req.payload, engine).to_dict()
         dialect = parse_dialect(req.dialect or "posix")
         return analyze(req.template, req.payload, dialect).to_dict()
     except ValueError as exc:
@@ -68,6 +72,9 @@ def mutate_endpoint(req: MutateRequest) -> dict:
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")
             return mutate_sql(req.template, dialect=dialect).to_dict()
+        if lang == "template":
+            engine = parse_template_engine(req.dialect or "jinja2")
+            return mutate_template(req.template, engine).to_dict()
         dialect = parse_dialect(req.dialect or "posix")
         return mutate(req.template, command=req.command, dialect=dialect).to_dict()
     except ValueError as exc:
