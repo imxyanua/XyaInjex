@@ -107,3 +107,37 @@ def test_mutate_sql_endpoint():
     )
     assert resp.status_code == 200
     assert resp.json()["valid"] > 0
+
+
+def test_analyze_template_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={"template": "Hello {INPUT}", "payload": "{{7*7}}", "lang": "template"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] == "jinja2"
+    assert data["context"] == "template_text"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_analyze_template_freemarker():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "Hello {INPUT}",
+            "payload": "${7*7}",
+            "lang": "template",
+            "dialect": "freemarker",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["risk"] == "CRITICAL"
+
+
+def test_mutate_template_endpoint():
+    resp = client.post(
+        "/mutate", json={"template": "Hello {INPUT}", "lang": "template"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0

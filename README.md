@@ -11,7 +11,19 @@ Every injection vulnerability is treated as a context breakout problem.
 ## Status
 
 This repository is under active development. It currently covers command
-injection across shell dialects and SQL injection.
+injection across shell dialects, SQL injection, and server-side template
+injection.
+
+Template injection (Phase 2, in progress):
+
+- Region based analyzer that classifies the injection point as literal text, an
+  expression, a statement, a comment, or a string literal inside an expression.
+- Engines: Jinja2, Twig, Liquid, Nunjucks, Freemarker, ERB, Handlebars, and
+  Velocity.
+- Breakout detector that reports whether the payload opens an executable region
+  from text, is already inside evaluated code, or escapes an expression string
+  literal, plus a risk rating.
+- Payload mutation for text, expression, string, and comment contexts.
 
 SQL injection (Phase 2, in progress):
 
@@ -87,6 +99,13 @@ xyainjex -l sql "SELECT * FROM users WHERE name = '{INPUT}'" "' OR 1=1 -- "
 xyainjex -l sql -d postgres 'SELECT * FROM t WHERE a = "{INPUT}"' '" OR 1=1 -- '
 ```
 
+Analyze template injection with `--lang template` (`-d` selects the engine):
+
+```bash
+xyainjex -l template 'Hello {INPUT}' '{{7*7}}'
+xyainjex -l template -d freemarker 'Hello {INPUT}' '${7*7}'
+```
+
 ## Library usage
 
 ```python
@@ -105,6 +124,12 @@ from xyainjex import analyze_sql, SqlDialect
 sql = analyze_sql("SELECT * FROM users WHERE name = '{INPUT}'", "' OR 1=1 -- ")
 print(sql.context.value)            # sql_string
 print(sql.risk.value)               # CRITICAL
+
+from xyainjex import analyze_template
+
+ssti = analyze_template("Hello {INPUT}", "{{7*7}}")
+print(ssti.context.value)           # template_text
+print(ssti.risk.value)              # CRITICAL
 ```
 
 ## HTTP API

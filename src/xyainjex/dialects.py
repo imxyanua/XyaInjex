@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .models import Context, Dialect, SqlDialect
+from .models import Context, Dialect, SqlDialect, TemplateEngine
 from .scan import (
     ARITH,
     BACKTICK,
@@ -111,4 +111,28 @@ def parse_sql_dialect(name: str) -> SqlDialect:
     if key not in aliases:
         valid = ", ".join(sorted(aliases))
         raise ValueError(f"unknown SQL dialect {name!r}; valid values: {valid}")
+    return aliases[key]
+
+
+def parse_template_engine(name: str) -> TemplateEngine:
+    """Resolve a user supplied template engine name, with friendly aliases."""
+    key = name.strip().lower()
+    aliases = {
+        "jinja": TemplateEngine.JINJA2,
+        "jinja2": TemplateEngine.JINJA2,
+        "twig": TemplateEngine.TWIG,
+        "liquid": TemplateEngine.LIQUID,
+        "nunjucks": TemplateEngine.NUNJUCKS,
+        "freemarker": TemplateEngine.FREEMARKER,
+        "ftl": TemplateEngine.FREEMARKER,
+        "erb": TemplateEngine.ERB,
+        "handlebars": TemplateEngine.HANDLEBARS,
+        "hbs": TemplateEngine.HANDLEBARS,
+        "mustache": TemplateEngine.HANDLEBARS,
+        "velocity": TemplateEngine.VELOCITY,
+        "vtl": TemplateEngine.VELOCITY,
+    }
+    if key not in aliases:
+        valid = ", ".join(sorted(aliases))
+        raise ValueError(f"unknown template engine {name!r}; valid values: {valid}")
     return aliases[key]

@@ -7,10 +7,11 @@ import json
 import sys
 
 from .analyzer import analyze
-from .dialects import parse_dialect, parse_sql_dialect
+from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .mutation import mutate
 from .report import to_json, visualize
 from .sql import analyze_sql, mutate_sql
+from .template import analyze_template, mutate_template
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -46,7 +47,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--lang",
         "-l",
         default="shell",
-        help="injection language: shell (default) or sql",
+        help="injection language: shell (default), sql, or template",
     )
     parser.add_argument(
         "--dialect",
@@ -54,7 +55,8 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "dialect within the language. shell: posix (default), cmd, "
-            "powershell. sql: mysql (default), postgres, mssql, sqlite, ansi"
+            "powershell. sql: mysql (default), postgres, mssql, sqlite, ansi. "
+            "template: jinja2 (default), twig, freemarker, erb, handlebars, ..."
         ),
     )
     return parser
@@ -65,19 +67,26 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     lang = args.lang.strip().lower()
-    if lang not in ("shell", "sql"):
-        parser.error("--lang must be 'shell' or 'sql'")
+    if lang not in ("shell", "sql", "template"):
+        parser.error("--lang must be 'shell', 'sql', or 'template'")
 
     try:
         if lang == "sql":
             dialect = parse_sql_dialect(args.dialect or "mysql")
             if args.mutate:
-                result = mutate_sql(args.template, dialect=dialect)
-                _emit_mutation(result, args.json)
+                _emit_mutation(mutate_sql(args.template, dialect=dialect), args.json)
                 return 0
             if args.payload is None:
                 parser.error("payload is required unless --mutate is used")
             result = analyze_sql(args.template, args.payload, dialect)
+        elif lang == "template":
+            engine = parse_template_engine(args.dialect or "jinja2")
+            if args.mutate:
+                _emit_mutation(mutate_template(args.template, engine), args.json)
+                return 0
+            if args.payload is None:
+                parser.error("payload is required unless --mutate is used")
+            result = analyze_template(args.template, args.payload, engine)
         else:
             dialect = parse_dialect(args.dialect or "posix")
             if args.mutate:
@@ -106,8 +115,9 @@ def _emit_mutation(result, as_json: bool) -> None:
 
 
 def _print_mutation(result) -> None:
+    label = getattr(result, "dialect", None) or getattr(result, "engine", None)
     print(f"Template : {result.template}")
-    print(f"Dialect  : {result.dialect.value}")
+    print(f"Dialect  : {label.value}")
     print(f"Context  : {result.context.value}")
     print(f"Generated: {result.generated}")
     print(f"Valid    : {result.valid}")
