@@ -15,8 +15,9 @@ except ImportError as exc:  # pragma: no cover - import guard
     ) from exc
 
 from .analyzer import analyze
-from .dialects import parse_dialect
+from .dialects import parse_dialect, parse_sql_dialect
 from .mutation import mutate
+from .sql import analyze_sql, mutate_sql
 
 app = FastAPI(title="XyaInjex", version="0.1.0")
 
@@ -24,13 +25,22 @@ app = FastAPI(title="XyaInjex", version="0.1.0")
 class AnalyzeRequest(BaseModel):
     template: str
     payload: str
-    dialect: str = "posix"
+    lang: str = "shell"
+    dialect: str | None = None
 
 
 class MutateRequest(BaseModel):
     template: str
     command: str = "id"
-    dialect: str = "posix"
+    lang: str = "shell"
+    dialect: str | None = None
+
+
+def _require_lang(lang: str) -> str:
+    key = lang.strip().lower()
+    if key not in ("shell", "sql"):
+        raise ValueError("lang must be 'shell' or 'sql'")
+    return key
 
 
 @app.get("/health")
@@ -41,7 +51,11 @@ def health() -> dict:
 @app.post("/analyze")
 def analyze_endpoint(req: AnalyzeRequest) -> dict:
     try:
-        dialect = parse_dialect(req.dialect)
+        lang = _require_lang(req.lang)
+        if lang == "sql":
+            dialect = parse_sql_dialect(req.dialect or "mysql")
+            return analyze_sql(req.template, req.payload, dialect).to_dict()
+        dialect = parse_dialect(req.dialect or "posix")
         return analyze(req.template, req.payload, dialect).to_dict()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -50,7 +64,11 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
 @app.post("/mutate")
 def mutate_endpoint(req: MutateRequest) -> dict:
     try:
-        dialect = parse_dialect(req.dialect)
+        lang = _require_lang(req.lang)
+        if lang == "sql":
+            dialect = parse_sql_dialect(req.dialect or "mysql")
+            return mutate_sql(req.template, dialect=dialect).to_dict()
+        dialect = parse_dialect(req.dialect or "posix")
         return mutate(req.template, command=req.command, dialect=dialect).to_dict()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

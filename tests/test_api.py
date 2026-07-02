@@ -57,3 +57,53 @@ def test_mutate_endpoint():
 def test_mutate_missing_marker_returns_400():
     resp = client.post("/mutate", json={"template": "echo hello"})
     assert resp.status_code == 400
+
+
+def test_analyze_sql_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "SELECT * FROM users WHERE name = '{INPUT}'",
+            "payload": "' OR 1=1 -- ",
+            "lang": "sql",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] == "mysql"
+    assert data["context"] == "sql_string"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_analyze_sql_dialect_postgres():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": 'SELECT * FROM t WHERE a = "{INPUT}"',
+            "payload": '" OR 1=1 -- ',
+            "lang": "sql",
+            "dialect": "postgres",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["context"] == "sql_identifier"
+
+
+def test_bad_lang_returns_400():
+    resp = client.post(
+        "/analyze",
+        json={"template": "x {INPUT}", "payload": "y", "lang": "cobol"},
+    )
+    assert resp.status_code == 400
+
+
+def test_mutate_sql_endpoint():
+    resp = client.post(
+        "/mutate",
+        json={
+            "template": "SELECT * FROM users WHERE name = '{INPUT}'",
+            "lang": "sql",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0

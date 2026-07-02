@@ -10,8 +10,22 @@ Every injection vulnerability is treated as a context breakout problem.
 
 ## Status
 
-This repository is under active development. The current milestone is Phase 1,
-covering command injection across shell dialects:
+This repository is under active development. It currently covers command
+injection across shell dialects and SQL injection.
+
+SQL injection (Phase 2, in progress):
+
+- Context analyzer that classifies the injection point as a string literal,
+  quoted identifier, or numeric/expression position.
+- Dialects: MySQL, PostgreSQL, MSSQL, SQLite, and ANSI (double quotes are
+  string literals in MySQL, identifiers elsewhere; backslash escaping in
+  MySQL).
+- Breakout detector that reports string closure, injected SQL tokens at the top
+  level (OR, AND, UNION, stacked `;`, and more), comment truncation (`--`, `#`,
+  `/* */`), and a risk rating.
+- Payload mutation for boolean, union, time based, and stacked strategies.
+
+Command injection (Phase 1):
 
 - Context analyzer that locates the injection point inside a command template
   and classifies its lexical context (single quote, double quote, backtick,
@@ -66,6 +80,13 @@ xyainjex -d cmd 'ping "{INPUT}"' '" & whoami'
 xyainjex -d powershell 'Get-Content "{INPUT}"' '"; whoami #'
 ```
 
+Analyze SQL injection with `--lang sql` (`-d` selects the SQL dialect):
+
+```bash
+xyainjex -l sql "SELECT * FROM users WHERE name = '{INPUT}'" "' OR 1=1 -- "
+xyainjex -l sql -d postgres 'SELECT * FROM t WHERE a = "{INPUT}"' '" OR 1=1 -- '
+```
+
 ## Library usage
 
 ```python
@@ -78,6 +99,12 @@ print(result.risk.value)            # CRITICAL
 
 cmd = analyze('ping {INPUT}', '& whoami', Dialect.CMD)
 print(cmd.risk.value)               # CRITICAL
+
+from xyainjex import analyze_sql, SqlDialect
+
+sql = analyze_sql("SELECT * FROM users WHERE name = '{INPUT}'", "' OR 1=1 -- ")
+print(sql.context.value)            # sql_string
+print(sql.risk.value)               # CRITICAL
 ```
 
 ## HTTP API
