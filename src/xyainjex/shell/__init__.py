@@ -1,9 +1,9 @@
 """Shell aware primitives: scanner, context analyzer, balance, breakout."""
 
-from .scanner import ShellScanner, ScanState, SeparatorEvent
-from .context import analyze_context, INPUT_MARKER
 from .balance import balance
 from .breakout import detect_breakout
+from .context import INPUT_MARKER, analyze_context
+from .scanner import ScanState, SeparatorEvent, ShellScanner
 
 __all__ = [
     "ShellScanner",

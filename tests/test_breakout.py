@@ -1,4 +1,4 @@
-from xyainjex import analyze, Context, Risk
+from xyainjex import Context, Risk, analyze
 from xyainjex.shell.breakout import detect_breakout
 
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from ..models import Breakout, Context, Risk
-from .context import split_template, analyze_context
+from .context import analyze_context, split_template
 from .scanner import ShellScanner
 
 
@@ -39,9 +39,7 @@ def detect_breakout(template: str, payload: str) -> Breakout:
     # Separators that execute at the shell top level and originate at or after
     # the injection point are injected command boundaries.
     injected = [
-        ev
-        for ev in st.separators
-        if ev.stack_depth == 0 and ev.index >= payload_start
+        ev for ev in st.separators if ev.stack_depth == 0 and ev.index >= payload_start
     ]
     separators = [ev.token for ev in injected]
     command_injected = len(injected) > 0

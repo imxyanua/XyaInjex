@@ -11,7 +11,7 @@ try:
     from pydantic import BaseModel
 except ImportError as exc:  # pragma: no cover - import guard
     raise ImportError(
-        "The HTTP API requires FastAPI. Install with: pip install -e \".[api]\""
+        'The HTTP API requires FastAPI. Install with: pip install -e ".[api]"'
     ) from exc
 
 from .analyzer import analyze
