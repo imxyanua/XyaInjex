@@ -48,6 +48,7 @@ class Context(Enum):
     COMMAND_SUBSTITUTION = "command_substitution"
     ARITHMETIC = "arithmetic"
     PARAMETER_EXPANSION = "parameter_expansion"
+    HEREDOC = "heredoc"
     # SQL contexts
     SQL_STRING = "sql_string"
     SQL_IDENTIFIER = "sql_identifier"

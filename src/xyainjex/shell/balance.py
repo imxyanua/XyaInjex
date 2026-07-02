@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from ..dialects import get_spec
 from ..models import Balance, Dialect
-from ..scan import ARITH, BACKTICK, CMDSUB, DOUBLE, PARAM, SINGLE, SUBEXPR
+from ..scan import ARITH, BACKTICK, CMDSUB, DOUBLE, HEREDOC, PARAM, SINGLE, SUBEXPR
 
 # Human readable labels for unclosed expansion frames.
 _EXPANSION_LABELS = {
@@ -12,6 +12,7 @@ _EXPANSION_LABELS = {
     SUBEXPR: "$()",
     ARITH: "$(())",
     PARAM: "${}",
+    HEREDOC: "<<",
 }
 
 

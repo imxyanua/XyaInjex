@@ -20,6 +20,7 @@ ARITH = "$(("
 PARAM = "${"
 SUBEXPR = "$( )"  # PowerShell subexpression $( ... )
 VAR = "%"  # cmd.exe %VAR% / delayed !VAR!
+HEREDOC = "<<"  # POSIX here-document body
 
 
 @dataclass

@@ -12,6 +12,7 @@ from .scan import (
     BACKTICK,
     CMDSUB,
     DOUBLE,
+    HEREDOC,
     PARAM,
     SINGLE,
     SUBEXPR,
@@ -43,6 +44,7 @@ _POSIX_MAP = {
     CMDSUB: Context.COMMAND_SUBSTITUTION,
     ARITH: Context.ARITHMETIC,
     PARAM: Context.PARAMETER_EXPANSION,
+    HEREDOC: Context.HEREDOC,
 }
 
 _CMD_MAP = {

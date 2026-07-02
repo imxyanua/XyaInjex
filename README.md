@@ -63,8 +63,8 @@ Command injection:
 
 - Context analyzer that locates the injection point inside a command template
   and classifies its lexical context (single quote, double quote, backtick,
-  command substitution, arithmetic expansion, parameter expansion, or
-  unquoted).
+  command substitution, arithmetic expansion, parameter expansion, here-document
+  body, or unquoted).
 - Multiple dialects: POSIX shell (bash, sh, zsh), Windows cmd.exe (with caret
   escaping), and PowerShell (with backtick escaping, subexpressions, and block
   comments).
@@ -76,8 +76,10 @@ Command injection:
 - Report generator producing a JSON verdict and an ASCII breakout diagram.
 - Command line interface and an optional HTTP API.
 
-Heredoc support for POSIX shells is not implemented yet and is tracked as a
-follow-up.
+Here-document bodies are treated as a literal region, so the analyzer detects
+the breakout where a payload closes the heredoc with its own delimiter line and
+then injects commands. Command substitution inside a heredoc body is not yet
+tracked.
 
 ## Install
 
