@@ -36,6 +36,12 @@ class TemplateEngine(Enum):
     ERB = "erb"
     HANDLEBARS = "handlebars"
     VELOCITY = "velocity"
+    BLADE = "blade"
+    MAKO = "mako"
+    RAZOR = "razor"
+    GOTEMPLATE = "gotemplate"
+    EJS = "ejs"
+    THYMELEAF = "thymeleaf"
 
 
 class Context(Enum):

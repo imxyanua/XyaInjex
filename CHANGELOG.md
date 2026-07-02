@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Template engines: Blade, Mako, Razor, Go templates, EJS, and Thymeleaf, with
+  their delimiters and name aliases.
+
 ## [0.1.0] - 2026-07-02
 
 First tagged release. XyaInjex analyzes injection as a context breakout problem:
