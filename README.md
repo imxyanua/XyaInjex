@@ -15,6 +15,15 @@ injection across shell dialects, SQL injection, server-side template injection,
 prompt injection for LLM systems, agent / multi-agent (MCP) security, and
 differential fuzzing with exploit-path discovery.
 
+LLM-assisted analysis (optional):
+
+- An LLM can propose candidate payloads, which are then validated by the
+  deterministic analyzer, so a suggestion is only returned when it actually
+  achieves a breakout. The LLM can also explain a result in natural language.
+- The engine stays the source of truth; the LLM is only an advisor. Providers
+  (OpenAI, Claude, Ollama) are optional and lazy loaded, and a deterministic
+  mock provider is included for testing and offline use.
+
 Fuzzing and exploit-path discovery:
 
 - Expands the mutation engine's seed payloads with deterministic obfuscation
@@ -166,6 +175,14 @@ Discover exploit paths with `--fuzz` (shell, SQL, or template):
 xyainjex --fuzz -l sql "SELECT * FROM users WHERE name = '{INPUT}'"
 ```
 
+Ask an LLM for payloads and keep the ones the engine validates (needs a
+provider; `ollama` is the default, `openai` and `claude` need their SDKs):
+
+```bash
+xyainjex --ai-suggest --provider ollama 'curl "{INPUT}"'
+xyainjex --ai-explain --provider ollama 'curl "{INPUT}"' '"; id ; #'
+```
+
 ## Library usage
 
 ```python
@@ -211,6 +228,13 @@ print(paths.valid, "exploit paths", paths.strategies)
 diff = differential("ping {INPUT}", "; whoami", lang="shell",
                     dialects=["posix", "cmd"])
 print(diff.divergent)               # True
+
+from xyainjex import suggest_payloads, get_provider
+
+provider = get_provider("ollama")   # or "openai", "claude", "mock"
+suggested = suggest_payloads('curl "{INPUT}"', provider, lang="shell")
+for s in suggested.validated:
+    print(s.risk.value, s.payload)  # only engine-validated breakouts
 ```
 
 ## Web frontend

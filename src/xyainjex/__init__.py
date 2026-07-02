@@ -14,6 +14,14 @@ from .agent import (
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
+from .llm import (
+    LLMProvider,
+    MockProvider,
+    SuggestResult,
+    explain,
+    get_provider,
+    suggest_payloads,
+)
 from .models import (
     AnalysisResult,
     Balance,
@@ -59,6 +67,12 @@ __all__ = [
     "FuzzResult",
     "ExploitPath",
     "DifferentialResult",
+    "suggest_payloads",
+    "explain",
+    "get_provider",
+    "LLMProvider",
+    "MockProvider",
+    "SuggestResult",
     "render",
     "parse_dialect",
     "parse_sql_dialect",

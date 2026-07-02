@@ -10,6 +10,7 @@ from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import fuzz
+from .llm import explain, get_provider, suggest_payloads
 from .mutation import mutate
 from .prompt import analyze_prompt
 from .report import to_json, visualize
@@ -45,6 +46,21 @@ def build_parser() -> argparse.ArgumentParser:
         "--fuzz",
         action="store_true",
         help="expand and test payloads to discover exploit paths (shell/sql/template)",
+    )
+    parser.add_argument(
+        "--ai-suggest",
+        action="store_true",
+        help="ask an LLM for payloads and keep the ones the engine validates",
+    )
+    parser.add_argument(
+        "--ai-explain",
+        action="store_true",
+        help="analyze, then ask an LLM to explain the result",
+    )
+    parser.add_argument(
+        "--provider",
+        default="ollama",
+        help="LLM provider for --ai-*: mock, openai, claude, ollama (default)",
     )
     parser.add_argument(
         "--command",
@@ -100,6 +116,29 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(_render_fuzz(result))
             return 0 if result.valid == 0 else 2
+
+        if args.ai_suggest:
+            if lang not in ("shell", "sql", "template"):
+                parser.error("--ai-suggest supports --lang shell, sql, or template")
+            provider = get_provider(args.provider)
+            result = suggest_payloads(
+                args.template, provider, lang=lang, dialect=args.dialect
+            )
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_suggest(result))
+            return 0 if not result.validated else 2
+
+        if args.ai_explain:
+            if lang not in ("shell", "sql", "template"):
+                parser.error("--ai-explain supports --lang shell, sql, or template")
+            if args.payload is None:
+                parser.error("payload is required for --ai-explain")
+            provider = get_provider(args.provider)
+            analysis = _analyze_lang(args.template, args.payload, lang, args.dialect)
+            print(explain(analysis, provider))
+            return 0
 
         if lang == "agent":
             if args.mutate:
@@ -165,6 +204,31 @@ def _emit_mutation(result, as_json: bool) -> None:
         print(json.dumps(result.to_dict(), indent=2))
     else:
         _print_mutation(result)
+
+
+def _analyze_lang(template: str, payload: str, lang: str, dialect):
+    if lang == "sql":
+        return analyze_sql(template, payload, parse_sql_dialect(dialect or "mysql"))
+    if lang == "template":
+        return analyze_template(
+            template, payload, parse_template_engine(dialect or "jinja2")
+        )
+    return analyze(template, payload, parse_dialect(dialect or "posix"))
+
+
+def _render_suggest(result) -> str:
+    lines = ["XyaInjex AI-suggested payloads", "=" * 40]
+    lines.append(f"Template : {result.template}")
+    lines.append(f"Lang     : {result.lang}  Dialect: {result.dialect or 'default'}")
+    lines.append(f"Proposed : {result.proposed}   Validated: {len(result.validated)}")
+    lines.append("")
+    if result.validated:
+        lines.append("Validated payloads:")
+        for s in result.validated:
+            lines.append(f"  [{s.risk.value:8}] {s.payload!r}  ({s.context})")
+    else:
+        lines.append("No proposed payload achieved a breakout.")
+    return "\n".join(lines)
 
 
 def _render_fuzz(result) -> str:
