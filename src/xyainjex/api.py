@@ -20,6 +20,7 @@ except ImportError as exc:  # pragma: no cover - import guard
 from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
+from .fuzz import differential, fuzz
 from .mutation import mutate
 from .prompt import analyze_prompt
 from .sql import analyze_sql, mutate_sql
@@ -57,6 +58,20 @@ class MutateRequest(BaseModel):
     command: str = "id"
     lang: str = "shell"
     dialect: str | None = None
+
+
+class FuzzRequest(BaseModel):
+    template: str
+    lang: str = "shell"
+    dialect: str | None = None
+    command: str = "id"
+
+
+class DifferentialRequest(BaseModel):
+    template: str
+    payload: str
+    lang: str = "shell"
+    dialects: list[str]
 
 
 def _require_lang(lang: str) -> str:
@@ -108,5 +123,28 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_template(req.template, engine).to_dict()
         dialect = parse_dialect(req.dialect or "posix")
         return mutate(req.template, command=req.command, dialect=dialect).to_dict()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/fuzz")
+def fuzz_endpoint(req: FuzzRequest) -> dict:
+    try:
+        return fuzz(
+            req.template,
+            lang=req.lang.strip().lower(),
+            dialect=req.dialect,
+            command=req.command,
+        ).to_dict()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/differential")
+def differential_endpoint(req: DifferentialRequest) -> dict:
+    try:
+        return differential(
+            req.template, req.payload, req.lang.strip().lower(), req.dialects
+        ).to_dict()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

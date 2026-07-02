@@ -191,3 +191,38 @@ def test_analyze_agent_endpoint():
 def test_mutate_agent_rejected():
     resp = client.post("/mutate", json={"template": "x", "lang": "agent"})
     assert resp.status_code == 400
+
+
+def test_fuzz_endpoint():
+    resp = client.post(
+        "/fuzz",
+        json={
+            "template": "SELECT * FROM users WHERE name = '{INPUT}'",
+            "lang": "sql",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["valid"] > 0
+    assert "sql_string" in data["contexts_reached"]
+
+
+def test_fuzz_rejects_prompt():
+    resp = client.post("/fuzz", json={"template": "{INPUT}", "lang": "prompt"})
+    assert resp.status_code == 400
+
+
+def test_differential_endpoint():
+    resp = client.post(
+        "/differential",
+        json={
+            "template": "ping {INPUT}",
+            "payload": "; whoami",
+            "lang": "shell",
+            "dialects": ["posix", "cmd", "powershell"],
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["divergent"] is True
+    assert data["per_dialect"]["cmd"]["command_injected"] is False
