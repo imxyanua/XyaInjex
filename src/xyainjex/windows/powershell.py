@@ -71,6 +71,7 @@ class PowerShellScanner(BaseScanner):
                     i += 1
                     continue
                 if c == "$" and i + 1 < n and s[i + 1] == "(":
+                    self._record_sub(i + offset, record)
                     self._push(SUBEXPR)
                     i += 2
                     continue
@@ -97,10 +98,12 @@ class PowerShellScanner(BaseScanner):
                 i += 1
                 continue
             if c == "$" and i + 1 < n and s[i + 1] == "(":
+                self._record_sub(i + offset, record)
                 self._push(SUBEXPR)
                 i += 2
                 continue
             if c == "@" and i + 1 < n and s[i + 1] == "(":
+                self._record_sub(i + offset, record)
                 self._push(SUBEXPR)
                 i += 2
                 continue

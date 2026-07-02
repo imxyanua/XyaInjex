@@ -40,6 +40,7 @@ def visualize(result: AnalysisResult) -> str:
     lines.append(f"Context        : {result.context.value}")
     lines.append(f"Quote closed   : {b.quote_closed}")
     lines.append(f"Command inject : {b.command_injected}")
+    lines.append(f"Subst. inject  : {b.substitution_injected}")
     lines.append(f"Separators     : {', '.join(b.separators) or '-'}")
     lines.append(f"Comment term   : {b.comment_terminated}")
     lines.append(f"Syntax valid   : {result.balance.syntax_valid}")

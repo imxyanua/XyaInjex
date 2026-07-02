@@ -33,6 +33,7 @@ export function BreakoutView({ result }: { result: BreakoutResult }) {
       <div className="facts">
         <Fact label="Quote closed" value={b.quote_closed} />
         <Fact label="Command injected" value={b.command_injected} />
+        <Fact label="Substitution injected" value={b.substitution_injected} />
         <Fact label="Comment terminated" value={b.comment_terminated} />
         <Fact
           label="Separators"
@@ -40,7 +41,10 @@ export function BreakoutView({ result }: { result: BreakoutResult }) {
         />
       </div>
 
-      <FlowDiagram breakout={b} injected={b.command_injected} />
+      <FlowDiagram
+        breakout={b}
+        injected={b.command_injected || b.substitution_injected}
+      />
 
       {result.notes.length > 0 && (
         <ul className="notes">

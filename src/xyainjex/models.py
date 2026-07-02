@@ -107,6 +107,9 @@ class Breakout:
     separators: list[str] = field(default_factory=list)
     commands_created: int = 0
     breakout_index: int | None = None
+    # Payload opened a command substitution that executes code even without a
+    # top level command separator (e.g. $(id) or `id`).
+    substitution_injected: bool = False
 
 
 @dataclass

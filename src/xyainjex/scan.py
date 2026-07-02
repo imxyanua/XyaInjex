@@ -56,6 +56,9 @@ class ScanState:
         default_factory=lambda: {"()": 0, "{}": 0, "[]": 0}
     )
     min_depth: int = 0
+    # Indexes where a command substitution (``$(...)``, backticks, PowerShell
+    # ``$(...)``) opened; these execute code even without a command separator.
+    sub_opens: list[int] = field(default_factory=list)
 
     @property
     def depth(self) -> int:
@@ -90,6 +93,10 @@ class BaseScanner:
 
     def _touch_min(self) -> None:
         self.state.min_depth = min(self.state.min_depth, self.state.depth)
+
+    def _record_sub(self, index: int, record: bool) -> None:
+        if record:
+            self.state.sub_opens.append(index)
 
     def _record_separator(self, index: int, token: str, record: bool) -> None:
         if record:

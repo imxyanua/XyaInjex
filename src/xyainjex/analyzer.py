@@ -57,6 +57,12 @@ def _build_notes(breakout, bal, risk: Risk) -> list[str]:
             f"top level: {seps}."
         )
 
+    if breakout.substitution_injected and not breakout.command_injected:
+        notes.append(
+            "Payload opened a command substitution that executes code without a "
+            "command separator."
+        )
+
     if breakout.comment_terminated:
         notes.append("Trailing template content is commented out with '#'.")
 

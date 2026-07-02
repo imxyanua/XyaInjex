@@ -10,6 +10,7 @@ export interface Breakout {
   separators: string[];
   commands_created: number;
   breakout_index: number | null;
+  substitution_injected: boolean;
 }
 
 export interface Balance {

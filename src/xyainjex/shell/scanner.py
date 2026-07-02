@@ -45,11 +45,12 @@ def _dollar(s: str, i: int, n: int) -> tuple[str, int] | None:
     return None
 
 
-def _parse_heredoc(s: str, i: int, n: int) -> tuple[str, bool, int] | None:
-    """Parse a ``<<`` operator into (delimiter, strip_tabs, next_index).
+def _parse_heredoc(s: str, i: int, n: int) -> tuple[str, bool, bool, int] | None:
+    """Parse a ``<<`` operator into (delimiter, strip_tabs, expand, next_index).
 
-    Returns ``None`` when this is not a heredoc (``<`` redirection or ``<<<``
-    here-string).
+    ``expand`` is false when the delimiter is quoted or backslash-escaped, in
+    which case the body is fully literal. Returns ``None`` when this is not a
+    heredoc (``<`` redirection or ``<<<`` here-string).
     """
     if not (i + 1 < n and s[i + 1] == "<"):
         return None
@@ -63,10 +64,13 @@ def _parse_heredoc(s: str, i: int, n: int) -> tuple[str, bool, int] | None:
     while j < n and s[j] in " \t":
         j += 1
     quote = None
+    expand = True
     if j < n and s[j] in ("'", '"'):
         quote = s[j]
+        expand = False
         j += 1
     elif j < n and s[j] == "\\":
+        expand = False
         j += 1
     start = j
     while j < n and (s[j].isalnum() or s[j] == "_"):
@@ -76,7 +80,7 @@ def _parse_heredoc(s: str, i: int, n: int) -> tuple[str, bool, int] | None:
         j += 1
     if not delim:
         return None
-    return delim, strip, j
+    return delim, strip, expand, j
 
 
 class ShellScanner(BaseScanner):
@@ -84,10 +88,17 @@ class ShellScanner(BaseScanner):
 
     def __init__(self) -> None:
         super().__init__()
-        self._pending_delim: tuple[str, bool] | None = None
+        self._pending_delim: tuple[str, bool, bool] | None = None
         self._hd_delim: str | None = None
         self._hd_strip: bool = False
+        self._hd_expand: bool = True
         self._hd_line: str = ""
+
+    def _open(self, kind: str, index: int, record: bool) -> None:
+        """Push a frame, recording command substitutions as executable."""
+        if kind in (CMDSUB, BACKTICK):
+            self._record_sub(index, record)
+        self._push(kind)
 
     def feed(self, text: str, *, offset: int = 0, record: bool = True):
         s = text
@@ -108,6 +119,8 @@ class ShellScanner(BaseScanner):
             top = st.top
 
             # Here-document body: literal until a line equal to the delimiter.
+            # An unquoted delimiter leaves command substitution active in the
+            # body, so a payload can execute code without leaving the heredoc.
             if top == HEREDOC:
                 if c == "\n":
                     line = self._hd_line
@@ -117,8 +130,23 @@ class ShellScanner(BaseScanner):
                         st.stack.pop()
                         self._hd_delim = None
                     self._hd_line = ""
-                else:
-                    self._hd_line += c
+                    i += 1
+                    continue
+                if self._hd_expand:
+                    if c == "\\":
+                        i += 2
+                        continue
+                    if c == BACKTICK:
+                        self._open(BACKTICK, i + offset, record)
+                        i += 1
+                        continue
+                    if c == "$":
+                        hit = _dollar(s, i, n)
+                        if hit:
+                            self._open(hit[0], i + offset, record)
+                            i += hit[1]
+                            continue
+                self._hd_line += c
                 i += 1
                 continue
 
@@ -147,13 +175,13 @@ class ShellScanner(BaseScanner):
                     i += 1
                     continue
                 if c == BACKTICK:
-                    self._push(BACKTICK)
+                    self._open(BACKTICK, i + offset, record)
                     i += 1
                     continue
                 if c == "$":
                     hit = _dollar(s, i, n)
                     if hit:
-                        self._push(hit[0])
+                        self._open(hit[0], i + offset, record)
                         i += hit[1]
                         continue
                 i += 1
@@ -195,13 +223,13 @@ class ShellScanner(BaseScanner):
                 i += 1
                 continue
             if c == BACKTICK:
-                self._push(BACKTICK)
+                self._open(BACKTICK, i + offset, record)
                 i += 1
                 continue
             if c == "$":
                 hit = _dollar(s, i, n)
                 if hit:
-                    self._push(hit[0])
+                    self._open(hit[0], i + offset, record)
                     i += hit[1]
                     continue
 
@@ -209,8 +237,8 @@ class ShellScanner(BaseScanner):
             if st.depth == 0 and c == "<":
                 hd = _parse_heredoc(s, i, n)
                 if hd is not None:
-                    delim, strip, nxt = hd
-                    self._pending_delim = (delim, strip)
+                    delim, strip, expand, nxt = hd
+                    self._pending_delim = (delim, strip, expand)
                     i = nxt
                     continue
 
@@ -244,7 +272,9 @@ class ShellScanner(BaseScanner):
             if c == "\n":
                 if self._pending_delim is not None:
                     self._push(HEREDOC)
-                    self._hd_delim, self._hd_strip = self._pending_delim
+                    self._hd_delim, self._hd_strip, self._hd_expand = (
+                        self._pending_delim
+                    )
                     self._pending_delim = None
                     self._hd_line = ""
                 else:

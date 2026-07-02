@@ -90,10 +90,12 @@ Command injection:
 - Report generator producing a JSON verdict and an ASCII breakout diagram.
 - Command line interface and an optional HTTP API.
 
-Here-document bodies are treated as a literal region, so the analyzer detects
-the breakout where a payload closes the heredoc with its own delimiter line and
-then injects commands. Command substitution inside a heredoc body is not yet
-tracked.
+Command substitution introduced by the payload (`$(...)` or backticks) is
+detected as a breakout on its own, since it executes code even without a command
+separator. This applies inside double quotes and inside an unquoted here-document
+body; single quotes and a quoted heredoc delimiter make the region literal and
+suppress it. Here-document breakout via a payload's own delimiter line is also
+detected.
 
 ## Install
 
