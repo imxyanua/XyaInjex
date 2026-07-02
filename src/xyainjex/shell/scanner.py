@@ -2,12 +2,18 @@
 
 The scanner walks a command string character by character while maintaining a
 stack of lexical frames: single quote, double quote, backtick, command
-substitution ``$(...)``, arithmetic expansion ``$((...))``, and parameter
-expansion ``${...}``.
+substitution ``$(...)``, arithmetic expansion ``$((...))``, parameter
+expansion ``${...}``, and here-document bodies (``<<EOF``).
 
 It is intentionally lexical rather than a full parser: the goal is to reason
 about quoting state and top level command separators, which is what injection
 breakout analysis needs.
+
+Here-document bodies are treated as a literal region terminated by a line equal
+to the delimiter. This captures the important breakout where a payload closes
+the heredoc with its own delimiter line and then injects commands at the top
+level. Command substitution inside a heredoc body is not tracked and is a
+documented follow-up.
 """
 
 from __future__ import annotations
@@ -17,6 +23,7 @@ from ..scan import (
     BACKTICK,
     CMDSUB,
     DOUBLE,
+    HEREDOC,
     PARAM,
     SINGLE,
     BaseScanner,
@@ -38,8 +45,49 @@ def _dollar(s: str, i: int, n: int) -> tuple[str, int] | None:
     return None
 
 
+def _parse_heredoc(s: str, i: int, n: int) -> tuple[str, bool, int] | None:
+    """Parse a ``<<`` operator into (delimiter, strip_tabs, next_index).
+
+    Returns ``None`` when this is not a heredoc (``<`` redirection or ``<<<``
+    here-string).
+    """
+    if not (i + 1 < n and s[i + 1] == "<"):
+        return None
+    if i + 2 < n and s[i + 2] == "<":  # ``<<<`` here-string
+        return None
+    j = i + 2
+    strip = False
+    if j < n and s[j] == "-":
+        strip = True
+        j += 1
+    while j < n and s[j] in " \t":
+        j += 1
+    quote = None
+    if j < n and s[j] in ("'", '"'):
+        quote = s[j]
+        j += 1
+    elif j < n and s[j] == "\\":
+        j += 1
+    start = j
+    while j < n and (s[j].isalnum() or s[j] == "_"):
+        j += 1
+    delim = s[start:j]
+    if quote is not None and j < n and s[j] == quote:
+        j += 1
+    if not delim:
+        return None
+    return delim, strip, j
+
+
 class ShellScanner(BaseScanner):
     """Incremental POSIX shell scanner, fed in one or more chunks."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._pending_delim: tuple[str, bool] | None = None
+        self._hd_delim: str | None = None
+        self._hd_strip: bool = False
+        self._hd_line: str = ""
 
     def feed(self, text: str, *, offset: int = 0, record: bool = True):
         s = text
@@ -58,6 +106,21 @@ class ShellScanner(BaseScanner):
                 continue
 
             top = st.top
+
+            # Here-document body: literal until a line equal to the delimiter.
+            if top == HEREDOC:
+                if c == "\n":
+                    line = self._hd_line
+                    if self._hd_strip:
+                        line = line.lstrip("\t")
+                    if line == self._hd_delim:
+                        st.stack.pop()
+                        self._hd_delim = None
+                    self._hd_line = ""
+                else:
+                    self._hd_line += c
+                i += 1
+                continue
 
             # Single quotes: everything literal until the closing quote.
             if top == SINGLE:
@@ -142,6 +205,15 @@ class ShellScanner(BaseScanner):
                     i += hit[1]
                     continue
 
+            # Here-document operator, only queued at the true top level.
+            if st.depth == 0 and c == "<":
+                hd = _parse_heredoc(s, i, n)
+                if hd is not None:
+                    delim, strip, nxt = hd
+                    self._pending_delim = (delim, strip)
+                    i = nxt
+                    continue
+
             if top == CMDSUB:
                 if c == "(":
                     st.stack[-1].depth += 1
@@ -167,9 +239,16 @@ class ShellScanner(BaseScanner):
                 i += 1
                 continue
 
-            # Command separators.
+            # A newline that follows a heredoc operator opens the body rather
+            # than separating commands.
             if c == "\n":
-                self._record_separator(i + offset, "\n", record)
+                if self._pending_delim is not None:
+                    self._push(HEREDOC)
+                    self._hd_delim, self._hd_strip = self._pending_delim
+                    self._pending_delim = None
+                    self._hd_line = ""
+                else:
+                    self._record_separator(i + offset, "\n", record)
                 i += 1
                 continue
             if c == ";":
@@ -188,6 +267,14 @@ class ShellScanner(BaseScanner):
                 continue
 
             i += 1
+
+        # End of input can terminate a heredoc whose delimiter is on the final
+        # line without a trailing newline.
+        if st.top == HEREDOC:
+            line = self._hd_line.lstrip("\t") if self._hd_strip else self._hd_line
+            if line == self._hd_delim:
+                st.stack.pop()
+                self._hd_delim = None
 
         self._touch_min()
         return st
