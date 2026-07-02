@@ -7,6 +7,7 @@ import json
 import sys
 
 from .analyzer import analyze
+from .dialects import parse_dialect
 from .mutation import mutate
 from .report import to_json, visualize
 
@@ -40,6 +41,12 @@ def build_parser() -> argparse.ArgumentParser:
         default="id",
         help="demonstration command embedded in mutated payloads (default: id)",
     )
+    parser.add_argument(
+        "--dialect",
+        "-d",
+        default="posix",
+        help="command dialect: posix (default), cmd, or powershell",
+    )
     return parser
 
 
@@ -48,8 +55,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
+        dialect = parse_dialect(args.dialect)
+
         if args.mutate:
-            result = mutate(args.template, command=args.command)
+            result = mutate(args.template, command=args.command, dialect=dialect)
             if args.json:
                 print(json.dumps(result.to_dict(), indent=2))
             else:
@@ -59,7 +68,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.payload is None:
             parser.error("payload is required unless --mutate is used")
 
-        result = analyze(args.template, args.payload)
+        result = analyze(args.template, args.payload, dialect)
         if args.json:
             print(to_json(result))
         else:
@@ -72,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _print_mutation(result) -> None:
     print(f"Template : {result.template}")
+    print(f"Dialect  : {result.dialect.value}")
     print(f"Context  : {result.context.value}")
     print(f"Generated: {result.generated}")
     print(f"Valid    : {result.valid}")

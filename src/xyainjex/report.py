@@ -36,6 +36,7 @@ def visualize(result: AnalysisResult) -> str:
         lines.append(" " * len("Rendered : ") + pointer)
 
     lines.append("")
+    lines.append(f"Dialect        : {result.dialect.value}")
     lines.append(f"Context        : {result.context.value}")
     lines.append(f"Quote closed   : {b.quote_closed}")
     lines.append(f"Command inject : {b.command_injected}")

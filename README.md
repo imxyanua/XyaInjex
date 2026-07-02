@@ -11,18 +11,25 @@ Every injection vulnerability is treated as a context breakout problem.
 ## Status
 
 This repository is under active development. The current milestone is Phase 1,
-covering shell command injection:
+covering command injection across shell dialects:
 
 - Context analyzer that locates the injection point inside a command template
   and classifies its lexical context (single quote, double quote, backtick,
-  command substitution, or unquoted).
+  command substitution, arithmetic expansion, parameter expansion, or
+  unquoted).
+- Multiple dialects: POSIX shell (bash, sh, zsh), Windows cmd.exe (with caret
+  escaping), and PowerShell (with backtick escaping, subexpressions, and block
+  comments).
 - Syntax balance engine that tracks quote, parenthesis, brace, and bracket
-  balance across the rendered command.
+  balance across the rendered command, plus open substitutions and expansions.
 - Breakout detector that reports quote closure, injected command separators at
   the shell top level, comment truncation, and an overall risk rating.
-- Payload mutation engine that generates context aware payload variants.
+- Payload mutation engine that generates context and dialect aware payloads.
 - Report generator producing a JSON verdict and an ASCII breakout diagram.
 - Command line interface and an optional HTTP API.
+
+Heredoc support for POSIX shells is not implemented yet and is tracked as a
+follow-up.
 
 ## Install
 
@@ -52,15 +59,25 @@ Generate context aware payload mutations for a template:
 xyainjex --mutate 'curl "{INPUT}"'
 ```
 
+Select a dialect with `--dialect` / `-d` (`posix` default, `cmd`, `powershell`):
+
+```bash
+xyainjex -d cmd 'ping "{INPUT}"' '" & whoami'
+xyainjex -d powershell 'Get-Content "{INPUT}"' '"; whoami #'
+```
+
 ## Library usage
 
 ```python
-from xyainjex import analyze
+from xyainjex import analyze, Dialect
 
 result = analyze('curl "{INPUT}"', '"; id ; #')
 print(result.context.name)          # DOUBLE_QUOTE
 print(result.breakout.command_injected)  # True
 print(result.risk.value)            # CRITICAL
+
+cmd = analyze('ping {INPUT}', '& whoami', Dialect.CMD)
+print(cmd.risk.value)               # CRITICAL
 ```
 
 ## HTTP API

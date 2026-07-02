@@ -1,21 +1,24 @@
-"""Top level analysis entry point tying the shell engine together."""
+"""Top level analysis entry point tying the engine together."""
 
 from __future__ import annotations
 
-from .models import AnalysisResult, Context, Risk
+from .models import AnalysisResult, Context, Dialect, Risk
 from .shell.balance import balance
 from .shell.breakout import detect_breakout, render, score_risk
 
 
-def analyze(template: str, payload: str) -> AnalysisResult:
+def analyze(
+    template: str, payload: str, dialect: Dialect = Dialect.POSIX
+) -> AnalysisResult:
     """Analyze injecting ``payload`` into ``template``.
 
     ``template`` must contain the ``{INPUT}`` marker denoting the injection
-    point, for example ``curl "{INPUT}"``.
+    point, for example ``curl "{INPUT}"``. ``dialect`` selects the command
+    language rules (POSIX shell, cmd.exe, or PowerShell).
     """
     rendered = render(template, payload)
-    breakout = detect_breakout(template, payload)
-    bal = balance(rendered)
+    breakout = detect_breakout(template, payload, dialect)
+    bal = balance(rendered, dialect)
     risk = score_risk(breakout, bal.syntax_valid)
 
     notes = _build_notes(breakout, bal, risk)
@@ -24,6 +27,7 @@ def analyze(template: str, payload: str) -> AnalysisResult:
         template=template,
         payload=payload,
         rendered=rendered,
+        dialect=dialect,
         context=breakout.context,
         breakout=breakout,
         balance=bal,

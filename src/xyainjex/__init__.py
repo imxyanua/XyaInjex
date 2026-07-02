@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from .analyzer import analyze
+from .dialects import parse_dialect
 from .models import (
     AnalysisResult,
     Balance,
     Breakout,
     Context,
+    Dialect,
     Risk,
 )
 from .mutation import mutate
@@ -19,10 +21,12 @@ __all__ = [
     "analyze",
     "mutate",
     "render",
+    "parse_dialect",
     "AnalysisResult",
     "Balance",
     "Breakout",
     "Context",
+    "Dialect",
     "Risk",
     "__version__",
 ]

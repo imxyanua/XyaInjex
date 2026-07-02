@@ -1,20 +1,13 @@
-"""Locate the injection point in a template and classify its shell context."""
+"""Locate the injection point in a template and classify its context."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..models import Context
-from .scanner import BACKTICK, CMDSUB, DOUBLE, SINGLE, ShellScanner
+from ..dialects import get_spec
+from ..models import Context, Dialect
 
 INPUT_MARKER = "{INPUT}"
-
-_FRAME_TO_CONTEXT = {
-    SINGLE: Context.SINGLE_QUOTE,
-    DOUBLE: Context.DOUBLE_QUOTE,
-    BACKTICK: Context.BACKTICK,
-    CMDSUB: Context.COMMAND_SUBSTITUTION,
-}
 
 
 @dataclass
@@ -38,10 +31,10 @@ def split_template(template: str) -> TemplateParts:
     return TemplateParts(prefix=prefix, suffix=suffix, marker_index=idx)
 
 
-def analyze_context(template: str) -> Context:
+def analyze_context(template: str, dialect: Dialect = Dialect.POSIX) -> Context:
     """Return the lexical context surrounding the injection point."""
     parts = split_template(template)
-    scanner = ShellScanner()
+    spec = get_spec(dialect)
+    scanner = spec.scanner()
     scanner.feed(parts.prefix, record=False)
-    top = scanner.state.top
-    return _FRAME_TO_CONTEXT.get(top, Context.UNQUOTED)
+    return spec.context_of(scanner.state.top)

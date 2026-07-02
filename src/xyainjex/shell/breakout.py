@@ -1,10 +1,10 @@
-"""Detect how a payload breaks out of its shell context."""
+"""Detect how a payload breaks out of its context, across dialects."""
 
 from __future__ import annotations
 
-from ..models import Breakout, Context, Risk
+from ..dialects import get_spec
+from ..models import Breakout, Context, Dialect, Risk
 from .context import analyze_context, split_template
-from .scanner import ShellScanner
 
 
 def render(template: str, payload: str) -> str:
@@ -13,17 +13,20 @@ def render(template: str, payload: str) -> str:
     return parts.prefix + payload + parts.suffix
 
 
-def detect_breakout(template: str, payload: str) -> Breakout:
+def detect_breakout(
+    template: str, payload: str, dialect: Dialect = Dialect.POSIX
+) -> Breakout:
     """Analyze the breakout produced by injecting ``payload`` into ``template``."""
     parts = split_template(template)
-    context = analyze_context(template)
+    context = analyze_context(template, dialect)
+    spec = get_spec(dialect)
 
     prefix = parts.prefix
     payload_start = len(prefix)
     payload_end = payload_start + len(payload)
 
     # Two phase scan to measure how far the payload pops below its context.
-    escape_scanner = ShellScanner()
+    escape_scanner = spec.scanner()
     escape_scanner.feed(prefix, record=False)
     start_depth = escape_scanner.state.depth
     escape_scanner.reset_min()
@@ -33,7 +36,7 @@ def detect_breakout(template: str, payload: str) -> Breakout:
 
     # Full scan of the rendered command for separators and comments.
     rendered = prefix + payload + parts.suffix
-    scanner = ShellScanner()
+    scanner = spec.scanner()
     st = scanner.feed(rendered, record=True)
 
     # Separators that execute at the shell top level and originate at or after

@@ -7,6 +7,14 @@ from enum import Enum
 from typing import Any
 
 
+class Dialect(Enum):
+    """Command language whose lexical rules govern the analysis."""
+
+    POSIX = "posix"
+    CMD = "cmd"
+    POWERSHELL = "powershell"
+
+
 class Context(Enum):
     """Lexical context that surrounds the injection point in a command."""
 
@@ -16,6 +24,7 @@ class Context(Enum):
     BACKTICK = "backtick"
     COMMAND_SUBSTITUTION = "command_substitution"
     ARITHMETIC = "arithmetic"
+    PARAMETER_EXPANSION = "parameter_expansion"
 
     @property
     def quote_char(self) -> str | None:
@@ -72,6 +81,7 @@ class AnalysisResult:
     template: str
     payload: str
     rendered: str
+    dialect: Dialect
     context: Context
     breakout: Breakout
     balance: Balance
@@ -80,6 +90,7 @@ class AnalysisResult:
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
+        data["dialect"] = self.dialect.value
         data["context"] = self.context.value
         data["risk"] = self.risk.value
         data["breakout"]["context"] = self.breakout.context.value
