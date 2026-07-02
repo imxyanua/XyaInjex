@@ -23,6 +23,7 @@ class SqlDialect(Enum):
     MSSQL = "mssql"
     SQLITE = "sqlite"
     ANSI = "ansi"
+    ORACLE = "oracle"
 
 
 class TemplateEngine(Enum):

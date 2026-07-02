@@ -27,6 +27,7 @@ HEREDOC = "<<"  # POSIX here-document body
 class Frame:
     kind: str
     depth: int = 0  # nested parenthesis count, used by substitution frames
+    label: str = ""  # closing marker for tagged regions (dollar-quotes, q-quotes)
 
 
 @dataclass

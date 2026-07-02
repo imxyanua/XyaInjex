@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Template engines: Blade, Mako, Razor, Go templates, EJS, and Thymeleaf, with
   their delimiters and name aliases.
+- SQL dialect Oracle, plus dialect-specific quoting: MSSQL bracket identifiers
+  `[col]`, PostgreSQL dollar-quoted strings `$tag$...$tag$` (positional
+  parameters like `$1` are not treated as quotes), Oracle alternative quoting
+  `q'[...]'`, and `#` line comments restricted to MySQL.
 
 ## [0.1.0] - 2026-07-02
 

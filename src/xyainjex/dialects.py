@@ -108,6 +108,8 @@ def parse_sql_dialect(name: str) -> SqlDialect:
         "sqlserver": SqlDialect.MSSQL,
         "sqlite": SqlDialect.SQLITE,
         "ansi": SqlDialect.ANSI,
+        "oracle": SqlDialect.ORACLE,
+        "plsql": SqlDialect.ORACLE,
         "sql": SqlDialect.MYSQL,
     }
     if key not in aliases:
