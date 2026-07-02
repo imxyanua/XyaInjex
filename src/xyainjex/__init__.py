@@ -15,6 +15,13 @@ from .models import (
     TemplateEngine,
 )
 from .mutation import mutate
+from .prompt import (
+    PromptAnalysis,
+    PromptFinding,
+    PromptThreat,
+    analyze_prompt,
+    detect_hidden,
+)
 from .shell.breakout import render
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
@@ -25,6 +32,8 @@ __all__ = [
     "analyze",
     "analyze_sql",
     "analyze_template",
+    "analyze_prompt",
+    "detect_hidden",
     "mutate",
     "mutate_sql",
     "mutate_template",
@@ -39,6 +48,9 @@ __all__ = [
     "Dialect",
     "SqlDialect",
     "TemplateEngine",
+    "PromptAnalysis",
+    "PromptFinding",
+    "PromptThreat",
     "Risk",
     "__version__",
 ]

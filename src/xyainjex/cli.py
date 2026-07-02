@@ -9,6 +9,7 @@ import sys
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .mutation import mutate
+from .prompt import analyze_prompt
 from .report import to_json, visualize
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
@@ -67,10 +68,22 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     lang = args.lang.strip().lower()
-    if lang not in ("shell", "sql", "template"):
-        parser.error("--lang must be 'shell', 'sql', or 'template'")
+    if lang not in ("shell", "sql", "template", "prompt"):
+        parser.error("--lang must be 'shell', 'sql', 'template', or 'prompt'")
 
     try:
+        if lang == "prompt":
+            if args.mutate:
+                parser.error("--mutate is not supported for --lang prompt")
+            if args.payload is None:
+                parser.error("payload is required")
+            result = analyze_prompt(args.template, args.payload)
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_prompt(result))
+            return 0 if result.risk.value in ("NONE", "LOW") else 2
+
         if lang == "sql":
             dialect = parse_sql_dialect(args.dialect or "mysql")
             if args.mutate:
@@ -112,6 +125,28 @@ def _emit_mutation(result, as_json: bool) -> None:
         print(json.dumps(result.to_dict(), indent=2))
     else:
         _print_mutation(result)
+
+
+def _render_prompt(result) -> str:
+    lines = ["XyaInjex prompt analysis", "=" * 40]
+    lines.append(f"Template : {result.template}")
+    lines.append(f"Payload  : {result.payload}")
+    lines.append(f"Role     : {result.role_context}")
+    lines.append(f"Risk     : {result.risk.value}")
+    lines.append("")
+    if result.findings:
+        lines.append("Findings:")
+        for f in result.findings:
+            lines.append(f"  [{f.severity.value:8}] {f.threat.value}: {f.title}")
+            lines.append(f"             {f.evidence}")
+    else:
+        lines.append("No findings.")
+    if result.notes:
+        lines.append("")
+        lines.append("Notes:")
+        for note in result.notes:
+            lines.append(f"  - {note}")
+    return "\n".join(lines)
 
 
 def _print_mutation(result) -> None:

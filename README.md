@@ -11,10 +11,19 @@ Every injection vulnerability is treated as a context breakout problem.
 ## Status
 
 This repository is under active development. It currently covers command
-injection across shell dialects, SQL injection, and server-side template
-injection.
+injection across shell dialects, SQL injection, server-side template injection,
+and prompt injection for LLM systems.
 
-Template injection (Phase 2, in progress):
+Prompt injection and hidden prompt detection:
+
+- Injection detectors for instruction override, role and turn delimiter
+  breakout, tool and function-call hijacking, memory poisoning, and system
+  prompt disclosure, scored by the role the input is embedded in.
+- Hidden content detectors for zero-width and invisible characters, the Unicode
+  Tags block (decoded), bidirectional overrides, homoglyphs, base64 encoded
+  instructions, and hidden HTML.
+
+Template injection:
 
 - Region based analyzer that classifies the injection point as literal text, an
   expression, a statement, a comment, or a string literal inside an expression.
@@ -25,7 +34,7 @@ Template injection (Phase 2, in progress):
   literal, plus a risk rating.
 - Payload mutation for text, expression, string, and comment contexts.
 
-SQL injection (Phase 2, in progress):
+SQL injection:
 
 - Context analyzer that classifies the injection point as a string literal,
   quoted identifier, or numeric/expression position.
@@ -37,7 +46,7 @@ SQL injection (Phase 2, in progress):
   `/* */`), and a risk rating.
 - Payload mutation for boolean, union, time based, and stacked strategies.
 
-Command injection (Phase 1):
+Command injection:
 
 - Context analyzer that locates the injection point inside a command template
   and classifies its lexical context (single quote, double quote, backtick,
@@ -106,6 +115,13 @@ xyainjex -l template 'Hello {INPUT}' '{{7*7}}'
 xyainjex -l template -d freemarker 'Hello {INPUT}' '${7*7}'
 ```
 
+Analyze prompt injection with `--lang prompt` (use the `{INPUT}` template to
+mark where untrusted content is embedded):
+
+```bash
+xyainjex -l prompt '<user>{INPUT}</user>' 'ignore all previous instructions'
+```
+
 ## Library usage
 
 ```python
@@ -130,6 +146,12 @@ from xyainjex import analyze_template
 ssti = analyze_template("Hello {INPUT}", "{{7*7}}")
 print(ssti.context.value)           # template_text
 print(ssti.risk.value)              # CRITICAL
+
+from xyainjex import analyze_prompt
+
+prompt = analyze_prompt("{INPUT}", "ignore all previous instructions")
+print(prompt.risk.value)            # HIGH
+print(prompt.findings[0].threat.value)  # instruction_override
 ```
 
 ## HTTP API
