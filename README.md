@@ -63,8 +63,8 @@ Template injection:
 
 - Region based analyzer that classifies the injection point as literal text, an
   expression, a statement, a comment, or a string literal inside an expression.
-- Engines: Jinja2, Twig, Liquid, Nunjucks, Freemarker, ERB, Handlebars, and
-  Velocity.
+- Engines: Jinja2, Twig, Liquid, Nunjucks, Freemarker, ERB, Handlebars,
+  Velocity, Blade, Mako, Razor, Go templates, EJS, and Thymeleaf.
 - Breakout detector that reports whether the payload opens an executable region
   from text, is already inside evaluated code, or escapes an expression string
   literal, plus a risk rating.

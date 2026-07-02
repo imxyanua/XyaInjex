@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from xyainjex import (
     Context,
     TemplateEngine,
@@ -123,6 +125,54 @@ def test_erb_breakout():
     r = analyze_template("Hello {INPUT}", "<%= 7*7 %>", TemplateEngine.ERB)
     assert r.breakout.command_injected
     assert "<%=" in r.breakout.separators
+
+
+@pytest.mark.parametrize(
+    "engine,payload,opener",
+    [
+        (TemplateEngine.BLADE, "{{7*7}}", "{{"),
+        (TemplateEngine.BLADE, "{!! 7*7 !!}", "{!!"),
+        (TemplateEngine.MAKO, "${7*7}", "${"),
+        (TemplateEngine.MAKO, "<% x=7 %>", "<%"),
+        (TemplateEngine.RAZOR, "@(7*7)", "@("),
+        (TemplateEngine.GOTEMPLATE, "{{7*7}}", "{{"),
+        (TemplateEngine.EJS, "<%= 7*7 %>", "<%="),
+        (TemplateEngine.EJS, "<%- 7*7 %>", "<%-"),
+        (TemplateEngine.THYMELEAF, "[[${7*7}]]", "[["),
+    ],
+)
+def test_additional_engine_breakouts(engine, payload, opener):
+    r = analyze_template("Hello {INPUT}", payload, engine)
+    assert r.breakout.command_injected
+    assert opener in r.breakout.separators
+    assert r.risk.value == "CRITICAL"
+
+
+def test_blade_comment_escape():
+    r = analyze_template("Hi {{-- {INPUT} --}}", "--}}{{7*7}}", TemplateEngine.BLADE)
+    assert r.context == Context.TEMPLATE_COMMENT
+    assert r.breakout.command_injected
+
+
+def test_razor_expression_context():
+    from xyainjex.template.context import analyze_template_context
+
+    assert (
+        analyze_template_context("@( {INPUT} )", TemplateEngine.RAZOR)
+        == Context.TEMPLATE_EXPRESSION
+    )
+
+
+def test_blade_plain_text_no_breakout():
+    r = analyze_template("Hello {INPUT}", "plain", TemplateEngine.BLADE)
+    assert not r.breakout.command_injected
+    assert r.risk.value == "LOW"
+
+
+def test_new_engine_aliases():
+    assert parse_template_engine("laravel") == TemplateEngine.BLADE
+    assert parse_template_engine("go") == TemplateEngine.GOTEMPLATE
+    assert parse_template_engine("cshtml") == TemplateEngine.RAZOR
 
 
 def test_string_close_inside_expression_not_a_delimiter():

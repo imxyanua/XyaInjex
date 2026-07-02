@@ -133,6 +133,15 @@ def parse_template_engine(name: str) -> TemplateEngine:
         "mustache": TemplateEngine.HANDLEBARS,
         "velocity": TemplateEngine.VELOCITY,
         "vtl": TemplateEngine.VELOCITY,
+        "blade": TemplateEngine.BLADE,
+        "laravel": TemplateEngine.BLADE,
+        "mako": TemplateEngine.MAKO,
+        "razor": TemplateEngine.RAZOR,
+        "cshtml": TemplateEngine.RAZOR,
+        "go": TemplateEngine.GOTEMPLATE,
+        "gotemplate": TemplateEngine.GOTEMPLATE,
+        "ejs": TemplateEngine.EJS,
+        "thymeleaf": TemplateEngine.THYMELEAF,
     }
     if key not in aliases:
         valid = ", ".join(sorted(aliases))

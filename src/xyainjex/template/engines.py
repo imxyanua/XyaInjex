@@ -67,6 +67,53 @@ _SPECS: dict[TemplateEngine, TemplateSpec] = {
         TemplateEngine.VELOCITY,
         (RegionDef(EXPR, "${", "}"),),
     ),
+    TemplateEngine.BLADE: TemplateSpec(
+        TemplateEngine.BLADE,
+        (
+            RegionDef(COMMENT, "{{--", "--}}"),
+            RegionDef(EXPR, "{!!", "!!}"),
+            RegionDef(EXPR, "{{", "}}"),
+        ),
+    ),
+    TemplateEngine.MAKO: TemplateSpec(
+        TemplateEngine.MAKO,
+        (
+            RegionDef(EXPR, "${", "}"),
+            RegionDef(STMT, "<%", "%>"),
+        ),
+    ),
+    TemplateEngine.RAZOR: TemplateSpec(
+        TemplateEngine.RAZOR,
+        (
+            RegionDef(COMMENT, "@*", "*@"),
+            RegionDef(EXPR, "@(", ")"),
+            RegionDef(STMT, "@{", "}"),
+        ),
+    ),
+    TemplateEngine.GOTEMPLATE: TemplateSpec(
+        TemplateEngine.GOTEMPLATE,
+        (
+            RegionDef(COMMENT, "{{/*", "*/}}"),
+            RegionDef(EXPR, "{{", "}}"),
+        ),
+    ),
+    TemplateEngine.EJS: TemplateSpec(
+        TemplateEngine.EJS,
+        (
+            RegionDef(COMMENT, "<%#", "%>"),
+            RegionDef(EXPR, "<%=", "%>"),
+            RegionDef(EXPR, "<%-", "%>"),
+            RegionDef(STMT, "<%", "%>"),
+        ),
+    ),
+    TemplateEngine.THYMELEAF: TemplateSpec(
+        TemplateEngine.THYMELEAF,
+        (
+            RegionDef(EXPR, "[[", "]]"),
+            RegionDef(EXPR, "[(", ")]"),
+            RegionDef(EXPR, "${", "}"),
+        ),
+    ),
 }
 
 
