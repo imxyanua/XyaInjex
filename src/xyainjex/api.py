@@ -6,8 +6,11 @@ Run with ``uvicorn xyainjex.api:app --reload``.
 
 from __future__ import annotations
 
+import os
+
 try:
     from fastapi import FastAPI, HTTPException
+    from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
 except ImportError as exc:  # pragma: no cover - import guard
     raise ImportError(
@@ -23,6 +26,22 @@ from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
 
 app = FastAPI(title="XyaInjex", version="0.1.0")
+
+# Allow the web frontend to call the API from the browser. Origins are taken
+# from XYAINJEX_CORS_ORIGINS (comma separated) and default to the local Vite
+# dev server ports.
+_DEFAULT_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+_cors_origins = [
+    origin.strip()
+    for origin in os.environ.get("XYAINJEX_CORS_ORIGINS", _DEFAULT_ORIGINS).split(",")
+    if origin.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 
 class AnalyzeRequest(BaseModel):

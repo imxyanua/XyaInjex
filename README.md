@@ -180,6 +180,20 @@ print(agent.risk.value)             # CRITICAL
 print(agent.findings[0].threat.value)   # tool_output_injection
 ```
 
+## Web frontend
+
+A React (Vite + TypeScript) frontend lives in [web/](web/). It calls the HTTP
+API and visualizes the breakout, findings, and payload mutations. Run the API
+with CORS allowing the dev server, then start the frontend:
+
+```bash
+uvicorn xyainjex.api:app --port 8000
+cd web && npm install && npm run dev   # http://localhost:5173
+```
+
+The API allows `http://localhost:5173` by default; override with the
+`XYAINJEX_CORS_ORIGINS` environment variable. See [web/README.md](web/README.md).
+
 ## HTTP API
 
 ```bash

@@ -14,6 +14,16 @@ def test_health():
     assert resp.json() == {"status": "ok"}
 
 
+def test_cors_allows_dev_origin():
+    resp = client.post(
+        "/analyze",
+        json={"template": 'curl "{INPUT}"', "payload": "x"},
+        headers={"Origin": "http://localhost:5173"},
+    )
+    assert resp.status_code == 200
+    assert resp.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
 def test_analyze_endpoint():
     resp = client.post(
         "/analyze",
