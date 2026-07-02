@@ -1,8 +1,8 @@
 import json
 
 from xyainjex import analyze
-from xyainjex.report import to_json, visualize
 from xyainjex.cli import main
+from xyainjex.report import to_json, visualize
 
 
 def test_to_json_roundtrip():

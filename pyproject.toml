@@ -21,7 +21,7 @@ dependencies = []
 
 [project.optional-dependencies]
 api = ["fastapi>=0.110", "uvicorn>=0.29"]
-dev = ["pytest>=8.0", "fastapi>=0.110", "httpx>=0.27"]
+dev = ["pytest>=8.0", "fastapi>=0.110", "httpx>=0.27", "ruff>=0.6"]
 
 [project.scripts]
 xyainjex = "xyainjex.cli:main"
@@ -35,3 +35,11 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+

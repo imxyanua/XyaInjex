@@ -61,9 +61,7 @@ def _build_notes(breakout, bal, risk: Risk) -> list[str]:
         if not bal.quotes_balanced:
             problems.append("unbalanced quotes")
         if bal.unbalanced_pairs:
-            problems.append(
-                "unbalanced " + ", ".join(bal.unbalanced_pairs.keys())
-            )
+            problems.append("unbalanced " + ", ".join(bal.unbalanced_pairs.keys()))
         notes.append("Rendered command has " + "; ".join(problems) + ".")
     else:
         notes.append("Rendered command is syntactically balanced.")

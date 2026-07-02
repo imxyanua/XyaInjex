@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ..models import Context
-from .scanner import ShellScanner, SINGLE, DOUBLE, BACKTICK, CMDSUB
+from .scanner import BACKTICK, CMDSUB, DOUBLE, SINGLE, ShellScanner
 
 INPUT_MARKER = "{INPUT}"
 
@@ -34,7 +34,7 @@ def split_template(template: str) -> TemplateParts:
     if idx == -1:
         raise ValueError(f"template does not contain the {INPUT_MARKER!r} marker")
     prefix = template[:idx]
-    suffix = template[idx + len(INPUT_MARKER):]
+    suffix = template[idx + len(INPUT_MARKER) :]
     return TemplateParts(prefix=prefix, suffix=suffix, marker_index=idx)
 
 

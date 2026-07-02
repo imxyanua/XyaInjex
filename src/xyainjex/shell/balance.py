@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from ..models import Balance
-from .scanner import ShellScanner, SINGLE, DOUBLE, BACKTICK, CMDSUB
+from .scanner import BACKTICK, CMDSUB, DOUBLE, SINGLE, ShellScanner
 
 
 def balance(rendered: str) -> Balance:

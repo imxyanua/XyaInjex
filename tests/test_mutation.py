@@ -26,7 +26,7 @@ def test_mutate_unquoted():
 def test_mutate_to_dict_shape():
     result = mutate('curl "{INPUT}"')
     data = result.to_dict()
-    assert set(["template", "context", "generated", "valid", "high_probability"]).issubset(
-        data.keys()
-    )
+    assert set(
+        ["template", "context", "generated", "valid", "high_probability"]
+    ).issubset(data.keys())
     assert isinstance(data["high_probability"], list)
