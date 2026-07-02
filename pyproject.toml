@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xyainjex"
+version = "0.1.0"
+description = "Real-time injection context and breakout analyzer"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "imxyanua" }]
+keywords = ["security", "injection", "command-injection", "breakout", "appsec"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Security",
+    "Programming Language :: Python :: 3",
+]
+dependencies = []
+
+[project.optional-dependencies]
+api = ["fastapi>=0.110", "uvicorn>=0.29"]
+dev = ["pytest>=8.0", "fastapi>=0.110", "httpx>=0.27"]
+
+[project.scripts]
+xyainjex = "xyainjex.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/imxyanua/XyaInjex"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
