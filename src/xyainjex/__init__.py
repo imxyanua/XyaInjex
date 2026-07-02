@@ -2,6 +2,15 @@
 
 from __future__ import annotations
 
+from .agent import (
+    AgentAnalysis,
+    AgentFinding,
+    AgentSource,
+    AgentThreat,
+    analyze_agent,
+    analyze_flow,
+    parse_source,
+)
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .models import (
@@ -33,7 +42,14 @@ __all__ = [
     "analyze_sql",
     "analyze_template",
     "analyze_prompt",
+    "analyze_agent",
+    "analyze_flow",
     "detect_hidden",
+    "parse_source",
+    "AgentSource",
+    "AgentThreat",
+    "AgentAnalysis",
+    "AgentFinding",
     "mutate",
     "mutate_sql",
     "mutate_template",

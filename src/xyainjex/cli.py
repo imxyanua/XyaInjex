@@ -6,6 +6,7 @@ import argparse
 import json
 import sys
 
+from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .mutation import mutate
@@ -48,7 +49,17 @@ def build_parser() -> argparse.ArgumentParser:
         "--lang",
         "-l",
         default="shell",
-        help="injection language: shell (default), sql, or template",
+        help="injection language: shell (default), sql, template, prompt, or agent",
+    )
+    parser.add_argument(
+        "--source",
+        "-s",
+        default="tool_output",
+        help=(
+            "for --lang agent, the provenance of the content: tool_output "
+            "(default), agent_message, memory, mcp_resource, "
+            "retrieved_document, web, user"
+        ),
     )
     parser.add_argument(
         "--dialect",
@@ -68,10 +79,21 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     lang = args.lang.strip().lower()
-    if lang not in ("shell", "sql", "template", "prompt"):
-        parser.error("--lang must be 'shell', 'sql', 'template', or 'prompt'")
+    if lang not in ("shell", "sql", "template", "prompt", "agent"):
+        parser.error("--lang must be 'shell', 'sql', 'template', 'prompt', or 'agent'")
 
     try:
+        if lang == "agent":
+            if args.mutate:
+                parser.error("--mutate is not supported for --lang agent")
+            # The content is the untrusted blob; templates are not used here.
+            result = analyze_agent(args.template, parse_source(args.source))
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_agent(result))
+            return 0 if result.risk.value in ("NONE", "LOW") else 2
+
         if lang == "prompt":
             if args.mutate:
                 parser.error("--mutate is not supported for --lang prompt")
@@ -125,6 +147,27 @@ def _emit_mutation(result, as_json: bool) -> None:
         print(json.dumps(result.to_dict(), indent=2))
     else:
         _print_mutation(result)
+
+
+def _render_agent(result) -> str:
+    lines = ["XyaInjex agent analysis", "=" * 40]
+    lines.append(f"Content : {result.content}")
+    lines.append(f"Source  : {result.source.value}")
+    lines.append(f"Risk    : {result.risk.value}")
+    lines.append("")
+    if result.findings:
+        lines.append("Findings:")
+        for f in result.findings:
+            lines.append(f"  [{f.severity.value:8}] {f.threat.value}: {f.title}")
+            lines.append(f"             {f.evidence}")
+    else:
+        lines.append("No findings.")
+    if result.notes:
+        lines.append("")
+        lines.append("Notes:")
+        for note in result.notes:
+            lines.append(f"  - {note}")
+    return "\n".join(lines)
 
 
 def _render_prompt(result) -> str:
