@@ -29,6 +29,7 @@ xyainjex = "xyainjex.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/imxyanua/XyaInjex"
+Changelog = "https://github.com/imxyanua/XyaInjex/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -263,6 +263,10 @@ curl -s localhost:8000/analyze \
   -d '{"template": "curl \"{INPUT}\"", "payload": "\"; id ; #"}'
 ```
 
+## Changelog
+
+Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.1.0.
+
 ## License
 
 For security research, education, and authorized defensive testing only. Use
