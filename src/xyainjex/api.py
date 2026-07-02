@@ -14,6 +14,7 @@ except ImportError as exc:  # pragma: no cover - import guard
         'The HTTP API requires FastAPI. Install with: pip install -e ".[api]"'
     ) from exc
 
+from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .mutation import mutate
@@ -26,9 +27,10 @@ app = FastAPI(title="XyaInjex", version="0.1.0")
 
 class AnalyzeRequest(BaseModel):
     template: str
-    payload: str
+    payload: str = ""
     lang: str = "shell"
     dialect: str | None = None
+    source: str = "tool_output"
 
 
 class MutateRequest(BaseModel):
@@ -40,8 +42,10 @@ class MutateRequest(BaseModel):
 
 def _require_lang(lang: str) -> str:
     key = lang.strip().lower()
-    if key not in ("shell", "sql", "template", "prompt"):
-        raise ValueError("lang must be 'shell', 'sql', 'template', or 'prompt'")
+    if key not in ("shell", "sql", "template", "prompt", "agent"):
+        raise ValueError(
+            "lang must be 'shell', 'sql', 'template', 'prompt', or 'agent'"
+        )
     return key
 
 
@@ -54,6 +58,9 @@ def health() -> dict:
 def analyze_endpoint(req: AnalyzeRequest) -> dict:
     try:
         lang = _require_lang(req.lang)
+        if lang == "agent":
+            # The content is the untrusted blob; templates are not used here.
+            return analyze_agent(req.template, parse_source(req.source)).to_dict()
         if lang == "prompt":
             return analyze_prompt(req.template, req.payload).to_dict()
         if lang == "sql":
@@ -72,8 +79,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
 def mutate_endpoint(req: MutateRequest) -> dict:
     try:
         lang = _require_lang(req.lang)
-        if lang == "prompt":
-            raise ValueError("mutate is not supported for lang 'prompt'")
+        if lang in ("prompt", "agent"):
+            raise ValueError(f"mutate is not supported for lang {lang!r}")
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")
             return mutate_sql(req.template, dialect=dialect).to_dict()
