@@ -8,15 +8,25 @@ from typing import Any
 
 
 class Dialect(Enum):
-    """Command language whose lexical rules govern the analysis."""
+    """Command language whose lexical rules govern shell analysis."""
 
     POSIX = "posix"
     CMD = "cmd"
     POWERSHELL = "powershell"
 
 
+class SqlDialect(Enum):
+    """SQL dialect whose lexical rules govern SQL injection analysis."""
+
+    MYSQL = "mysql"
+    POSTGRES = "postgres"
+    MSSQL = "mssql"
+    SQLITE = "sqlite"
+    ANSI = "ansi"
+
+
 class Context(Enum):
-    """Lexical context that surrounds the injection point in a command."""
+    """Lexical context that surrounds the injection point."""
 
     UNQUOTED = "unquoted"
     SINGLE_QUOTE = "single_quote"
@@ -25,6 +35,10 @@ class Context(Enum):
     COMMAND_SUBSTITUTION = "command_substitution"
     ARITHMETIC = "arithmetic"
     PARAMETER_EXPANSION = "parameter_expansion"
+    # SQL contexts
+    SQL_STRING = "sql_string"
+    SQL_IDENTIFIER = "sql_identifier"
+    SQL_NUMERIC = "sql_numeric"
 
     @property
     def quote_char(self) -> str | None:
@@ -33,6 +47,7 @@ class Context(Enum):
             Context.SINGLE_QUOTE: "'",
             Context.DOUBLE_QUOTE: '"',
             Context.BACKTICK: "`",
+            Context.SQL_STRING: "'",
         }.get(self)
 
 
@@ -81,7 +96,7 @@ class AnalysisResult:
     template: str
     payload: str
     rendered: str
-    dialect: Dialect
+    dialect: Dialect | SqlDialect
     context: Context
     breakout: Breakout
     balance: Balance

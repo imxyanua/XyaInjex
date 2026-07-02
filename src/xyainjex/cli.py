@@ -7,9 +7,10 @@ import json
 import sys
 
 from .analyzer import analyze
-from .dialects import parse_dialect
+from .dialects import parse_dialect, parse_sql_dialect
 from .mutation import mutate
 from .report import to_json, visualize
+from .sql import analyze_sql, mutate_sql
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -42,10 +43,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="demonstration command embedded in mutated payloads (default: id)",
     )
     parser.add_argument(
+        "--lang",
+        "-l",
+        default="shell",
+        help="injection language: shell (default) or sql",
+    )
+    parser.add_argument(
         "--dialect",
         "-d",
-        default="posix",
-        help="command dialect: posix (default), cmd, or powershell",
+        default=None,
+        help=(
+            "dialect within the language. shell: posix (default), cmd, "
+            "powershell. sql: mysql (default), postgres, mssql, sqlite, ansi"
+        ),
     )
     return parser
 
@@ -54,21 +64,30 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    lang = args.lang.strip().lower()
+    if lang not in ("shell", "sql"):
+        parser.error("--lang must be 'shell' or 'sql'")
+
     try:
-        dialect = parse_dialect(args.dialect)
+        if lang == "sql":
+            dialect = parse_sql_dialect(args.dialect or "mysql")
+            if args.mutate:
+                result = mutate_sql(args.template, dialect=dialect)
+                _emit_mutation(result, args.json)
+                return 0
+            if args.payload is None:
+                parser.error("payload is required unless --mutate is used")
+            result = analyze_sql(args.template, args.payload, dialect)
+        else:
+            dialect = parse_dialect(args.dialect or "posix")
+            if args.mutate:
+                result = mutate(args.template, command=args.command, dialect=dialect)
+                _emit_mutation(result, args.json)
+                return 0
+            if args.payload is None:
+                parser.error("payload is required unless --mutate is used")
+            result = analyze(args.template, args.payload, dialect)
 
-        if args.mutate:
-            result = mutate(args.template, command=args.command, dialect=dialect)
-            if args.json:
-                print(json.dumps(result.to_dict(), indent=2))
-            else:
-                _print_mutation(result)
-            return 0
-
-        if args.payload is None:
-            parser.error("payload is required unless --mutate is used")
-
-        result = analyze(args.template, args.payload, dialect)
         if args.json:
             print(to_json(result))
         else:
@@ -77,6 +96,13 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
+
+
+def _emit_mutation(result, as_json: bool) -> None:
+    if as_json:
+        print(json.dumps(result.to_dict(), indent=2))
+    else:
+        _print_mutation(result)
 
 
 def _print_mutation(result) -> None:

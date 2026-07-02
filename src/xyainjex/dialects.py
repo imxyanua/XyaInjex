@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .models import Context, Dialect
+from .models import Context, Dialect, SqlDialect
 from .scan import (
     ARITH,
     BACKTICK,
@@ -90,4 +90,25 @@ def parse_dialect(name: str) -> Dialect:
     if key not in aliases:
         valid = ", ".join(sorted(aliases))
         raise ValueError(f"unknown dialect {name!r}; valid values: {valid}")
+    return aliases[key]
+
+
+def parse_sql_dialect(name: str) -> SqlDialect:
+    """Resolve a user supplied SQL dialect name, with friendly aliases."""
+    key = name.strip().lower()
+    aliases = {
+        "mysql": SqlDialect.MYSQL,
+        "mariadb": SqlDialect.MYSQL,
+        "postgres": SqlDialect.POSTGRES,
+        "postgresql": SqlDialect.POSTGRES,
+        "pg": SqlDialect.POSTGRES,
+        "mssql": SqlDialect.MSSQL,
+        "sqlserver": SqlDialect.MSSQL,
+        "sqlite": SqlDialect.SQLITE,
+        "ansi": SqlDialect.ANSI,
+        "sql": SqlDialect.MYSQL,
+    }
+    if key not in aliases:
+        valid = ", ".join(sorted(aliases))
+        raise ValueError(f"unknown SQL dialect {name!r}; valid values: {valid}")
     return aliases[key]
