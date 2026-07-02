@@ -9,6 +9,7 @@ import sys
 from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
+from .fuzz import fuzz
 from .mutation import mutate
 from .prompt import analyze_prompt
 from .report import to_json, visualize
@@ -39,6 +40,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--mutate",
         action="store_true",
         help="generate and rank breakout payloads for the template",
+    )
+    parser.add_argument(
+        "--fuzz",
+        action="store_true",
+        help="expand and test payloads to discover exploit paths (shell/sql/template)",
     )
     parser.add_argument(
         "--command",
@@ -83,6 +89,18 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--lang must be 'shell', 'sql', 'template', 'prompt', or 'agent'")
 
     try:
+        if args.fuzz:
+            if lang not in ("shell", "sql", "template"):
+                parser.error("--fuzz supports --lang shell, sql, or template")
+            result = fuzz(
+                args.template, lang=lang, dialect=args.dialect, command=args.command
+            )
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_fuzz(result))
+            return 0 if result.valid == 0 else 2
+
         if lang == "agent":
             if args.mutate:
                 parser.error("--mutate is not supported for --lang agent")
@@ -147,6 +165,21 @@ def _emit_mutation(result, as_json: bool) -> None:
         print(json.dumps(result.to_dict(), indent=2))
     else:
         _print_mutation(result)
+
+
+def _render_fuzz(result) -> str:
+    lines = ["XyaInjex fuzzing", "=" * 40]
+    lines.append(f"Template : {result.template}")
+    lines.append(f"Lang     : {result.lang}  Dialect: {result.dialect or 'default'}")
+    lines.append(f"Generated: {result.generated}   Exploit paths: {result.valid}")
+    lines.append(f"Strategies: {', '.join(result.strategies) or '-'}")
+    lines.append(f"Contexts : {', '.join(result.contexts_reached) or '-'}")
+    lines.append("")
+    lines.append("Top exploit paths:")
+    for p in result.paths[:12]:
+        lines.append(f"  [{p.risk.value:8}] {p.payload!r}  ({p.strategy})")
+        lines.append(f"             {' -> '.join(p.stages)}")
+    return "\n".join(lines)
 
 
 def _render_agent(result) -> str:

@@ -13,6 +13,7 @@ from .agent import (
 )
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
+from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
 from .models import (
     AnalysisResult,
     Balance,
@@ -53,6 +54,11 @@ __all__ = [
     "mutate",
     "mutate_sql",
     "mutate_template",
+    "fuzz",
+    "differential",
+    "FuzzResult",
+    "ExploitPath",
+    "DifferentialResult",
     "render",
     "parse_dialect",
     "parse_sql_dialect",
