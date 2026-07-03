@@ -13,6 +13,7 @@ from .fuzz import fuzz
 from .ldap import analyze_ldap, mutate_ldap
 from .llm import explain, get_provider, suggest_payloads
 from .mutation import mutate
+from .nosql import analyze_nosql, mutate_nosql
 from .prompt import analyze_prompt
 from .report import to_json, visualize
 from .sql import analyze_sql, mutate_sql
@@ -75,7 +76,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="shell",
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
-            "prompt, or agent"
+            "nosql, prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -106,14 +107,28 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     lang = args.lang.strip().lower()
-    valid_langs = ("shell", "sql", "template", "xpath", "ldap", "prompt", "agent")
+    valid_langs = (
+        "shell",
+        "sql",
+        "template",
+        "xpath",
+        "ldap",
+        "nosql",
+        "prompt",
+        "agent",
+    )
     if lang not in valid_langs:
         parser.error("--lang must be one of: " + ", ".join(valid_langs))
 
+    _simple = {
+        "xpath": (analyze_xpath, mutate_xpath),
+        "ldap": (analyze_ldap, mutate_ldap),
+        "nosql": (analyze_nosql, mutate_nosql),
+    }
+
     try:
-        if lang in ("xpath", "ldap"):
-            analyze_fn = analyze_xpath if lang == "xpath" else analyze_ldap
-            mutate_fn = mutate_xpath if lang == "xpath" else mutate_ldap
+        if lang in _simple:
+            analyze_fn, mutate_fn = _simple[lang]
             if args.mutate:
                 _emit_mutation(mutate_fn(args.template), args.json)
                 return 0

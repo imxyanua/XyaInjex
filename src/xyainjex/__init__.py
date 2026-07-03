@@ -34,6 +34,7 @@ from .models import (
     TemplateEngine,
 )
 from .mutation import mutate
+from .nosql import analyze_nosql, mutate_nosql
 from .prompt import (
     PromptAnalysis,
     PromptFinding,
@@ -54,6 +55,7 @@ __all__ = [
     "analyze_template",
     "analyze_xpath",
     "analyze_ldap",
+    "analyze_nosql",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -68,6 +70,7 @@ __all__ = [
     "mutate_template",
     "mutate_xpath",
     "mutate_ldap",
+    "mutate_nosql",
     "fuzz",
     "differential",
     "FuzzResult",
