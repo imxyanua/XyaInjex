@@ -292,6 +292,32 @@ def test_mutate_code_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_crlf_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "Location: {INPUT}",
+            "payload": "x\r\nSet-Cookie: injected=1",
+            "lang": "crlf",
+            "dialect": "header",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] == "header"
+    assert data["context"] == "http_header"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_crlf_endpoint():
+    resp = client.post(
+        "/mutate",
+        json={"template": "Location: {INPUT}", "lang": "crlf", "dialect": "header"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

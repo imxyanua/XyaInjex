@@ -13,6 +13,7 @@ from .agent import (
 )
 from .analyzer import analyze
 from .code import analyze_code, mutate_code, parse_code_lang
+from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
 from .ldap import analyze_ldap, mutate_ldap
@@ -30,6 +31,7 @@ from .models import (
     Breakout,
     CodeLang,
     Context,
+    CrlfKind,
     Dialect,
     Risk,
     SqlDialect,
@@ -59,6 +61,7 @@ __all__ = [
     "analyze_ldap",
     "analyze_nosql",
     "analyze_code",
+    "analyze_crlf",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -75,8 +78,11 @@ __all__ = [
     "mutate_ldap",
     "mutate_nosql",
     "mutate_code",
+    "mutate_crlf",
     "parse_code_lang",
+    "parse_crlf_kind",
     "CodeLang",
+    "CrlfKind",
     "fuzz",
     "differential",
     "FuzzResult",

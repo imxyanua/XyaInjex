@@ -35,6 +35,13 @@ class CodeLang(Enum):
     PHP = "php"
 
 
+class CrlfKind(Enum):
+    """Sink kind for CRLF (carriage-return line-feed) injection."""
+
+    HEADER = "header"
+    LOG = "log"
+
+
 class TemplateEngine(Enum):
     """Template engine whose delimiter syntax governs SSTI analysis."""
 
@@ -87,6 +94,9 @@ class Context(Enum):
     CODE_STRING = "code_string"
     CODE_TEMPLATE = "code_template"
     CODE_EXPRESSION = "code_expression"
+    # CRLF contexts
+    HTTP_HEADER = "http_header"
+    LOG_LINE = "log_line"
 
     @property
     def quote_char(self) -> str | None:
@@ -147,7 +157,7 @@ class AnalysisResult:
     template: str
     payload: str
     rendered: str
-    dialect: Dialect | SqlDialect | TemplateEngine | CodeLang | None
+    dialect: Dialect | SqlDialect | TemplateEngine | CodeLang | CrlfKind | None
     context: Context
     breakout: Breakout
     balance: Balance
