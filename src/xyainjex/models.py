@@ -109,6 +109,10 @@ class Context(Enum):
     # GraphQL contexts
     GQL_STRING = "gql_string"
     GQL_ARG = "gql_arg"
+    # Expression language (EL / OGNL / SpEL) contexts
+    EL_TEXT = "el_text"
+    EL_EXPRESSION = "el_expression"
+    EL_STRING = "el_string"
 
     @property
     def quote_char(self) -> str | None:

