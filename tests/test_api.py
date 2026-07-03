@@ -318,6 +318,31 @@ def test_mutate_crlf_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_xml_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "<user><name>{INPUT}</name></user>",
+            "payload": "<script/>x",
+            "lang": "xml",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "xml_text"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_xml_endpoint():
+    resp = client.post(
+        "/mutate",
+        json={"template": "<user><name>{INPUT}</name></user>", "lang": "xml"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

@@ -29,6 +29,7 @@ from .nosql import analyze_nosql, mutate_nosql
 from .prompt import analyze_prompt
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
+from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
 
 app = FastAPI(title="XyaInjex", version="0.3.0")
@@ -88,6 +89,7 @@ def _require_lang(lang: str) -> str:
         "xpath",
         "ldap",
         "nosql",
+        "xml",
         "code",
         "crlf",
         "prompt",
@@ -116,6 +118,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_ldap(req.template, req.payload).to_dict()
         if lang == "nosql":
             return analyze_nosql(req.template, req.payload).to_dict()
+        if lang == "xml":
+            return analyze_xml(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -148,6 +152,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_ldap(req.template).to_dict()
         if lang == "nosql":
             return mutate_nosql(req.template).to_dict()
+        if lang == "xml":
+            return mutate_xml(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")

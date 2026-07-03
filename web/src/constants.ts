@@ -7,6 +7,7 @@ export const LANGS: { value: Lang; label: string }[] = [
   { value: "xpath", label: "XPath" },
   { value: "ldap", label: "LDAP" },
   { value: "nosql", label: "NoSQL" },
+  { value: "xml", label: "XML" },
   { value: "code", label: "Code (eval)" },
   { value: "crlf", label: "CRLF" },
   { value: "prompt", label: "Prompt" },
@@ -35,6 +36,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   xpath: [],
   ldap: [],
   nosql: [],
+  xml: [],
   code: ["python", "javascript", "php"],
   crlf: ["header", "log"],
   prompt: [],
@@ -72,6 +74,10 @@ export const EXAMPLES: Record<Lang, Example> = {
     template: '{"user": "{INPUT}", "pass": "secret"}',
     payload: '", "$or": [{}], "x": "',
   },
+  xml: {
+    template: "<user><name>{INPUT}</name></user>",
+    payload: "<script/>injected",
+  },
   code: {
     template: 'eval("result = {INPUT}")',
     payload: "\"; __import__('os').system('id') #",
@@ -97,5 +103,6 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "xpath" ||
   lang === "ldap" ||
   lang === "nosql" ||
+  lang === "xml" ||
   lang === "code" ||
   lang === "crlf";

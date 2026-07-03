@@ -36,6 +36,14 @@ NoSQL (MongoDB) injection:
   `$where`, `$regex`, `$or` and friends) and new query fields the payload
   injects, with object and string balance and operator payload mutation.
 
+XML injection:
+
+- Analyzes an input embedded in an XML document, classifying element text,
+  quoted attribute, CDATA, and comment contexts. Detects injecting a new element
+  from text, escaping a quoted attribute or the tag, escaping a CDATA or comment
+  section, entity references, and `<!DOCTYPE`/`<!ENTITY>` (possible XXE), with
+  element and escape payload mutation.
+
 Code (eval sink) injection:
 
 - Analyzes an input reaching an eval-style sink in Python, JavaScript, or PHP,
@@ -209,6 +217,12 @@ Analyze NoSQL (MongoDB) injection with `--lang nosql`:
 
 ```bash
 xyainjex -l nosql '{"user": "{INPUT}", "pass": "x"}' '", "$ne": "'
+```
+
+Analyze XML injection with `--lang xml`:
+
+```bash
+xyainjex -l xml '<user><name>{INPUT}</name></user>' '<script>alert(1)</script>'
 ```
 
 Analyze code (eval sink) injection with `--lang code` (`-d` python, javascript,
