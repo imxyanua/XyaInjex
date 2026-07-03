@@ -462,6 +462,30 @@ def test_mutate_ssi_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_xss_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": '<img src="{INPUT}">',
+            "payload": '"><script>alert(1)</script>',
+            "lang": "xss",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "html_attr"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_xss_endpoint():
+    resp = client.post(
+        "/mutate", json={"template": "<div>{INPUT}</div>", "lang": "xss"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

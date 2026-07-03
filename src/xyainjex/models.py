@@ -118,6 +118,11 @@ class Context(Enum):
     CSV_MIDCELL = "csv_midcell"
     # Server-Side Includes context
     SSI_TEXT = "ssi_text"
+    # HTML / XSS contexts
+    HTML_TEXT = "html_text"
+    HTML_ATTR = "html_attr"
+    HTML_SCRIPT = "html_script"
+    HTML_COMMENT = "html_comment"
 
     @property
     def quote_char(self) -> str | None:

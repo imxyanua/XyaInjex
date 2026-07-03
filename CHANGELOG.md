@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   directive (`#exec` for command execution, `#include` for file read, and
   `#echo`/`#printenv`/`#config` for information disclosure), with payload
   mutation and CLI (`--lang ssi`), HTTP API, and web frontend support.
+- HTML / XSS injection analyzer: classifies element text, attribute, script
+  block, and comment contexts, detects breakout out of a quoted attribute or
+  comment, injection of a new element, an `on*` event handler, a `<script>`
+  element or `</script>` close, and a `javascript:` URL, distinguishing script
+  execution from plain markup injection, with payload mutation and CLI
+  (`--lang xss`), HTTP API, and web frontend support.
 
 ## [0.4.0] - 2026-07-03
 

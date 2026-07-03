@@ -35,6 +35,7 @@ from .ssi import analyze_ssi, mutate_ssi
 from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
+from .xss import analyze_xss, mutate_xss
 from .yaml import analyze_yaml, mutate_yaml
 
 app = FastAPI(title="XyaInjex", version="0.4.0")
@@ -100,6 +101,7 @@ def _require_lang(lang: str) -> str:
         "el",
         "csv",
         "ssi",
+        "xss",
         "code",
         "crlf",
         "prompt",
@@ -140,6 +142,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_csv(req.template, req.payload).to_dict()
         if lang == "ssi":
             return analyze_ssi(req.template, req.payload).to_dict()
+        if lang == "xss":
+            return analyze_xss(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -184,6 +188,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_csv(req.template).to_dict()
         if lang == "ssi":
             return mutate_ssi(req.template).to_dict()
+        if lang == "xss":
+            return mutate_xss(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")
