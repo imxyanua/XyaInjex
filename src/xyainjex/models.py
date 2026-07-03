@@ -67,6 +67,9 @@ class Context(Enum):
     TEMPLATE_STATEMENT = "template_statement"
     TEMPLATE_COMMENT = "template_comment"
     TEMPLATE_STRING = "template_string"
+    # XPath contexts
+    XPATH_STRING = "xpath_string"
+    XPATH_EXPRESSION = "xpath_expression"
 
     @property
     def quote_char(self) -> str | None:
@@ -127,7 +130,7 @@ class AnalysisResult:
     template: str
     payload: str
     rendered: str
-    dialect: Dialect | SqlDialect | TemplateEngine
+    dialect: Dialect | SqlDialect | TemplateEngine | None
     context: Context
     breakout: Breakout
     balance: Balance
@@ -136,7 +139,7 @@ class AnalysisResult:
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
-        data["dialect"] = self.dialect.value
+        data["dialect"] = self.dialect.value if self.dialect is not None else None
         data["context"] = self.context.value
         data["risk"] = self.risk.value
         data["breakout"]["context"] = self.breakout.context.value

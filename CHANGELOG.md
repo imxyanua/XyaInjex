@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- XPath injection analyzer: classifies the string-literal and expression
+  contexts, detects injected logic tokens (`or`, `and`, `]`, `|`, `=`), scores
+  the breakout, and mutates boolean-tautology and node-union payloads. Wired
+  into the CLI (`--lang xpath`), the HTTP API, and the web frontend. Analysis
+  results now allow a null dialect for languages without one.
+
 ## [0.2.0] - 2026-07-02
 
 ### Added

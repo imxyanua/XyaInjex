@@ -18,7 +18,7 @@ export function BreakoutView({ result }: { result: BreakoutResult }) {
     <div className="result">
       <div className="badges">
         <RiskBadge risk={result.risk} />
-        <span className="badge">{result.dialect}</span>
+        {result.dialect && <span className="badge">{result.dialect}</span>}
         <span className="badge">{result.context}</span>
         <span className={`badge ${result.syntax_valid ? "ok" : "warn"}`}>
           {result.syntax_valid ? "syntax valid" : "syntax invalid"}

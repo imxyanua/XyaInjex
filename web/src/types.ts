@@ -1,4 +1,4 @@
-export type Lang = "shell" | "sql" | "template" | "prompt" | "agent";
+export type Lang = "shell" | "sql" | "template" | "xpath" | "prompt" | "agent";
 
 export type Risk = "NONE" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
@@ -26,7 +26,7 @@ export interface BreakoutResult {
   template: string;
   payload: string;
   rendered: string;
-  dialect: string;
+  dialect: string | null;
   context: string;
   breakout: Breakout;
   balance: Balance;

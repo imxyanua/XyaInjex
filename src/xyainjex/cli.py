@@ -16,6 +16,7 @@ from .prompt import analyze_prompt
 from .report import to_json, visualize
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
+from .xpath import analyze_xpath, mutate_xpath
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -71,7 +72,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--lang",
         "-l",
         default="shell",
-        help="injection language: shell (default), sql, template, prompt, or agent",
+        help=(
+            "injection language: shell (default), sql, template, xpath, prompt, "
+            "or agent"
+        ),
     )
     parser.add_argument(
         "--source",
@@ -101,10 +105,25 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     lang = args.lang.strip().lower()
-    if lang not in ("shell", "sql", "template", "prompt", "agent"):
-        parser.error("--lang must be 'shell', 'sql', 'template', 'prompt', or 'agent'")
+    if lang not in ("shell", "sql", "template", "xpath", "prompt", "agent"):
+        parser.error(
+            "--lang must be 'shell', 'sql', 'template', 'xpath', 'prompt', or 'agent'"
+        )
 
     try:
+        if lang == "xpath":
+            if args.mutate:
+                _emit_mutation(mutate_xpath(args.template), args.json)
+                return 0
+            if args.payload is None:
+                parser.error("payload is required unless --mutate is used")
+            result = analyze_xpath(args.template, args.payload)
+            if args.json:
+                print(to_json(result))
+            else:
+                print(visualize(result))
+            return 0 if result.risk.value in ("NONE", "LOW") else 2
+
         if args.fuzz:
             if lang not in ("shell", "sql", "template"):
                 parser.error("--fuzz supports --lang shell, sql, or template")
@@ -292,7 +311,8 @@ def _render_prompt(result) -> str:
 def _print_mutation(result) -> None:
     label = getattr(result, "dialect", None) or getattr(result, "engine", None)
     print(f"Template : {result.template}")
-    print(f"Dialect  : {label.value}")
+    if label is not None:
+        print(f"Dialect  : {label.value}")
     print(f"Context  : {result.context.value}")
     print(f"Generated: {result.generated}")
     print(f"Valid    : {result.valid}")
