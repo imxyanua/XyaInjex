@@ -242,6 +242,30 @@ def test_mutate_ldap_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_nosql_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": '{"user": "{INPUT}", "pass": "x"}',
+            "payload": '", "$ne": "',
+            "lang": "nosql",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "nosql_string"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_nosql_endpoint():
+    resp = client.post(
+        "/mutate", json={"template": '{"age": {INPUT}}', "lang": "nosql"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

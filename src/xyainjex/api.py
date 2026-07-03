@@ -23,6 +23,7 @@ from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import differential, fuzz
 from .ldap import analyze_ldap, mutate_ldap
 from .mutation import mutate
+from .nosql import analyze_nosql, mutate_nosql
 from .prompt import analyze_prompt
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
@@ -78,7 +79,16 @@ class DifferentialRequest(BaseModel):
 
 def _require_lang(lang: str) -> str:
     key = lang.strip().lower()
-    valid = ("shell", "sql", "template", "xpath", "ldap", "prompt", "agent")
+    valid = (
+        "shell",
+        "sql",
+        "template",
+        "xpath",
+        "ldap",
+        "nosql",
+        "prompt",
+        "agent",
+    )
     if key not in valid:
         raise ValueError("lang must be one of: " + ", ".join(valid))
     return key
@@ -100,6 +110,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_xpath(req.template, req.payload).to_dict()
         if lang == "ldap":
             return analyze_ldap(req.template, req.payload).to_dict()
+        if lang == "nosql":
+            return analyze_nosql(req.template, req.payload).to_dict()
         if lang == "prompt":
             return analyze_prompt(req.template, req.payload).to_dict()
         if lang == "sql":
@@ -124,6 +136,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_xpath(req.template).to_dict()
         if lang == "ldap":
             return mutate_ldap(req.template).to_dict()
+        if lang == "nosql":
+            return mutate_nosql(req.template).to_dict()
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")
             return mutate_sql(req.template, dialect=dialect).to_dict()

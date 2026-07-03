@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   enclosing assertion and opens a new one (`*)(uid=*`), or injects a `*`
   wildcard, with parenthesis balance and backslash-escape handling, filter
   payload mutation, and CLI (`--lang ldap`), HTTP API, and web frontend support.
+- NoSQL (MongoDB) injection analyzer: classifies the JSON string and value
+  contexts, detects injected MongoDB operators (`$ne`, `$where`, `$regex`, and
+  more, including operator keys inside strings) and new query fields, with
+  object and string balance, operator payload mutation, and CLI (`--lang
+  nosql`), HTTP API, and web frontend support.
 
 ## [0.2.0] - 2026-07-02
 

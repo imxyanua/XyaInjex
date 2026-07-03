@@ -29,6 +29,13 @@ LDAP injection:
   `*)(uid=*` tautology), or injects a `*` wildcard, with parenthesis balance,
   backslash-escape handling, and filter-breakout payload mutation.
 
+NoSQL (MongoDB) injection:
+
+- Analyzes an input embedded in a JSON query document, classifying the JSON
+  string and value contexts and detecting MongoDB operators (`$ne`, `$gt`,
+  `$where`, `$regex`, `$or` and friends) and new query fields the payload
+  injects, with object and string balance and operator payload mutation.
+
 LLM-assisted analysis (optional):
 
 - An LLM can propose candidate payloads, which are then validated by the
@@ -181,6 +188,12 @@ Analyze LDAP injection with `--lang ldap`:
 
 ```bash
 xyainjex -l ldap "(&(uid={INPUT})(objectClass=person))" "*)(uid=*"
+```
+
+Analyze NoSQL (MongoDB) injection with `--lang nosql`:
+
+```bash
+xyainjex -l nosql '{"user": "{INPUT}", "pass": "x"}' '", "$ne": "'
 ```
 
 Analyze prompt injection with `--lang prompt` (use the `{INPUT}` template to

@@ -72,6 +72,9 @@ class Context(Enum):
     XPATH_EXPRESSION = "xpath_expression"
     # LDAP context
     LDAP_FILTER = "ldap_filter"
+    # NoSQL (MongoDB) contexts
+    NOSQL_STRING = "nosql_string"
+    NOSQL_VALUE = "nosql_value"
 
     @property
     def quote_char(self) -> str | None:
