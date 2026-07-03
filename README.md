@@ -22,6 +22,13 @@ XPath injection:
   operators, a predicate close `]`, a node union `|`, or a comparison), with
   boolean-tautology and node-union payload mutation.
 
+LDAP injection:
+
+- Analyzes injection into an LDAP search filter, detecting when the payload
+  closes the enclosing assertion with `)` and opens a new one (the classic
+  `*)(uid=*` tautology), or injects a `*` wildcard, with parenthesis balance,
+  backslash-escape handling, and filter-breakout payload mutation.
+
 LLM-assisted analysis (optional):
 
 - An LLM can propose candidate payloads, which are then validated by the
@@ -168,6 +175,12 @@ Analyze XPath injection with `--lang xpath`:
 
 ```bash
 xyainjex -l xpath "//user[name = '{INPUT}']" "' or '1'='1"
+```
+
+Analyze LDAP injection with `--lang ldap`:
+
+```bash
+xyainjex -l ldap "(&(uid={INPUT})(objectClass=person))" "*)(uid=*"
 ```
 
 Analyze prompt injection with `--lang prompt` (use the `{INPUT}` template to

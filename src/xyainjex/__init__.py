@@ -14,6 +14,7 @@ from .agent import (
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
+from .ldap import analyze_ldap, mutate_ldap
 from .llm import (
     LLMProvider,
     MockProvider,
@@ -52,6 +53,7 @@ __all__ = [
     "analyze_sql",
     "analyze_template",
     "analyze_xpath",
+    "analyze_ldap",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -65,6 +67,7 @@ __all__ = [
     "mutate_sql",
     "mutate_template",
     "mutate_xpath",
+    "mutate_ldap",
     "fuzz",
     "differential",
     "FuzzResult",

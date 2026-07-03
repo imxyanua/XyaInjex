@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the breakout, and mutates boolean-tautology and node-union payloads. Wired
   into the CLI (`--lang xpath`), the HTTP API, and the web frontend. Analysis
   results now allow a null dialect for languages without one.
+- LDAP injection analyzer: detects filter breakout where the payload closes the
+  enclosing assertion and opens a new one (`*)(uid=*`), or injects a `*`
+  wildcard, with parenthesis balance and backslash-escape handling, filter
+  payload mutation, and CLI (`--lang ldap`), HTTP API, and web frontend support.
 
 ## [0.2.0] - 2026-07-02
 

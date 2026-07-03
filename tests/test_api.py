@@ -217,6 +217,31 @@ def test_mutate_xpath_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_ldap_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "(&(uid={INPUT})(objectClass=person))",
+            "payload": "*)(uid=*",
+            "lang": "ldap",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "ldap_filter"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_ldap_endpoint():
+    resp = client.post(
+        "/mutate",
+        json={"template": "(&(uid={INPUT})(objectClass=person))", "lang": "ldap"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

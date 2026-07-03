@@ -1,4 +1,11 @@
-export type Lang = "shell" | "sql" | "template" | "xpath" | "prompt" | "agent";
+export type Lang =
+  | "shell"
+  | "sql"
+  | "template"
+  | "xpath"
+  | "ldap"
+  | "prompt"
+  | "agent";
 
 export type Risk = "NONE" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
