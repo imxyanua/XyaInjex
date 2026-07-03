@@ -58,7 +58,7 @@ from .xpath import analyze_xpath, mutate_xpath
 from .xss import analyze_xss, mutate_xss
 from .yaml import analyze_yaml, mutate_yaml
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 __all__ = [
     "analyze",

@@ -433,7 +433,7 @@ curl -s localhost:8000/analyze \
 
 ## Changelog
 
-Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.4.0.
+Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.5.0.
 
 ## License
 
