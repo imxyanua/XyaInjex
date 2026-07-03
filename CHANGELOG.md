@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `[col]`, PostgreSQL dollar-quoted strings `$tag$...$tag$` (positional
   parameters like `$1` are not treated as quotes), Oracle alternative quoting
   `q'[...]'`, and `#` line comments restricted to MySQL.
+- Shell dialect fish, where command substitution is bare parentheses
+  `(command)` (and `$(command)`), with context and mutation support.
 
 ## [0.1.0] - 2026-07-02
 

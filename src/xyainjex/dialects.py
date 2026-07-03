@@ -18,6 +18,7 @@ from .scan import (
     SUBEXPR,
     BaseScanner,
 )
+from .shell.fish import FishScanner
 from .shell.scanner import ShellScanner
 from .windows.cmd import CmdScanner
 from .windows.powershell import PowerShellScanner
@@ -58,6 +59,12 @@ _POWERSHELL_MAP = {
     PARAM: Context.PARAMETER_EXPANSION,
 }
 
+_FISH_MAP = {
+    SINGLE: Context.SINGLE_QUOTE,
+    DOUBLE: Context.DOUBLE_QUOTE,
+    CMDSUB: Context.COMMAND_SUBSTITUTION,
+}
+
 _SPECS: dict[Dialect, DialectSpec] = {
     Dialect.POSIX: DialectSpec(
         Dialect.POSIX, ShellScanner, _POSIX_MAP, supports_comment=True
@@ -65,6 +72,9 @@ _SPECS: dict[Dialect, DialectSpec] = {
     Dialect.CMD: DialectSpec(Dialect.CMD, CmdScanner, _CMD_MAP, supports_comment=False),
     Dialect.POWERSHELL: DialectSpec(
         Dialect.POWERSHELL, PowerShellScanner, _POWERSHELL_MAP, supports_comment=True
+    ),
+    Dialect.FISH: DialectSpec(
+        Dialect.FISH, FishScanner, _FISH_MAP, supports_comment=True
     ),
 }
 
@@ -88,6 +98,7 @@ def parse_dialect(name: str) -> Dialect:
         "pwsh": Dialect.POWERSHELL,
         "ps": Dialect.POWERSHELL,
         "ps1": Dialect.POWERSHELL,
+        "fish": Dialect.FISH,
     }
     if key not in aliases:
         valid = ", ".join(sorted(aliases))
