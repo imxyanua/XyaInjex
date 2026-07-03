@@ -91,8 +91,8 @@ Command injection:
   command substitution, arithmetic expansion, parameter expansion, here-document
   body, or unquoted).
 - Multiple dialects: POSIX shell (bash, sh, zsh), Windows cmd.exe (with caret
-  escaping), and PowerShell (with backtick escaping, subexpressions, and block
-  comments).
+  escaping), PowerShell (with backtick escaping, subexpressions, and block
+  comments), and fish (bare parenthesis command substitution).
 - Syntax balance engine that tracks quote, parenthesis, brace, and bracket
   balance across the rendered command, plus open substitutions and expansions.
 - Breakout detector that reports quote closure, injected command separators at

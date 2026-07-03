@@ -24,6 +24,10 @@ _POWERSHELL_SEPARATORS = [";", "|", "&&", "||", "&", "\n"]
 _POWERSHELL_SUBSTITUTIONS = ["$({cmd})"]
 _POWERSHELL_TERMINATORS = ["#", " #", ";#", ""]
 
+_FISH_SEPARATORS = [";", "&&", "||", "|", "\n", "&"]
+_FISH_SUBSTITUTIONS = ["({cmd})", "$({cmd})"]
+_FISH_TERMINATORS = ["#", " #", ";#", ""]
+
 _DIALECT_TOKENS = {
     Dialect.POSIX: (_POSIX_SEPARATORS, _POSIX_SUBSTITUTIONS, _POSIX_TERMINATORS),
     Dialect.CMD: (_CMD_SEPARATORS, _CMD_SUBSTITUTIONS, _CMD_TERMINATORS),
@@ -32,6 +36,7 @@ _DIALECT_TOKENS = {
         _POWERSHELL_SUBSTITUTIONS,
         _POWERSHELL_TERMINATORS,
     ),
+    Dialect.FISH: (_FISH_SEPARATORS, _FISH_SUBSTITUTIONS, _FISH_TERMINATORS),
 }
 
 _RISK_ORDER = {

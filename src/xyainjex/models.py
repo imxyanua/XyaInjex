@@ -13,6 +13,7 @@ class Dialect(Enum):
     POSIX = "posix"
     CMD = "cmd"
     POWERSHELL = "powershell"
+    FISH = "fish"
 
 
 class SqlDialect(Enum):
