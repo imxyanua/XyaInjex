@@ -8,6 +8,7 @@ import sys
 
 from .agent import analyze_agent, parse_source
 from .analyzer import analyze
+from .code import analyze_code, mutate_code, parse_code_lang
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import fuzz
 from .ldap import analyze_ldap, mutate_ldap
@@ -76,7 +77,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="shell",
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
-            "nosql, prompt, or agent"
+            "nosql, code, prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -114,6 +115,7 @@ def main(argv: list[str] | None = None) -> int:
         "xpath",
         "ldap",
         "nosql",
+        "code",
         "prompt",
         "agent",
     )
@@ -127,6 +129,20 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     try:
+        if lang == "code":
+            code_lang = parse_code_lang(args.dialect or "python")
+            if args.mutate:
+                _emit_mutation(mutate_code(args.template, code_lang), args.json)
+                return 0
+            if args.payload is None:
+                parser.error("payload is required unless --mutate is used")
+            result = analyze_code(args.template, args.payload, code_lang)
+            if args.json:
+                print(to_json(result))
+            else:
+                print(visualize(result))
+            return 0 if result.risk.value in ("NONE", "LOW") else 2
+
         if lang in _simple:
             analyze_fn, mutate_fn = _simple[lang]
             if args.mutate:

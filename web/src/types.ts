@@ -5,6 +5,7 @@ export type Lang =
   | "xpath"
   | "ldap"
   | "nosql"
+  | "code"
   | "prompt"
   | "agent";
 

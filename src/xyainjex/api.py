@@ -19,6 +19,7 @@ except ImportError as exc:  # pragma: no cover - import guard
 
 from .agent import analyze_agent, parse_source
 from .analyzer import analyze
+from .code import analyze_code, mutate_code, parse_code_lang
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import differential, fuzz
 from .ldap import analyze_ldap, mutate_ldap
@@ -86,6 +87,7 @@ def _require_lang(lang: str) -> str:
         "xpath",
         "ldap",
         "nosql",
+        "code",
         "prompt",
         "agent",
     )
@@ -112,6 +114,9 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_ldap(req.template, req.payload).to_dict()
         if lang == "nosql":
             return analyze_nosql(req.template, req.payload).to_dict()
+        if lang == "code":
+            code_lang = parse_code_lang(req.dialect or "python")
+            return analyze_code(req.template, req.payload, code_lang).to_dict()
         if lang == "prompt":
             return analyze_prompt(req.template, req.payload).to_dict()
         if lang == "sql":
@@ -138,6 +143,10 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_ldap(req.template).to_dict()
         if lang == "nosql":
             return mutate_nosql(req.template).to_dict()
+        if lang == "code":
+            return mutate_code(
+                req.template, parse_code_lang(req.dialect or "python")
+            ).to_dict()
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")
             return mutate_sql(req.template, dialect=dialect).to_dict()

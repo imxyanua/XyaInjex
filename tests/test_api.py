@@ -266,6 +266,32 @@ def test_mutate_nosql_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_code_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "eval({INPUT})",
+            "payload": "os.system('id')",
+            "lang": "code",
+            "dialect": "python",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] == "python"
+    assert data["context"] == "code_expression"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_code_endpoint():
+    resp = client.post(
+        "/mutate",
+        json={"template": "eval('{INPUT}')", "lang": "code", "dialect": "php"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

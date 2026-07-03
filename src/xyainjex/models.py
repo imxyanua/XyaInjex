@@ -27,6 +27,14 @@ class SqlDialect(Enum):
     ORACLE = "oracle"
 
 
+class CodeLang(Enum):
+    """Programming language whose eval sink is being analyzed."""
+
+    PYTHON = "python"
+    JAVASCRIPT = "javascript"
+    PHP = "php"
+
+
 class TemplateEngine(Enum):
     """Template engine whose delimiter syntax governs SSTI analysis."""
 
@@ -75,6 +83,10 @@ class Context(Enum):
     # NoSQL (MongoDB) contexts
     NOSQL_STRING = "nosql_string"
     NOSQL_VALUE = "nosql_value"
+    # Code (eval sink) contexts
+    CODE_STRING = "code_string"
+    CODE_TEMPLATE = "code_template"
+    CODE_EXPRESSION = "code_expression"
 
     @property
     def quote_char(self) -> str | None:
@@ -135,7 +147,7 @@ class AnalysisResult:
     template: str
     payload: str
     rendered: str
-    dialect: Dialect | SqlDialect | TemplateEngine | None
+    dialect: Dialect | SqlDialect | TemplateEngine | CodeLang | None
     context: Context
     breakout: Breakout
     balance: Balance

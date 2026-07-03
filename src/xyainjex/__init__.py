@@ -12,6 +12,7 @@ from .agent import (
     parse_source,
 )
 from .analyzer import analyze
+from .code import analyze_code, mutate_code, parse_code_lang
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
 from .ldap import analyze_ldap, mutate_ldap
@@ -27,6 +28,7 @@ from .models import (
     AnalysisResult,
     Balance,
     Breakout,
+    CodeLang,
     Context,
     Dialect,
     Risk,
@@ -56,6 +58,7 @@ __all__ = [
     "analyze_xpath",
     "analyze_ldap",
     "analyze_nosql",
+    "analyze_code",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -71,6 +74,9 @@ __all__ = [
     "mutate_xpath",
     "mutate_ldap",
     "mutate_nosql",
+    "mutate_code",
+    "parse_code_lang",
+    "CodeLang",
     "fuzz",
     "differential",
     "FuzzResult",

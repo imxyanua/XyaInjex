@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   more, including operator keys inside strings) and new query fields, with
   object and string balance, operator payload mutation, and CLI (`--lang
   nosql`), HTTP API, and web frontend support.
+- Code (eval sink) injection analyzer for Python, JavaScript, and PHP:
+  classifies the string-literal, JavaScript template-literal, and expression
+  contexts, detects statement and sink-identifier injection, `${...}` template
+  substitution, and comment truncation (`#`, `//`), with sink payload mutation
+  and CLI (`--lang code`), HTTP API, and web frontend support.
 
 ## [0.2.0] - 2026-07-02
 
