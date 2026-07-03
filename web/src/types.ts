@@ -10,6 +10,7 @@ export type Lang =
   | "graphql"
   | "el"
   | "csv"
+  | "ssi"
   | "code"
   | "crlf"
   | "prompt"

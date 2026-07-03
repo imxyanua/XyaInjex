@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   formula trigger (`=`, `+`, `-`, `@`) at the cell start or via a new cell
   injected mid-row, flags command (DDE) and exfiltration functions, with payload
   mutation and CLI (`--lang csv`), HTTP API, and web frontend support.
+- Server-Side Includes (SSI) injection analyzer: detects an injected SSI
+  directive (`#exec` for command execution, `#include` for file read, and
+  `#echo`/`#printenv`/`#config` for information disclosure), with payload
+  mutation and CLI (`--lang ssi`), HTTP API, and web frontend support.
 
 ## [0.4.0] - 2026-07-03
 

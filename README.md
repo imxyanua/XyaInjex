@@ -69,6 +69,13 @@ YAML injection:
   after escaping any quoted scalar, with tag and key payload mutation. Full block
   indentation is out of scope.
 
+Server-Side Includes (SSI) injection:
+
+- Analyzes an input written into an SSI-parsed page, detecting an injected SSI
+  directive: `#exec cmd`/`#exec cgi` (command execution), `#include virtual`
+  (file read or internal request), and `#echo`/`#printenv`/`#config` (information
+  disclosure), with directive payload mutation.
+
 CSV / spreadsheet formula injection:
 
 - Analyzes an input written into a CSV cell, detecting when a cell begins with a
@@ -274,6 +281,12 @@ Analyze YAML injection with `--lang yaml`:
 
 ```bash
 xyainjex -l yaml 'name: {INPUT}' "!!python/object/apply:os.system ['id']"
+```
+
+Analyze Server-Side Includes injection with `--lang ssi`:
+
+```bash
+xyainjex -l ssi '<html>Hello {INPUT}</html>' '<!--#exec cmd="id" -->'
 ```
 
 Analyze CSV / spreadsheet formula injection with `--lang csv`:

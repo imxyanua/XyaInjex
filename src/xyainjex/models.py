@@ -116,6 +116,8 @@ class Context(Enum):
     # CSV / spreadsheet formula contexts
     CSV_CELL = "csv_cell"
     CSV_MIDCELL = "csv_midcell"
+    # Server-Side Includes context
+    SSI_TEXT = "ssi_text"
 
     @property
     def quote_char(self) -> str | None:
