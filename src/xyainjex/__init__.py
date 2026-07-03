@@ -51,6 +51,7 @@ from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
+from .yaml import analyze_yaml, mutate_yaml
 
 __version__ = "0.3.0"
 
@@ -64,6 +65,7 @@ __all__ = [
     "analyze_code",
     "analyze_crlf",
     "analyze_xml",
+    "analyze_yaml",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -82,6 +84,7 @@ __all__ = [
     "mutate_code",
     "mutate_crlf",
     "mutate_xml",
+    "mutate_yaml",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

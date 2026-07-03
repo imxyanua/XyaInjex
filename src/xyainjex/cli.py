@@ -22,6 +22,7 @@ from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
+from .yaml import analyze_yaml, mutate_yaml
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -79,7 +80,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="shell",
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
-            "nosql, xml, code, crlf, prompt, or agent"
+            "nosql, xml, yaml, code, crlf, prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -118,6 +119,7 @@ def main(argv: list[str] | None = None) -> int:
         "ldap",
         "nosql",
         "xml",
+        "yaml",
         "code",
         "crlf",
         "prompt",
@@ -131,6 +133,7 @@ def main(argv: list[str] | None = None) -> int:
         "ldap": (analyze_ldap, mutate_ldap),
         "nosql": (analyze_nosql, mutate_nosql),
         "xml": (analyze_xml, mutate_xml),
+        "yaml": (analyze_yaml, mutate_yaml),
     }
 
     try:

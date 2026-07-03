@@ -6,6 +6,7 @@ export type Lang =
   | "ldap"
   | "nosql"
   | "xml"
+  | "yaml"
   | "code"
   | "crlf"
   | "prompt"

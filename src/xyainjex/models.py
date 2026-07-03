@@ -102,6 +102,10 @@ class Context(Enum):
     XML_ATTR = "xml_attr"
     XML_CDATA = "xml_cdata"
     XML_COMMENT = "xml_comment"
+    # YAML contexts
+    YAML_PLAIN = "yaml_plain"
+    YAML_SINGLE = "yaml_single"
+    YAML_DOUBLE = "yaml_double"
 
     @property
     def quote_char(self) -> str | None:

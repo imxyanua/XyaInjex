@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   comment escape, entity references, and `<!DOCTYPE`/`<!ENTITY>` (possible XXE),
   with payload mutation and CLI (`--lang xml`), HTTP API, and web frontend
   support.
+- YAML injection analyzer: classifies plain and quoted scalar contexts, detects
+  a deserialization tag (`!!python/object/...`, RCE under an unsafe loader), a
+  new mapping key, and a line break after escaping a quoted scalar, with payload
+  mutation and CLI (`--lang yaml`), HTTP API, and web frontend support (block
+  indentation is out of scope).
 
 ## [0.3.0] - 2026-07-03
 
