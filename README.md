@@ -44,6 +44,14 @@ XML injection:
   section, entity references, and `<!DOCTYPE`/`<!ENTITY>` (possible XXE), with
   element and escape payload mutation.
 
+GraphQL injection:
+
+- Analyzes an input embedded in a GraphQL query, classifying the string-argument
+  and argument/value contexts. Detects escaping a string argument and injecting
+  query structure (a field selection, argument list, or directive) or an
+  introspection field, with field, directive, and introspection payload
+  mutation.
+
 YAML injection:
 
 - Analyzes an input embedded in a YAML scalar, classifying plain, single-quoted,
@@ -231,6 +239,12 @@ Analyze XML injection with `--lang xml`:
 
 ```bash
 xyainjex -l xml '<user><name>{INPUT}</name></user>' '<script>alert(1)</script>'
+```
+
+Analyze GraphQL injection with `--lang graphql`:
+
+```bash
+xyainjex -l graphql '{ user(id: {INPUT}) { id } }' '1) { id password }'
 ```
 
 Analyze YAML injection with `--lang yaml`:

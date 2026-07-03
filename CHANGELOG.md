@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   new mapping key, and a line break after escaping a quoted scalar, with payload
   mutation and CLI (`--lang yaml`), HTTP API, and web frontend support (block
   indentation is out of scope).
+- GraphQL injection analyzer: classifies the string-argument and argument/value
+  contexts, detects escaping a string argument and injecting query structure (a
+  field selection, argument list, or directive) or an introspection field, with
+  payload mutation and CLI (`--lang graphql`), HTTP API, and web frontend
+  support.
 
 ## [0.3.0] - 2026-07-03
 

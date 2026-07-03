@@ -16,6 +16,7 @@ from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
+from .graphql import analyze_graphql, mutate_graphql
 from .ldap import analyze_ldap, mutate_ldap
 from .llm import (
     LLMProvider,
@@ -66,6 +67,7 @@ __all__ = [
     "analyze_crlf",
     "analyze_xml",
     "analyze_yaml",
+    "analyze_graphql",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -85,6 +87,7 @@ __all__ = [
     "mutate_crlf",
     "mutate_xml",
     "mutate_yaml",
+    "mutate_graphql",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

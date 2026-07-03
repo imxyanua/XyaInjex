@@ -365,6 +365,31 @@ def test_mutate_yaml_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_graphql_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "{ user(id: {INPUT}) { id } }",
+            "payload": "1) { id password }",
+            "lang": "graphql",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "gql_arg"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_graphql_endpoint():
+    resp = client.post(
+        "/mutate",
+        json={"template": "{ user(id: {INPUT}) { id } }", "lang": "graphql"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

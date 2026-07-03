@@ -106,6 +106,9 @@ class Context(Enum):
     YAML_PLAIN = "yaml_plain"
     YAML_SINGLE = "yaml_single"
     YAML_DOUBLE = "yaml_double"
+    # GraphQL contexts
+    GQL_STRING = "gql_string"
+    GQL_ARG = "gql_arg"
 
     @property
     def quote_char(self) -> str | None:
