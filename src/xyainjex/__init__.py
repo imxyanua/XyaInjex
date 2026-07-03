@@ -44,7 +44,7 @@ from .shell.breakout import render
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "analyze",
