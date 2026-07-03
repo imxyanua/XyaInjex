@@ -9,6 +9,7 @@ export const LANGS: { value: Lang; label: string }[] = [
   { value: "nosql", label: "NoSQL" },
   { value: "xml", label: "XML" },
   { value: "yaml", label: "YAML" },
+  { value: "graphql", label: "GraphQL" },
   { value: "code", label: "Code (eval)" },
   { value: "crlf", label: "CRLF" },
   { value: "prompt", label: "Prompt" },
@@ -39,6 +40,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   nosql: [],
   xml: [],
   yaml: [],
+  graphql: [],
   code: ["python", "javascript", "php"],
   crlf: ["header", "log"],
   prompt: [],
@@ -84,6 +86,10 @@ export const EXAMPLES: Record<Lang, Example> = {
     template: "name: {INPUT}",
     payload: "!!python/object/apply:os.system ['id']",
   },
+  graphql: {
+    template: '{ user(id: {INPUT}) { id } }',
+    payload: "1) { id password }",
+  },
   code: {
     template: 'eval("result = {INPUT}")',
     payload: "\"; __import__('os').system('id') #",
@@ -111,5 +117,6 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "nosql" ||
   lang === "xml" ||
   lang === "yaml" ||
+  lang === "graphql" ||
   lang === "code" ||
   lang === "crlf";

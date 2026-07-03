@@ -7,6 +7,7 @@ export type Lang =
   | "nosql"
   | "xml"
   | "yaml"
+  | "graphql"
   | "code"
   | "crlf"
   | "prompt"
