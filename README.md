@@ -321,7 +321,7 @@ curl -s localhost:8000/analyze \
 
 ## Changelog
 
-Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.2.0.
+Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.3.0.
 
 ## License
 
