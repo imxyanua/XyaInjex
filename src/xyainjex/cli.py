@@ -22,6 +22,7 @@ from .nosql import analyze_nosql, mutate_nosql
 from .prompt import analyze_prompt
 from .report import to_json, visualize
 from .sql import analyze_sql, mutate_sql
+from .ssi import analyze_ssi, mutate_ssi
 from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
@@ -83,7 +84,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="shell",
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
-            "nosql, xml, yaml, graphql, el, csv, code, crlf, prompt, or agent"
+            "nosql, xml, yaml, graphql, el, csv, ssi, code, crlf, prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -126,6 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         "graphql",
         "el",
         "csv",
+        "ssi",
         "code",
         "crlf",
         "prompt",
@@ -143,6 +145,7 @@ def main(argv: list[str] | None = None) -> int:
         "graphql": (analyze_graphql, mutate_graphql),
         "el": (analyze_el, mutate_el),
         "csv": (analyze_csv, mutate_csv),
+        "ssi": (analyze_ssi, mutate_ssi),
     }
 
     try:

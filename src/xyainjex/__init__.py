@@ -51,6 +51,7 @@ from .prompt import (
 )
 from .shell.breakout import render
 from .sql import analyze_sql, mutate_sql
+from .ssi import analyze_ssi, mutate_ssi
 from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
@@ -72,6 +73,7 @@ __all__ = [
     "analyze_graphql",
     "analyze_el",
     "analyze_csv",
+    "analyze_ssi",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -94,6 +96,7 @@ __all__ = [
     "mutate_graphql",
     "mutate_el",
     "mutate_csv",
+    "mutate_ssi",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

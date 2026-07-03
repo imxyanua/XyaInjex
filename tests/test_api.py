@@ -438,6 +438,30 @@ def test_mutate_csv_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_ssi_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "<html>Hello {INPUT}</html>",
+            "payload": '<!--#exec cmd="id" -->',
+            "lang": "ssi",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "ssi_text"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_ssi_endpoint():
+    resp = client.post(
+        "/mutate", json={"template": "<html>Hello {INPUT}</html>", "lang": "ssi"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",
