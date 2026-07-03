@@ -93,6 +93,16 @@ HTML / XSS injection:
   distinguishing script execution from plain markup injection, with per-context
   payload mutation.
 
+SSRF (server-side request forgery):
+
+- Analyzes an input that reaches a URL the server fetches, classifying whether
+  it is the whole URL, the host, the path, or a query-string value. Parses the
+  effective target and detects redirection to a cloud metadata endpoint
+  (`169.254.169.254`), a loopback or private / link-local host, a dangerous
+  scheme (`file`, `gopher`, `dict`, ...), an `@` authority override, a
+  protocol-relative or absolute URL, and obfuscated (decimal / hex / octal) IP
+  encodings, with per-context payload mutation.
+
 Code (eval sink) injection:
 
 - Analyzes an input reaching an eval-style sink in Python, JavaScript, or PHP,
@@ -308,6 +318,13 @@ Analyze HTML / XSS injection with `--lang xss`:
 
 ```bash
 xyainjex -l xss '<img src="{INPUT}">' '"><script>alert(1)</script>'
+```
+
+Analyze SSRF with `--lang ssrf`:
+
+```bash
+xyainjex -l ssrf 'http://api.example.com/fetch?url={INPUT}' \
+  'http://169.254.169.254/latest/meta-data/'
 ```
 
 Analyze code (eval sink) injection with `--lang code` (`-d` python, javascript,

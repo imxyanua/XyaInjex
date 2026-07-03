@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- SSRF (server-side request forgery) analyzer: classifies whether the input is
+  the whole fetched URL, the host, the path, or a query-string value, parses the
+  effective target, and detects redirection to a cloud metadata endpoint, a
+  loopback or private / link-local host, a dangerous scheme (`file`, `gopher`,
+  `dict`, ...), an `@` authority override, a protocol-relative or absolute URL,
+  and obfuscated (decimal / hex / octal) IP encodings, with payload mutation and
+  CLI (`--lang ssrf`), HTTP API, and web frontend support.
+
 ## [0.5.0] - 2026-07-04
 
 ### Added
