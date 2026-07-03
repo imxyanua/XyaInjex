@@ -10,6 +10,7 @@ from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
+from .csv import analyze_csv, mutate_csv
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
 from .fuzz import fuzz
@@ -82,7 +83,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="shell",
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
-            "nosql, xml, yaml, graphql, el, code, crlf, prompt, or agent"
+            "nosql, xml, yaml, graphql, el, csv, code, crlf, prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -124,6 +125,7 @@ def main(argv: list[str] | None = None) -> int:
         "yaml",
         "graphql",
         "el",
+        "csv",
         "code",
         "crlf",
         "prompt",
@@ -140,6 +142,7 @@ def main(argv: list[str] | None = None) -> int:
         "yaml": (analyze_yaml, mutate_yaml),
         "graphql": (analyze_graphql, mutate_graphql),
         "el": (analyze_el, mutate_el),
+        "csv": (analyze_csv, mutate_csv),
     }
 
     try:

@@ -69,6 +69,14 @@ YAML injection:
   after escaping any quoted scalar, with tag and key payload mutation. Full block
   indentation is out of scope.
 
+CSV / spreadsheet formula injection:
+
+- Analyzes an input written into a CSV cell, detecting when a cell begins with a
+  formula trigger (`=`, `+`, `-`, `@`) that a spreadsheet evaluates, whether the
+  input starts a cell or injects a new cell mid-row, and flags command (DDE
+  `cmd|`) and exfiltration functions (`HYPERLINK`, `WEBSERVICE`, `IMPORTXML`),
+  with formula payload mutation.
+
 Code (eval sink) injection:
 
 - Analyzes an input reaching an eval-style sink in Python, JavaScript, or PHP,
@@ -266,6 +274,12 @@ Analyze YAML injection with `--lang yaml`:
 
 ```bash
 xyainjex -l yaml 'name: {INPUT}' "!!python/object/apply:os.system ['id']"
+```
+
+Analyze CSV / spreadsheet formula injection with `--lang csv`:
+
+```bash
+xyainjex -l csv 'name,{INPUT},email' "=cmd|'/C calc'!A1"
 ```
 
 Analyze code (eval sink) injection with `--lang code` (`-d` python, javascript,

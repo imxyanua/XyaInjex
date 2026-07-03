@@ -9,6 +9,7 @@ export type Lang =
   | "yaml"
   | "graphql"
   | "el"
+  | "csv"
   | "code"
   | "crlf"
   | "prompt"
