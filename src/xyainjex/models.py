@@ -123,6 +123,11 @@ class Context(Enum):
     HTML_ATTR = "html_attr"
     HTML_SCRIPT = "html_script"
     HTML_COMMENT = "html_comment"
+    # SSRF / URL contexts
+    SSRF_URL = "ssrf_url"
+    SSRF_HOST = "ssrf_host"
+    SSRF_PATH = "ssrf_path"
+    SSRF_QUERY = "ssrf_query"
 
     @property
     def quote_char(self) -> str | None:

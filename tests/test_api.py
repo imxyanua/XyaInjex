@@ -486,6 +486,31 @@ def test_mutate_xss_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_ssrf_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "http://api.example.com/fetch?url={INPUT}",
+            "payload": "http://169.254.169.254/latest/meta-data/",
+            "lang": "ssrf",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "ssrf_query"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_ssrf_endpoint():
+    resp = client.post(
+        "/mutate",
+        json={"template": "http://api.example.com/fetch?url={INPUT}", "lang": "ssrf"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",
