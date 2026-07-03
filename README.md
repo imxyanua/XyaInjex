@@ -36,6 +36,14 @@ NoSQL (MongoDB) injection:
   `$where`, `$regex`, `$or` and friends) and new query fields the payload
   injects, with object and string balance and operator payload mutation.
 
+Code (eval sink) injection:
+
+- Analyzes an input reaching an eval-style sink in Python, JavaScript, or PHP,
+  classifying the string-literal, JavaScript template-literal, and expression
+  contexts. Detects closing the string and injecting a statement or a sink
+  identifier (`eval`, `system`, `exec`, ...), opening a `${...}` template
+  substitution, comment truncation (`#`, `//`), with sink payload mutation.
+
 LLM-assisted analysis (optional):
 
 - An LLM can propose candidate payloads, which are then validated by the
@@ -194,6 +202,13 @@ Analyze NoSQL (MongoDB) injection with `--lang nosql`:
 
 ```bash
 xyainjex -l nosql '{"user": "{INPUT}", "pass": "x"}' '", "$ne": "'
+```
+
+Analyze code (eval sink) injection with `--lang code` (`-d` python, javascript,
+or php):
+
+```bash
+xyainjex -l code -d python 'eval({INPUT})' "os.system('id')"
 ```
 
 Analyze prompt injection with `--lang prompt` (use the `{INPUT}` template to
