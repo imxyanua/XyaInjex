@@ -20,6 +20,7 @@ except ImportError as exc:  # pragma: no cover - import guard
 from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .code import analyze_code, mutate_code, parse_code_lang
+from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import differential, fuzz
 from .ldap import analyze_ldap, mutate_ldap
@@ -88,6 +89,7 @@ def _require_lang(lang: str) -> str:
         "ldap",
         "nosql",
         "code",
+        "crlf",
         "prompt",
         "agent",
     )
@@ -117,6 +119,9 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
+        if lang == "crlf":
+            kind = parse_crlf_kind(req.dialect or "header")
+            return analyze_crlf(req.template, req.payload, kind).to_dict()
         if lang == "prompt":
             return analyze_prompt(req.template, req.payload).to_dict()
         if lang == "sql":
@@ -146,6 +151,10 @@ def mutate_endpoint(req: MutateRequest) -> dict:
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")
+            ).to_dict()
+        if lang == "crlf":
+            return mutate_crlf(
+                req.template, parse_crlf_kind(req.dialect or "header")
             ).to_dict()
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")

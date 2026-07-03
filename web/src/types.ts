@@ -6,6 +6,7 @@ export type Lang =
   | "ldap"
   | "nosql"
   | "code"
+  | "crlf"
   | "prompt"
   | "agent";
 

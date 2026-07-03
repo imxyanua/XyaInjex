@@ -44,6 +44,13 @@ Code (eval sink) injection:
   identifier (`eval`, `system`, `exec`, ...), opening a `${...}` template
   substitution, comment truncation (`#`, `//`), with sink payload mutation.
 
+CRLF (HTTP header / log) injection:
+
+- Analyzes an input reaching an HTTP header value or a log line, detecting raw
+  carriage-return / line-feed breakout (header injection, response splitting via
+  a blank line, and log forging) and encoded CR/LF sequences, with header and
+  log payload mutation.
+
 LLM-assisted analysis (optional):
 
 - An LLM can propose candidate payloads, which are then validated by the
@@ -209,6 +216,12 @@ or php):
 
 ```bash
 xyainjex -l code -d python 'eval({INPUT})' "os.system('id')"
+```
+
+Analyze CRLF injection with `--lang crlf` (`-d` header or log):
+
+```bash
+xyainjex -l crlf -d header 'Location: {INPUT}' $'x\r\nSet-Cookie: injected=1'
 ```
 
 Analyze prompt injection with `--lang prompt` (use the `{INPUT}` template to
