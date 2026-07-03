@@ -44,6 +44,14 @@ XML injection:
   section, entity references, and `<!DOCTYPE`/`<!ENTITY>` (possible XXE), with
   element and escape payload mutation.
 
+YAML injection:
+
+- Analyzes an input embedded in a YAML scalar, classifying plain, single-quoted,
+  and double-quoted contexts. Detects a deserialization tag (`!!python/object/...`,
+  which reaches RCE under an unsafe loader), a new mapping key, and a line break,
+  after escaping any quoted scalar, with tag and key payload mutation. Full block
+  indentation is out of scope.
+
 Code (eval sink) injection:
 
 - Analyzes an input reaching an eval-style sink in Python, JavaScript, or PHP,
@@ -223,6 +231,12 @@ Analyze XML injection with `--lang xml`:
 
 ```bash
 xyainjex -l xml '<user><name>{INPUT}</name></user>' '<script>alert(1)</script>'
+```
+
+Analyze YAML injection with `--lang yaml`:
+
+```bash
+xyainjex -l yaml 'name: {INPUT}' "!!python/object/apply:os.system ['id']"
 ```
 
 Analyze code (eval sink) injection with `--lang code` (`-d` python, javascript,
