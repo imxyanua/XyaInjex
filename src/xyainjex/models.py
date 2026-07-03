@@ -97,6 +97,11 @@ class Context(Enum):
     # CRLF contexts
     HTTP_HEADER = "http_header"
     LOG_LINE = "log_line"
+    # XML contexts
+    XML_TEXT = "xml_text"
+    XML_ATTR = "xml_attr"
+    XML_CDATA = "xml_cdata"
+    XML_COMMENT = "xml_comment"
 
     @property
     def quote_char(self) -> str | None:

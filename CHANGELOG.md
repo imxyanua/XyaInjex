@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   line-feed breakout (header injection, response splitting via a blank line, and
   log forging) and encoded CR/LF sequences, with a header or log sink kind,
   payload mutation, and CLI (`--lang crlf`), HTTP API, and web frontend support.
+- XML injection analyzer: classifies element text, attribute, CDATA, and comment
+  contexts, detects new-element injection, attribute and tag escape, CDATA and
+  comment escape, entity references, and `<!DOCTYPE`/`<!ENTITY>` (possible XXE),
+  with payload mutation and CLI (`--lang xml`), HTTP API, and web frontend
+  support.
 
 ## [0.3.0] - 2026-07-03
 

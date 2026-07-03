@@ -49,6 +49,7 @@ from .prompt import (
 from .shell.breakout import render
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
+from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
 
 __version__ = "0.3.0"
@@ -62,6 +63,7 @@ __all__ = [
     "analyze_nosql",
     "analyze_code",
     "analyze_crlf",
+    "analyze_xml",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -79,6 +81,7 @@ __all__ = [
     "mutate_nosql",
     "mutate_code",
     "mutate_crlf",
+    "mutate_xml",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",
