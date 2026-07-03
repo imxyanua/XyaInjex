@@ -30,7 +30,7 @@ from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
 from .xpath import analyze_xpath, mutate_xpath
 
-app = FastAPI(title="XyaInjex", version="0.2.0")
+app = FastAPI(title="XyaInjex", version="0.3.0")
 
 # Allow the web frontend to call the API from the browser. Origins are taken
 # from XYAINJEX_CORS_ORIGINS (comma separated) and default to the local Vite
