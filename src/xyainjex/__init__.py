@@ -55,6 +55,7 @@ from .ssi import analyze_ssi, mutate_ssi
 from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
+from .xss import analyze_xss, mutate_xss
 from .yaml import analyze_yaml, mutate_yaml
 
 __version__ = "0.4.0"
@@ -74,6 +75,7 @@ __all__ = [
     "analyze_el",
     "analyze_csv",
     "analyze_ssi",
+    "analyze_xss",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -97,6 +99,7 @@ __all__ = [
     "mutate_el",
     "mutate_csv",
     "mutate_ssi",
+    "mutate_xss",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

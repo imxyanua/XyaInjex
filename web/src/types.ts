@@ -11,6 +11,7 @@ export type Lang =
   | "el"
   | "csv"
   | "ssi"
+  | "xss"
   | "code"
   | "crlf"
   | "prompt"

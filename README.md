@@ -84,6 +84,15 @@ CSV / spreadsheet formula injection:
   `cmd|`) and exfiltration functions (`HYPERLINK`, `WEBSERVICE`, `IMPORTXML`),
   with formula payload mutation.
 
+HTML / XSS injection:
+
+- Analyzes an input reflected into an HTML page, classifying element text,
+  attribute value, `<script>` block, and comment contexts. Detects breaking out
+  of a quoted attribute or a comment, injecting a new element, an `on*` event
+  handler, a `<script>` element or a `</script>` close, and a `javascript:` URL,
+  distinguishing script execution from plain markup injection, with per-context
+  payload mutation.
+
 Code (eval sink) injection:
 
 - Analyzes an input reaching an eval-style sink in Python, JavaScript, or PHP,
@@ -293,6 +302,12 @@ Analyze CSV / spreadsheet formula injection with `--lang csv`:
 
 ```bash
 xyainjex -l csv 'name,{INPUT},email' "=cmd|'/C calc'!A1"
+```
+
+Analyze HTML / XSS injection with `--lang xss`:
+
+```bash
+xyainjex -l xss '<img src="{INPUT}">' '"><script>alert(1)</script>'
 ```
 
 Analyze code (eval sink) injection with `--lang code` (`-d` python, javascript,

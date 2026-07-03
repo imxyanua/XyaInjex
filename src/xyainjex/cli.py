@@ -26,6 +26,7 @@ from .ssi import analyze_ssi, mutate_ssi
 from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
+from .xss import analyze_xss, mutate_xss
 from .yaml import analyze_yaml, mutate_yaml
 
 
@@ -84,7 +85,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="shell",
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
-            "nosql, xml, yaml, graphql, el, csv, ssi, code, crlf, prompt, or agent"
+            "nosql, xml, yaml, graphql, el, csv, ssi, xss, code, crlf, prompt, "
+            "or agent"
         ),
     )
     parser.add_argument(
@@ -128,6 +130,7 @@ def main(argv: list[str] | None = None) -> int:
         "el",
         "csv",
         "ssi",
+        "xss",
         "code",
         "crlf",
         "prompt",
@@ -146,6 +149,7 @@ def main(argv: list[str] | None = None) -> int:
         "el": (analyze_el, mutate_el),
         "csv": (analyze_csv, mutate_csv),
         "ssi": (analyze_ssi, mutate_ssi),
+        "xss": (analyze_xss, mutate_xss),
     }
 
     try:
