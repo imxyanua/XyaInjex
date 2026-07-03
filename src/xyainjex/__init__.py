@@ -54,7 +54,7 @@ from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
 from .yaml import analyze_yaml, mutate_yaml
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = [
     "analyze",
