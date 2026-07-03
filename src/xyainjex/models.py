@@ -113,6 +113,9 @@ class Context(Enum):
     EL_TEXT = "el_text"
     EL_EXPRESSION = "el_expression"
     EL_STRING = "el_string"
+    # CSV / spreadsheet formula contexts
+    CSV_CELL = "csv_cell"
+    CSV_MIDCELL = "csv_midcell"
 
     @property
     def quote_char(self) -> str | None:

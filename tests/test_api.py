@@ -414,6 +414,30 @@ def test_mutate_el_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_csv_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "name,{INPUT},email",
+            "payload": "=cmd|'/C calc'!A1",
+            "lang": "csv",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "csv_cell"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_csv_endpoint():
+    resp = client.post(
+        "/mutate", json={"template": "name,{INPUT},email", "lang": "csv"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",
