@@ -21,13 +21,14 @@ from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .fuzz import differential, fuzz
+from .ldap import analyze_ldap, mutate_ldap
 from .mutation import mutate
 from .prompt import analyze_prompt
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
 from .xpath import analyze_xpath, mutate_xpath
 
-app = FastAPI(title="XyaInjex", version="0.1.0")
+app = FastAPI(title="XyaInjex", version="0.2.0")
 
 # Allow the web frontend to call the API from the browser. Origins are taken
 # from XYAINJEX_CORS_ORIGINS (comma separated) and default to the local Vite
@@ -77,10 +78,9 @@ class DifferentialRequest(BaseModel):
 
 def _require_lang(lang: str) -> str:
     key = lang.strip().lower()
-    if key not in ("shell", "sql", "template", "xpath", "prompt", "agent"):
-        raise ValueError(
-            "lang must be 'shell', 'sql', 'template', 'xpath', 'prompt', or 'agent'"
-        )
+    valid = ("shell", "sql", "template", "xpath", "ldap", "prompt", "agent")
+    if key not in valid:
+        raise ValueError("lang must be one of: " + ", ".join(valid))
     return key
 
 
@@ -98,6 +98,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_agent(req.template, parse_source(req.source)).to_dict()
         if lang == "xpath":
             return analyze_xpath(req.template, req.payload).to_dict()
+        if lang == "ldap":
+            return analyze_ldap(req.template, req.payload).to_dict()
         if lang == "prompt":
             return analyze_prompt(req.template, req.payload).to_dict()
         if lang == "sql":
@@ -120,6 +122,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             raise ValueError(f"mutate is not supported for lang {lang!r}")
         if lang == "xpath":
             return mutate_xpath(req.template).to_dict()
+        if lang == "ldap":
+            return mutate_ldap(req.template).to_dict()
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")
             return mutate_sql(req.template, dialect=dialect).to_dict()

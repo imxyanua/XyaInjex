@@ -70,6 +70,8 @@ class Context(Enum):
     # XPath contexts
     XPATH_STRING = "xpath_string"
     XPATH_EXPRESSION = "xpath_expression"
+    # LDAP context
+    LDAP_FILTER = "ldap_filter"
 
     @property
     def quote_char(self) -> str | None:
