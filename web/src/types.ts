@@ -8,6 +8,7 @@ export type Lang =
   | "xml"
   | "yaml"
   | "graphql"
+  | "el"
   | "code"
   | "crlf"
   | "prompt"

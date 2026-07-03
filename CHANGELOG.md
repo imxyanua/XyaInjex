@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Expression language (EL / OGNL / SpEL / JNDI) injection analyzer: classifies
+  literal-text, in-expression, and expression-string contexts across the
+  `${...}`, `#{...}`, and `%{...}` interpolations, detects opening an evaluated
+  expression from text, a `${jndi:...}` lookup (Log4Shell), and RCE gadgets, with
+  payload mutation and CLI (`--lang el`), HTTP API, and web frontend support.
+
 ## [0.4.0] - 2026-07-03
 
 ### Added

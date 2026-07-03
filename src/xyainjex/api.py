@@ -22,6 +22,7 @@ from .analyzer import analyze
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
+from .el import analyze_el, mutate_el
 from .fuzz import differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .ldap import analyze_ldap, mutate_ldap
@@ -94,6 +95,7 @@ def _require_lang(lang: str) -> str:
         "xml",
         "yaml",
         "graphql",
+        "el",
         "code",
         "crlf",
         "prompt",
@@ -128,6 +130,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_yaml(req.template, req.payload).to_dict()
         if lang == "graphql":
             return analyze_graphql(req.template, req.payload).to_dict()
+        if lang == "el":
+            return analyze_el(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -166,6 +170,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_yaml(req.template).to_dict()
         if lang == "graphql":
             return mutate_graphql(req.template).to_dict()
+        if lang == "el":
+            return mutate_el(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")
