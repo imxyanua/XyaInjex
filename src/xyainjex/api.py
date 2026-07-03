@@ -25,6 +25,7 @@ from .mutation import mutate
 from .prompt import analyze_prompt
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
+from .xpath import analyze_xpath, mutate_xpath
 
 app = FastAPI(title="XyaInjex", version="0.1.0")
 
@@ -76,9 +77,9 @@ class DifferentialRequest(BaseModel):
 
 def _require_lang(lang: str) -> str:
     key = lang.strip().lower()
-    if key not in ("shell", "sql", "template", "prompt", "agent"):
+    if key not in ("shell", "sql", "template", "xpath", "prompt", "agent"):
         raise ValueError(
-            "lang must be 'shell', 'sql', 'template', 'prompt', or 'agent'"
+            "lang must be 'shell', 'sql', 'template', 'xpath', 'prompt', or 'agent'"
         )
     return key
 
@@ -95,6 +96,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
         if lang == "agent":
             # The content is the untrusted blob; templates are not used here.
             return analyze_agent(req.template, parse_source(req.source)).to_dict()
+        if lang == "xpath":
+            return analyze_xpath(req.template, req.payload).to_dict()
         if lang == "prompt":
             return analyze_prompt(req.template, req.payload).to_dict()
         if lang == "sql":
@@ -115,6 +118,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
         lang = _require_lang(req.lang)
         if lang in ("prompt", "agent"):
             raise ValueError(f"mutate is not supported for lang {lang!r}")
+        if lang == "xpath":
+            return mutate_xpath(req.template).to_dict()
         if lang == "sql":
             dialect = parse_sql_dialect(req.dialect or "mysql")
             return mutate_sql(req.template, dialect=dialect).to_dict()

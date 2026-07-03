@@ -12,8 +12,15 @@ Every injection vulnerability is treated as a context breakout problem.
 
 This repository is under active development. It currently covers command
 injection across shell dialects, SQL injection, server-side template injection,
-prompt injection for LLM systems, agent / multi-agent (MCP) security, and
-differential fuzzing with exploit-path discovery.
+XPath injection, prompt injection for LLM systems, agent / multi-agent (MCP)
+security, and differential fuzzing with exploit-path discovery.
+
+XPath injection:
+
+- Classifies the injection point as an XPath string literal or an expression
+  position, and detects logic tokens the payload injects (the `or` and `and`
+  operators, a predicate close `]`, a node union `|`, or a comparison), with
+  boolean-tautology and node-union payload mutation.
 
 LLM-assisted analysis (optional):
 
@@ -155,6 +162,12 @@ Analyze template injection with `--lang template` (`-d` selects the engine):
 ```bash
 xyainjex -l template 'Hello {INPUT}' '{{7*7}}'
 xyainjex -l template -d freemarker 'Hello {INPUT}' '${7*7}'
+```
+
+Analyze XPath injection with `--lang xpath`:
+
+```bash
+xyainjex -l xpath "//user[name = '{INPUT}']" "' or '1'='1"
 ```
 
 Analyze prompt injection with `--lang prompt` (use the `{INPUT}` template to

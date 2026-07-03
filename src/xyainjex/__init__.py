@@ -43,6 +43,7 @@ from .prompt import (
 from .shell.breakout import render
 from .sql import analyze_sql, mutate_sql
 from .template import analyze_template, mutate_template
+from .xpath import analyze_xpath, mutate_xpath
 
 __version__ = "0.2.0"
 
@@ -50,6 +51,7 @@ __all__ = [
     "analyze",
     "analyze_sql",
     "analyze_template",
+    "analyze_xpath",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -62,6 +64,7 @@ __all__ = [
     "mutate",
     "mutate_sql",
     "mutate_template",
+    "mutate_xpath",
     "fuzz",
     "differential",
     "FuzzResult",

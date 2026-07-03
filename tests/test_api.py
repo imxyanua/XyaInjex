@@ -193,6 +193,30 @@ def test_mutate_agent_rejected():
     assert resp.status_code == 400
 
 
+def test_analyze_xpath_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "//user[name = '{INPUT}']",
+            "payload": "' or '1'='1",
+            "lang": "xpath",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "xpath_string"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_xpath_endpoint():
+    resp = client.post(
+        "/mutate", json={"template": "//user[name = '{INPUT}']", "lang": "xpath"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",
