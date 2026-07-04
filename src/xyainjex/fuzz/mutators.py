@@ -72,6 +72,17 @@ _MUTATORS = {
         encoding_variants,
     ],
     "template": [case_variants, whitespace_variants, encoding_variants],
+    "code": [case_variants, whitespace_variants, encoding_variants],
+    # HTML tags and attributes are case-insensitive, so case survives.
+    "xss": [case_variants],
+    # URL schemes and hosts are case-insensitive.
+    "ssrf": [case_variants],
+    # The path analyzer decodes percent-encoding, so encoded traversal survives.
+    "path": [encoding_variants],
+    # SQL-style keyword contexts (XPath / LDAP / EL) accept case folding.
+    "xpath": [case_variants],
+    "ldap": [case_variants],
+    "el": [case_variants],
 }
 
 
