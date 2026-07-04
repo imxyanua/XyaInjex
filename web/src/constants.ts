@@ -1,27 +1,66 @@
 import { Lang } from "./types";
 
-export const LANGS: { value: Lang; label: string }[] = [
-  { value: "shell", label: "Shell" },
-  { value: "sql", label: "SQL" },
-  { value: "template", label: "Template (SSTI)" },
-  { value: "xpath", label: "XPath" },
-  { value: "ldap", label: "LDAP" },
-  { value: "nosql", label: "NoSQL" },
-  { value: "xml", label: "XML" },
-  { value: "yaml", label: "YAML" },
-  { value: "graphql", label: "GraphQL" },
-  { value: "el", label: "EL / JNDI" },
-  { value: "csv", label: "CSV formula" },
-  { value: "ssi", label: "SSI" },
-  { value: "xss", label: "HTML / XSS" },
-  { value: "ssrf", label: "SSRF / URL" },
-  { value: "path", label: "Path / LFI" },
-  { value: "mail", label: "Mail / SMTP" },
-  { value: "code", label: "Code (eval)" },
-  { value: "crlf", label: "CRLF" },
-  { value: "prompt", label: "Prompt" },
-  { value: "agent", label: "Agent / MCP" },
+export interface LangOption {
+  value: Lang;
+  label: string;
+}
+
+export interface LangGroup {
+  title: string;
+  langs: LangOption[];
+}
+
+// Languages grouped by the kind of sink they inject into, so the (large) list
+// is easy to scan. LANGS is derived from this, keeping a single source of truth.
+export const LANG_GROUPS: LangGroup[] = [
+  {
+    title: "Command / Query",
+    langs: [
+      { value: "shell", label: "Shell" },
+      { value: "sql", label: "SQL" },
+      { value: "xpath", label: "XPath" },
+      { value: "ldap", label: "LDAP" },
+      { value: "nosql", label: "NoSQL" },
+      { value: "graphql", label: "GraphQL" },
+      { value: "el", label: "EL / JNDI" },
+      { value: "code", label: "Code (eval)" },
+    ],
+  },
+  {
+    title: "Markup / Web",
+    langs: [
+      { value: "template", label: "Template (SSTI)" },
+      { value: "xss", label: "HTML / XSS" },
+      { value: "ssi", label: "SSI" },
+    ],
+  },
+  {
+    title: "Serialization",
+    langs: [
+      { value: "xml", label: "XML" },
+      { value: "yaml", label: "YAML" },
+      { value: "csv", label: "CSV formula" },
+    ],
+  },
+  {
+    title: "Web request",
+    langs: [
+      { value: "ssrf", label: "SSRF / URL" },
+      { value: "path", label: "Path / LFI" },
+      { value: "crlf", label: "CRLF" },
+      { value: "mail", label: "Mail / SMTP" },
+    ],
+  },
+  {
+    title: "LLM",
+    langs: [
+      { value: "prompt", label: "Prompt" },
+      { value: "agent", label: "Agent / MCP" },
+    ],
+  },
 ];
+
+export const LANGS: LangOption[] = LANG_GROUPS.flatMap((g) => g.langs);
 
 export const DIALECTS: Record<Lang, string[]> = {
   shell: ["posix", "cmd", "powershell", "fish"],

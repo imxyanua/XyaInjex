@@ -3,7 +3,7 @@ import { analyze, differential, explain, fuzz, mutate, suggest } from "./api";
 import {
   DIALECTS,
   EXAMPLES,
-  LANGS,
+  LANG_GROUPS,
   PROVIDERS,
   SOURCES,
   supportsDifferential,
@@ -165,15 +165,22 @@ export default function App() {
         </span>
       </p>
 
-      <div className="tabs">
-        {LANGS.map((l) => (
-          <button
-            key={l.value}
-            className={`tab ${lang === l.value ? "active" : ""}`}
-            onClick={() => switchLang(l.value)}
-          >
-            {l.label}
-          </button>
+      <div className="tab-groups">
+        {LANG_GROUPS.map((group) => (
+          <div className="tab-group" key={group.title}>
+            <span className="tab-group-title">{group.title}</span>
+            <div className="tabs" role="tablist" aria-label={group.title}>
+              {group.langs.map((l) => (
+                <button
+                  key={l.value}
+                  className={`tab ${lang === l.value ? "active" : ""}`}
+                  onClick={() => switchLang(l.value)}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
 
