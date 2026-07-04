@@ -535,6 +535,28 @@ def test_mutate_path_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_mail_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "RCPT TO:<{INPUT}>",
+            "payload": "a@example.com>\r\nRCPT TO:<b@evil.example",
+            "lang": "mail",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "smtp_command"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_mail_endpoint():
+    resp = client.post("/mutate", json={"template": "To: {INPUT}", "lang": "mail"})
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

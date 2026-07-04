@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a null-byte extension bypass, a remote scheme (RFI), and a PHP / stream wrapper
   (`php://filter`, `php://input`, `expect://`, `data://`, ...), with payload
   mutation and CLI (`--lang path`), HTTP API, and web frontend support.
+- Email header / SMTP injection analyzer: classifies whether the input is an
+  email header value, the message body, or a raw SMTP command line, and detects
+  a line break that injects a new header (a silent `Bcc` / `Cc` recipient or a
+  spoofed header), overrides the body, smuggles an SMTP command (`RCPT TO`,
+  `MAIL FROM`, `DATA`), or sends a lone `.` line that ends the DATA phase,
+  including encoded CR/LF, with payload mutation and CLI (`--lang mail`), HTTP
+  API, and web frontend support.
 
 ## [0.5.0] - 2026-07-04
 

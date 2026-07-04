@@ -14,6 +14,7 @@ export type Lang =
   | "xss"
   | "ssrf"
   | "path"
+  | "mail"
   | "code"
   | "crlf"
   | "prompt"

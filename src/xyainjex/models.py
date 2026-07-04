@@ -132,6 +132,10 @@ class Context(Enum):
     PATH_FULL = "path_full"
     PATH_BASE = "path_base"
     PATH_EXT = "path_ext"
+    # Email header / SMTP injection contexts
+    MAIL_HEADER = "mail_header"
+    MAIL_BODY = "mail_body"
+    SMTP_COMMAND = "smtp_command"
 
     @property
     def quote_char(self) -> str | None:

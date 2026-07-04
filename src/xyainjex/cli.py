@@ -17,6 +17,7 @@ from .fuzz import fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .ldap import analyze_ldap, mutate_ldap
 from .llm import explain, get_provider, suggest_payloads
+from .mail import analyze_mail, mutate_mail
 from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
 from .path import analyze_path, mutate_path
@@ -87,8 +88,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="shell",
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
-            "nosql, xml, yaml, graphql, el, csv, ssi, xss, ssrf, path, code, "
-            "crlf, prompt, or agent"
+            "nosql, xml, yaml, graphql, el, csv, ssi, xss, ssrf, path, mail, "
+            "code, crlf, prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -135,6 +136,7 @@ def main(argv: list[str] | None = None) -> int:
         "xss",
         "ssrf",
         "path",
+        "mail",
         "code",
         "crlf",
         "prompt",
@@ -156,6 +158,7 @@ def main(argv: list[str] | None = None) -> int:
         "xss": (analyze_xss, mutate_xss),
         "ssrf": (analyze_ssrf, mutate_ssrf),
         "path": (analyze_path, mutate_path),
+        "mail": (analyze_mail, mutate_mail),
     }
 
     try:
