@@ -490,6 +490,11 @@ curl -s localhost:8000/analyze \
   -d '{"template": "curl \"{INPUT}\"", "payload": "\"; id ; #"}'
 ```
 
+Endpoints: `/analyze`, `/mutate`, `/fuzz`, `/differential`, `/suggest`, and
+`/explain`. The `/suggest` and `/explain` endpoints take a `provider` (mock,
+openai, claude, ollama) and, as on the CLI, the engine still validates every
+LLM-suggested payload.
+
 ## Changelog
 
 Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.7.0.
