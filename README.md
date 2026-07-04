@@ -44,6 +44,16 @@ XML injection:
   section, entity references, and `<!DOCTYPE`/`<!ENTITY>` (possible XXE), with
   element and escape payload mutation.
 
+XXE (XML external entity):
+
+- Analyzes an input that reaches an XML document the server parses, classifying
+  whether it starts the document (so it can introduce a `<!DOCTYPE>`) or lands
+  inside an element (where a new DOCTYPE will not parse). Detects an external
+  general or parameter entity, an external DTD subset, the out-of-band
+  exfiltration parameter-entity pattern, a dangerous wrapper (`php://`,
+  `expect://`), a file-read (`file://`) or SSRF (`http://`) entity, and
+  billion-laughs entity expansion, with DTD payload mutation.
+
 GraphQL injection:
 
 - Analyzes an input embedded in a GraphQL query, classifying the string-argument
@@ -307,6 +317,13 @@ Analyze XML injection with `--lang xml`:
 
 ```bash
 xyainjex -l xml '<user><name>{INPUT}</name></user>' '<script>alert(1)</script>'
+```
+
+Analyze XXE with `--lang xxe`:
+
+```bash
+xyainjex -l xxe '{INPUT}' \
+  '<!DOCTYPE r [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><r>&xxe;</r>'
 ```
 
 Analyze GraphQL injection with `--lang graphql`:

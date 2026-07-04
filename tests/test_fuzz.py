@@ -105,6 +105,12 @@ def test_fuzz_mail_finds_header_injection():
     assert "mail_header" in result.contexts_reached
 
 
+def test_fuzz_xxe_finds_external_entities():
+    result = fuzz("{INPUT}", lang="xxe")
+    assert result.valid > 0
+    assert "xxe_document" in result.contexts_reached
+
+
 def test_fuzz_code_dialect_seeds():
     result = fuzz("eval({INPUT})", lang="code", dialect="python")
     assert result.valid > 0

