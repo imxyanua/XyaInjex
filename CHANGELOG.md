@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Web frontend redesigned with a terminal / hacker aesthetic: a monospace
+  green-on-black theme (with a "green paper" light variant), a terminal title
+  bar and shell prompt, subtle CRT scanlines and a blinking cursor, bracketed
+  `[ actions ]` and `[RISK]` tags, a horizontal `context ──▶ injection ──▶ EXEC`
+  flow, and an empty-state prompt.
+
 ### Added
 
 - HTTP API endpoints `/suggest` and `/explain` expose the LLM-assisted payload

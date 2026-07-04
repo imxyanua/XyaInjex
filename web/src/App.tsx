@@ -124,6 +124,13 @@ export default function App() {
   }
 
   const shareUrl = shareLink({ lang, dialect, source, template, payload });
+  const hasOutput =
+    result !== null ||
+    mutation !== null ||
+    fuzzResult !== null ||
+    diff !== null ||
+    suggestion !== null ||
+    explanation !== null;
   const isAgent = lang === "agent";
   const templateLabel = isAgent
     ? "Untrusted content"
@@ -133,19 +140,30 @@ export default function App() {
 
   return (
     <div className="app">
-      <header>
-        <div className="titles">
-          <h1>XyaInjex</h1>
-          <p className="tagline">Injection context and breakout analyzer</p>
-        </div>
+      <header className="term-bar">
+        <span className="dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        <h1 className="term-title">xyainjex</h1>
         <button
           className="copy theme-toggle"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          title="Toggle light / dark theme"
+          title="Toggle theme"
         >
-          {theme === "dark" ? "☀ Light" : "🌙 Dark"}
+          {theme === "dark" ? "light" : "dark"}
         </button>
       </header>
+      <p className="prompt">
+        <span className="prompt-user">root@xyainjex</span>
+        <span className="prompt-sep">:</span>
+        <span className="prompt-path">~</span>
+        <span className="prompt-sep">$</span> injection breakout analyzer
+        <span className="cursor" aria-hidden="true">
+          ▋
+        </span>
+      </p>
 
       <div className="tabs">
         {LANGS.map((l) => (
@@ -287,6 +305,15 @@ export default function App() {
           <p className="explain-text">
             {explanation || "The provider returned no text."}
           </p>
+        </div>
+      )}
+
+      {!hasOutput && !error && (
+        <div className="result empty-state">
+          <span className="muted">awaiting analysis</span>
+          <span className="cursor" aria-hidden="true">
+            ▋
+          </span>
         </div>
       )}
     </div>

@@ -7,23 +7,26 @@ export function FlowDiagram({
   breakout: Breakout;
   injected: boolean;
 }) {
-  const stages: string[] = ["Original context"];
-  if (breakout.quote_closed) stages.push("Quote closure");
-  if (breakout.command_injected) stages.push("Command injection");
-  if (breakout.substitution_injected) stages.push("Command substitution");
-  if (breakout.comment_terminated) stages.push("Comment truncation");
-  stages.push(injected ? "Execution" : "No breakout");
+  const stages: string[] = ["context"];
+  if (breakout.quote_closed) stages.push("quote-closure");
+  if (breakout.command_injected) stages.push("injection");
+  if (breakout.substitution_injected) stages.push("substitution");
+  if (breakout.comment_terminated) stages.push("comment-truncation");
+  stages.push(injected ? "EXEC" : "contained");
 
   return (
     <div className="flow">
-      {stages.map((stage, i) => (
-        <div className="flow-item" key={i}>
-          <div className={`flow-box ${i === stages.length - 1 && injected ? "danger" : ""}`}>
-            {stage}
-          </div>
-          {i < stages.length - 1 && <div className="flow-arrow">↓</div>}
-        </div>
-      ))}
+      {stages.map((stage, i) => {
+        const last = i === stages.length - 1;
+        return (
+          <span className="flow-node" key={i}>
+            <span className={`flow-stage ${last && injected ? "danger" : ""}`}>
+              {stage}
+            </span>
+            {!last && <span className="flow-sep">──▶</span>}
+          </span>
+        );
+      })}
     </div>
   );
 }
