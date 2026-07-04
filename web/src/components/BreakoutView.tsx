@@ -1,4 +1,5 @@
 import { BreakoutResult } from "../types";
+import { CopyButton } from "./CopyButton";
 import { RiskBadge } from "./RiskBadge";
 import { FlowDiagram } from "./FlowDiagram";
 
@@ -40,6 +41,10 @@ export function BreakoutView({ result }: { result: BreakoutResult }) {
       </div>
 
       <div className="rendered">
+        <div className="rendered-head">
+          <span className="rendered-label">Rendered</span>
+          <CopyButton text={result.rendered} />
+        </div>
         <Rendered rendered={result.rendered} payload={result.payload} />
         <Caret rendered={result.rendered} index={b.breakout_index} />
       </div>
