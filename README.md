@@ -497,7 +497,7 @@ LLM-suggested payload.
 
 ## Changelog
 
-Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.7.0.
+Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.8.0.
 
 ## License
 
