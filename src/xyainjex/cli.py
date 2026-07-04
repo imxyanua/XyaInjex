@@ -12,6 +12,7 @@ from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
+from .dispatch import analyze_lang
 from .el import analyze_el, mutate_el
 from .fuzz import FUZZ_LANGS, fuzz
 from .graphql import analyze_graphql, mutate_graphql
@@ -174,6 +175,29 @@ def main(argv: list[str] | None = None) -> int:
                 print(_render_fuzz(result))
             return 0 if result.valid == 0 else 2
 
+        if args.ai_suggest:
+            if lang not in FUZZ_LANGS:
+                parser.error("--ai-suggest supports: " + ", ".join(FUZZ_LANGS))
+            provider = get_provider(args.provider)
+            result = suggest_payloads(
+                args.template, provider, lang=lang, dialect=args.dialect
+            )
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_suggest(result))
+            return 0 if not result.validated else 2
+
+        if args.ai_explain:
+            if lang not in FUZZ_LANGS:
+                parser.error("--ai-explain supports: " + ", ".join(FUZZ_LANGS))
+            if args.payload is None:
+                parser.error("payload is required for --ai-explain")
+            provider = get_provider(args.provider)
+            analysis = analyze_lang(args.template, args.payload, lang, args.dialect)
+            print(explain(analysis, provider))
+            return 0
+
         if lang == "code":
             code_lang = parse_code_lang(args.dialect or "python")
             if args.mutate:
@@ -215,29 +239,6 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(visualize(result))
             return 0 if result.risk.value in ("NONE", "LOW") else 2
-
-        if args.ai_suggest:
-            if lang not in ("shell", "sql", "template"):
-                parser.error("--ai-suggest supports --lang shell, sql, or template")
-            provider = get_provider(args.provider)
-            result = suggest_payloads(
-                args.template, provider, lang=lang, dialect=args.dialect
-            )
-            if args.json:
-                print(json.dumps(result.to_dict(), indent=2))
-            else:
-                print(_render_suggest(result))
-            return 0 if not result.validated else 2
-
-        if args.ai_explain:
-            if lang not in ("shell", "sql", "template"):
-                parser.error("--ai-explain supports --lang shell, sql, or template")
-            if args.payload is None:
-                parser.error("payload is required for --ai-explain")
-            provider = get_provider(args.provider)
-            analysis = _analyze_lang(args.template, args.payload, lang, args.dialect)
-            print(explain(analysis, provider))
-            return 0
 
         if lang == "agent":
             if args.mutate:
@@ -303,16 +304,6 @@ def _emit_mutation(result, as_json: bool) -> None:
         print(json.dumps(result.to_dict(), indent=2))
     else:
         _print_mutation(result)
-
-
-def _analyze_lang(template: str, payload: str, lang: str, dialect):
-    if lang == "sql":
-        return analyze_sql(template, payload, parse_sql_dialect(dialect or "mysql"))
-    if lang == "template":
-        return analyze_template(
-            template, payload, parse_template_engine(dialect or "jinja2")
-        )
-    return analyze(template, payload, parse_dialect(dialect or "posix"))
 
 
 def _render_suggest(result) -> str:

@@ -2,6 +2,7 @@ import pytest
 
 from xyainjex import MockProvider, analyze, explain, get_provider, suggest_payloads
 from xyainjex.cli import main
+from xyainjex.dispatch import analyze_lang
 from xyainjex.llm import ClaudeProvider, OpenAIProvider
 
 # --- providers ---
@@ -80,6 +81,35 @@ def test_suggest_rejects_prompt_lang():
         suggest_payloads("{INPUT}", MockProvider(), lang="prompt")
 
 
+def test_suggest_ssrf():
+    provider = MockProvider(
+        responses=["http://169.254.169.254/latest/meta-data/\nhttps://ok.example\nnope"]
+    )
+    result = suggest_payloads("http://api/f?url={INPUT}", provider, lang="ssrf")
+    payloads = [s.payload for s in result.validated]
+    assert "http://169.254.169.254/latest/meta-data/" in payloads
+    assert "nope" not in payloads
+    assert result.validated[0].risk.value == "CRITICAL"
+
+
+def test_suggest_path_preserves_traversal():
+    # A "- " list marker is stripped but the leading ".." of the payload is not.
+    provider = MockProvider(responses=["- ../../../../etc/passwd\nbenign.txt"])
+    result = suggest_payloads("/var/www/{INPUT}", provider, lang="path")
+    payloads = [s.payload for s in result.validated]
+    assert "../../../../etc/passwd" in payloads
+
+
+def test_suggest_xss():
+    provider = MockProvider(
+        responses=["<script>alert(1)</script>\n<b>bold</b>\nplain text"]
+    )
+    result = suggest_payloads("<div>{INPUT}</div>", provider, lang="xss")
+    payloads = [s.payload for s in result.validated]
+    assert "<script>alert(1)</script>" in payloads
+    assert result.validated[0].risk.value == "CRITICAL"
+
+
 def test_suggest_to_dict():
     provider = MockProvider(responses=['"; id ; #'])
     data = suggest_payloads('curl "{INPUT}"', provider, lang="shell").to_dict()
@@ -104,6 +134,21 @@ def test_explain_uses_provider():
     assert "double_quote" in seen["prompt"]
 
 
+def test_explain_works_for_new_lang():
+    # explain takes any AnalysisResult, so it covers the new analyzers too.
+    seen = {}
+
+    def handler(prompt, system):
+        seen["prompt"] = prompt
+        return "ok"
+
+    result = analyze_lang(
+        "http://api/f?url={INPUT}", "http://169.254.169.254/", "ssrf", None
+    )
+    explain(result, MockProvider(handler=handler))
+    assert "ssrf_query" in seen["prompt"]
+
+
 # --- CLI ---
 
 
@@ -119,3 +164,21 @@ def test_cli_ai_unknown_provider(capsys):
     code = main(["--ai-suggest", "--provider", "bogus", 'curl "{INPUT}"'])
     assert code == 1
     assert "unknown provider" in capsys.readouterr().err
+
+
+def test_cli_ai_explain_new_lang(capsys, monkeypatch):
+    provider = MockProvider(handler=lambda prompt, system: "explanation for the report")
+    monkeypatch.setattr("xyainjex.cli.get_provider", lambda name, **kw: provider)
+    code = main(
+        [
+            "--ai-explain",
+            "-l",
+            "ssrf",
+            "--provider",
+            "mock",
+            "http://api/f?url={INPUT}",
+            "http://169.254.169.254/",
+        ]
+    )
+    assert code == 0
+    assert "explanation for the report" in capsys.readouterr().out

@@ -141,6 +141,7 @@ LLM-assisted analysis (optional):
 - An LLM can propose candidate payloads, which are then validated by the
   deterministic analyzer, so a suggestion is only returned when it actually
   achieves a breakout. The LLM can also explain a result in natural language.
+  Both work for every breakout language, not just shell / SQL / template.
 - The engine stays the source of truth; the LLM is only an advisor. Providers
   (OpenAI, Claude, Ollama) are optional and lazy loaded, and a deterministic
   mock provider is included for testing and offline use.
@@ -403,6 +404,7 @@ provider; `ollama` is the default, `openai` and `claude` need their SDKs):
 
 ```bash
 xyainjex --ai-suggest --provider ollama 'curl "{INPUT}"'
+xyainjex --ai-suggest --provider ollama -l ssrf 'http://api/fetch?url={INPUT}'
 xyainjex --ai-explain --provider ollama 'curl "{INPUT}"' '"; id ; #'
 ```
 

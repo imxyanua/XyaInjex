@@ -4,51 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ..analyzer import analyze
-from ..code import analyze_code, mutate_code, parse_code_lang
-from ..crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
-from ..csv import analyze_csv, mutate_csv
-from ..dialects import parse_dialect, parse_sql_dialect, parse_template_engine
-from ..el import analyze_el, mutate_el
-from ..graphql import analyze_graphql, mutate_graphql
-from ..ldap import analyze_ldap, mutate_ldap
-from ..mail import analyze_mail, mutate_mail
+from ..dispatch import BREAKOUT_LANGS, DIALECT_LANGS, analyze_lang, seed_payloads
 from ..models import AnalysisResult, Risk
-from ..mutation import mutate
-from ..nosql import analyze_nosql, mutate_nosql
-from ..path import analyze_path, mutate_path
-from ..sql import analyze_sql, mutate_sql
-from ..ssi import analyze_ssi, mutate_ssi
-from ..ssrf import analyze_ssrf, mutate_ssrf
-from ..template import analyze_template, mutate_template
-from ..xml import analyze_xml, mutate_xml
-from ..xpath import analyze_xpath, mutate_xpath
-from ..xss import analyze_xss, mutate_xss
-from ..yaml import analyze_yaml, mutate_yaml
 from .mutators import expand
 
-# No-dialect analyzers: (analyze(template, payload), mutate(template)).
-_SIMPLE = {
-    "xpath": (analyze_xpath, mutate_xpath),
-    "ldap": (analyze_ldap, mutate_ldap),
-    "nosql": (analyze_nosql, mutate_nosql),
-    "xml": (analyze_xml, mutate_xml),
-    "yaml": (analyze_yaml, mutate_yaml),
-    "graphql": (analyze_graphql, mutate_graphql),
-    "el": (analyze_el, mutate_el),
-    "csv": (analyze_csv, mutate_csv),
-    "ssi": (analyze_ssi, mutate_ssi),
-    "xss": (analyze_xss, mutate_xss),
-    "ssrf": (analyze_ssrf, mutate_ssrf),
-    "path": (analyze_path, mutate_path),
-    "mail": (analyze_mail, mutate_mail),
-}
-
-# Langs whose analyzer selects a dialect / kind: differential compares them.
-_DIALECT_LANGS = ("shell", "sql", "template", "code", "crlf")
-
-# Every lang whose analyzer is breakout based and has a mutation engine.
-_FUZZ_LANGS = _DIALECT_LANGS + tuple(_SIMPLE)
+# Re-exported so callers (CLI, API) share one source of truth.
+_FUZZ_LANGS = BREAKOUT_LANGS
+_DIALECT_LANGS = DIALECT_LANGS
 
 _RISK_ORDER = {
     Risk.CRITICAL: 4,
@@ -57,44 +19,6 @@ _RISK_ORDER = {
     Risk.LOW: 1,
     Risk.NONE: 0,
 }
-
-
-def _analyze(
-    template: str, payload: str, lang: str, dialect: str | None
-) -> AnalysisResult:
-    if lang == "sql":
-        return analyze_sql(template, payload, parse_sql_dialect(dialect or "mysql"))
-    if lang == "template":
-        return analyze_template(
-            template, payload, parse_template_engine(dialect or "jinja2")
-        )
-    if lang == "code":
-        return analyze_code(template, payload, parse_code_lang(dialect or "python"))
-    if lang == "crlf":
-        return analyze_crlf(template, payload, parse_crlf_kind(dialect or "header"))
-    if lang in _SIMPLE:
-        return _SIMPLE[lang][0](template, payload)
-    return analyze(template, payload, parse_dialect(dialect or "posix"))
-
-
-def _seed_payloads(
-    template: str, lang: str, dialect: str | None, command: str
-) -> list[str]:
-    if lang == "sql":
-        result = mutate_sql(template, parse_sql_dialect(dialect or "mysql"))
-    elif lang == "template":
-        result = mutate_template(template, parse_template_engine(dialect or "jinja2"))
-    elif lang == "code":
-        result = mutate_code(template, parse_code_lang(dialect or "python"))
-    elif lang == "crlf":
-        result = mutate_crlf(template, parse_crlf_kind(dialect or "header"))
-    elif lang in _SIMPLE:
-        result = _SIMPLE[lang][1](template)
-    else:
-        result = mutate(
-            template, command=command, dialect=parse_dialect(dialect or "posix")
-        )
-    return [c.payload for c in result.candidates]
 
 
 def _stages(result: AnalysisResult) -> list[str]:
@@ -179,7 +103,7 @@ def fuzz(
             "fuzzing supports " + ", ".join(_FUZZ_LANGS) + f", not {lang!r}"
         )
 
-    seeds = _seed_payloads(template, lang, dialect, command)
+    seeds = seed_payloads(template, lang, dialect, command)
     seeds += extra_seeds or []
 
     corpus: dict[str, str] = {}  # payload -> strategy (first seen wins)
@@ -189,7 +113,7 @@ def fuzz(
 
     paths: list[ExploitPath] = []
     for payload, strategy in corpus.items():
-        result = _analyze(template, payload, lang, dialect)
+        result = analyze_lang(template, payload, lang, dialect)
         if result.breakout.command_injected:
             paths.append(
                 ExploitPath(
@@ -256,7 +180,7 @@ def differential(
 
     per: dict[str, dict] = {}
     for dialect in dialects:
-        result = _analyze(template, payload, lang, dialect)
+        result = analyze_lang(template, payload, lang, dialect)
         per[dialect] = {
             "risk": result.risk.value,
             "command_injected": result.breakout.command_injected,
