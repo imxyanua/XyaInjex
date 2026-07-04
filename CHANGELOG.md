@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Exploit-path fuzzing (`--fuzz`, `/fuzz`) now works for every breakout analyzer
+  (xpath, ldap, nosql, xml, yaml, graphql, el, csv, ssi, xss, ssrf, path, mail,
+  code, crlf) rather than only shell / sql / template, seeding from each
+  language's mutation engine. Added obfuscation mutators where they survive the
+  analyzer: case folding for xss / ssrf / xpath / ldap / el and percent-encoding
+  for path (whose analyzer decodes it).
+- Cross-dialect differential analysis (`/differential`) now covers the
+  dialect-selecting languages code and crlf in addition to shell / sql /
+  template; a no-dialect analyzer is rejected with a clear message since it has a
+  single parser and nothing to compare.
+
 ## [0.6.0] - 2026-07-04
 
 ### Added

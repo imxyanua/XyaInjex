@@ -13,7 +13,7 @@ from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
-from .fuzz import fuzz
+from .fuzz import FUZZ_LANGS, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .ldap import analyze_ldap, mutate_ldap
 from .llm import explain, get_provider, suggest_payloads
@@ -60,7 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--fuzz",
         action="store_true",
-        help="expand and test payloads to discover exploit paths (shell/sql/template)",
+        help="expand and test payloads to discover exploit paths (any breakout lang)",
     )
     parser.add_argument(
         "--ai-suggest",
@@ -162,6 +162,18 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     try:
+        if args.fuzz:
+            if lang not in FUZZ_LANGS:
+                parser.error("--fuzz supports: " + ", ".join(FUZZ_LANGS))
+            result = fuzz(
+                args.template, lang=lang, dialect=args.dialect, command=args.command
+            )
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_fuzz(result))
+            return 0 if result.valid == 0 else 2
+
         if lang == "code":
             code_lang = parse_code_lang(args.dialect or "python")
             if args.mutate:
@@ -203,18 +215,6 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(visualize(result))
             return 0 if result.risk.value in ("NONE", "LOW") else 2
-
-        if args.fuzz:
-            if lang not in ("shell", "sql", "template"):
-                parser.error("--fuzz supports --lang shell, sql, or template")
-            result = fuzz(
-                args.template, lang=lang, dialect=args.dialect, command=args.command
-            )
-            if args.json:
-                print(json.dumps(result.to_dict(), indent=2))
-            else:
-                print(_render_fuzz(result))
-            return 0 if result.valid == 0 else 2
 
         if args.ai_suggest:
             if lang not in ("shell", "sql", "template"):

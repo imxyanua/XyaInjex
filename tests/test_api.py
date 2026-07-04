@@ -576,6 +576,24 @@ def test_fuzz_rejects_prompt():
     assert resp.status_code == 400
 
 
+def test_fuzz_ssrf_endpoint():
+    resp = client.post(
+        "/fuzz", json={"template": "http://api/fetch?url={INPUT}", "lang": "ssrf"}
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["valid"] > 0
+    assert "ssrf_query" in data["contexts_reached"]
+
+
+def test_fuzz_path_endpoint():
+    resp = client.post(
+        "/fuzz", json={"template": "/var/www/{INPUT}", "lang": "path"}
+    )
+    assert resp.status_code == 200
+    assert "url-encode" in resp.json()["strategies"]
+
+
 def test_differential_endpoint():
     resp = client.post(
         "/differential",
@@ -590,3 +608,32 @@ def test_differential_endpoint():
     data = resp.json()
     assert data["divergent"] is True
     assert data["per_dialect"]["cmd"]["command_injected"] is False
+
+
+def test_differential_code_endpoint():
+    resp = client.post(
+        "/differential",
+        json={
+            "template": "eval(`{INPUT}`)",
+            "payload": "${7*7}",
+            "lang": "code",
+            "dialects": ["python", "javascript", "php"],
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["divergent"] is True
+    assert data["per_dialect"]["javascript"]["command_injected"] is True
+
+
+def test_differential_rejects_no_dialect_lang():
+    resp = client.post(
+        "/differential",
+        json={
+            "template": "http://x/?u={INPUT}",
+            "payload": "http://169.254.169.254/",
+            "lang": "ssrf",
+            "dialects": ["a", "b"],
+        },
+    )
+    assert resp.status_code == 400

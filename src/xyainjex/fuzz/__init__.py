@@ -7,6 +7,8 @@ the lexical model actually accepts rather than a guess.
 """
 
 from .engine import (
+    _DIALECT_LANGS,
+    _FUZZ_LANGS,
     DifferentialResult,
     ExploitPath,
     FuzzResult,
@@ -14,10 +16,16 @@ from .engine import (
     fuzz,
 )
 
+# Public tuples of the languages each engine feature supports.
+FUZZ_LANGS = _FUZZ_LANGS
+DIFFERENTIAL_LANGS = _DIALECT_LANGS
+
 __all__ = [
     "fuzz",
     "differential",
     "FuzzResult",
     "ExploitPath",
     "DifferentialResult",
+    "FUZZ_LANGS",
+    "DIFFERENTIAL_LANGS",
 ]

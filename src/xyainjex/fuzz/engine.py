@@ -5,14 +5,50 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ..analyzer import analyze
+from ..code import analyze_code, mutate_code, parse_code_lang
+from ..crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
+from ..csv import analyze_csv, mutate_csv
 from ..dialects import parse_dialect, parse_sql_dialect, parse_template_engine
+from ..el import analyze_el, mutate_el
+from ..graphql import analyze_graphql, mutate_graphql
+from ..ldap import analyze_ldap, mutate_ldap
+from ..mail import analyze_mail, mutate_mail
 from ..models import AnalysisResult, Risk
 from ..mutation import mutate
+from ..nosql import analyze_nosql, mutate_nosql
+from ..path import analyze_path, mutate_path
 from ..sql import analyze_sql, mutate_sql
+from ..ssi import analyze_ssi, mutate_ssi
+from ..ssrf import analyze_ssrf, mutate_ssrf
 from ..template import analyze_template, mutate_template
+from ..xml import analyze_xml, mutate_xml
+from ..xpath import analyze_xpath, mutate_xpath
+from ..xss import analyze_xss, mutate_xss
+from ..yaml import analyze_yaml, mutate_yaml
 from .mutators import expand
 
-_FUZZ_LANGS = ("shell", "sql", "template")
+# No-dialect analyzers: (analyze(template, payload), mutate(template)).
+_SIMPLE = {
+    "xpath": (analyze_xpath, mutate_xpath),
+    "ldap": (analyze_ldap, mutate_ldap),
+    "nosql": (analyze_nosql, mutate_nosql),
+    "xml": (analyze_xml, mutate_xml),
+    "yaml": (analyze_yaml, mutate_yaml),
+    "graphql": (analyze_graphql, mutate_graphql),
+    "el": (analyze_el, mutate_el),
+    "csv": (analyze_csv, mutate_csv),
+    "ssi": (analyze_ssi, mutate_ssi),
+    "xss": (analyze_xss, mutate_xss),
+    "ssrf": (analyze_ssrf, mutate_ssrf),
+    "path": (analyze_path, mutate_path),
+    "mail": (analyze_mail, mutate_mail),
+}
+
+# Langs whose analyzer selects a dialect / kind: differential compares them.
+_DIALECT_LANGS = ("shell", "sql", "template", "code", "crlf")
+
+# Every lang whose analyzer is breakout based and has a mutation engine.
+_FUZZ_LANGS = _DIALECT_LANGS + tuple(_SIMPLE)
 
 _RISK_ORDER = {
     Risk.CRITICAL: 4,
@@ -32,6 +68,12 @@ def _analyze(
         return analyze_template(
             template, payload, parse_template_engine(dialect or "jinja2")
         )
+    if lang == "code":
+        return analyze_code(template, payload, parse_code_lang(dialect or "python"))
+    if lang == "crlf":
+        return analyze_crlf(template, payload, parse_crlf_kind(dialect or "header"))
+    if lang in _SIMPLE:
+        return _SIMPLE[lang][0](template, payload)
     return analyze(template, payload, parse_dialect(dialect or "posix"))
 
 
@@ -42,6 +84,12 @@ def _seed_payloads(
         result = mutate_sql(template, parse_sql_dialect(dialect or "mysql"))
     elif lang == "template":
         result = mutate_template(template, parse_template_engine(dialect or "jinja2"))
+    elif lang == "code":
+        result = mutate_code(template, parse_code_lang(dialect or "python"))
+    elif lang == "crlf":
+        result = mutate_crlf(template, parse_crlf_kind(dialect or "header"))
+    elif lang in _SIMPLE:
+        result = _SIMPLE[lang][1](template)
     else:
         result = mutate(
             template, command=command, dialect=parse_dialect(dialect or "posix")
@@ -127,7 +175,9 @@ def fuzz(
     exploit paths, deduplicated and ranked by risk.
     """
     if lang not in _FUZZ_LANGS:
-        raise ValueError(f"fuzzing supports {_FUZZ_LANGS}, not {lang!r}")
+        raise ValueError(
+            "fuzzing supports " + ", ".join(_FUZZ_LANGS) + f", not {lang!r}"
+        )
 
     seeds = _seed_payloads(template, lang, dialect, command)
     seeds += extra_seeds or []
@@ -196,9 +246,13 @@ def differential(
 
     A payload that injects under one dialect but not another is a parser
     differential: the same input is data to one engine and code to another.
+    Only the dialect-selecting languages can diverge this way; a no-dialect
+    analyzer has a single parser and nothing to compare.
     """
-    if lang not in _FUZZ_LANGS:
-        raise ValueError(f"differential supports {_FUZZ_LANGS}, not {lang!r}")
+    if lang not in _DIALECT_LANGS:
+        raise ValueError(
+            "differential supports " + ", ".join(_DIALECT_LANGS) + f", not {lang!r}"
+        )
 
     per: dict[str, dict] = {}
     for dialect in dialects:

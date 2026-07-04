@@ -70,6 +70,52 @@ def test_fuzz_rejects_prompt_lang():
         fuzz("{INPUT}", lang="prompt")
 
 
+# --- fuzz across the breakout analyzers ---
+
+
+def test_fuzz_ssrf_finds_metadata_path():
+    result = fuzz("http://api/fetch?url={INPUT}", lang="ssrf")
+    assert result.valid > 0
+    assert result.paths[0].risk.value == "CRITICAL"
+    assert "ssrf_query" in result.contexts_reached
+
+
+def test_fuzz_ssrf_case_obfuscation_survives():
+    # URL schemes are case-insensitive, so an uppercased scheme still injects.
+    result = fuzz("http://api/fetch?url={INPUT}", lang="ssrf")
+    assert "case-upper" in result.strategies
+
+
+def test_fuzz_path_encoded_traversal_survives():
+    # The path analyzer decodes percent-encoding, so encoded traversal injects.
+    result = fuzz("/var/www/{INPUT}", lang="path")
+    assert result.valid > 0
+    assert "url-encode" in result.strategies
+
+
+def test_fuzz_xss_case_obfuscation_survives():
+    result = fuzz("<div>{INPUT}</div>", lang="xss")
+    assert result.valid > 0
+    assert "case-upper" in result.strategies
+
+
+def test_fuzz_mail_finds_header_injection():
+    result = fuzz("To: {INPUT}", lang="mail")
+    assert result.valid > 0
+    assert "mail_header" in result.contexts_reached
+
+
+def test_fuzz_code_dialect_seeds():
+    result = fuzz("eval({INPUT})", lang="code", dialect="python")
+    assert result.valid > 0
+    assert all(p.risk.value in ("HIGH", "CRITICAL") for p in result.paths)
+
+
+def test_fuzz_crlf_dialect_seeds():
+    result = fuzz("Location: {INPUT}", lang="crlf", dialect="header")
+    assert result.valid > 0
+
+
 def test_fuzz_to_dict():
     data = fuzz(SQL_TMPL, lang="sql").to_dict()
     assert set(["template", "lang", "generated", "valid", "paths"]).issubset(data)
@@ -106,6 +152,36 @@ def test_differential_to_dict():
     assert "posix" in data["per_dialect"]
 
 
+def test_differential_code_template_literal():
+    # ${...} is a template-literal substitution in JavaScript only.
+    result = differential(
+        "eval(`{INPUT}`)",
+        "${7*7}",
+        lang="code",
+        dialects=["python", "javascript", "php"],
+    )
+    assert result.divergent
+    assert result.per_dialect["javascript"]["command_injected"]
+    assert not result.per_dialect["python"]["command_injected"]
+
+
+def test_differential_crlf_kinds():
+    # The same break is critical in a header (response splitting) and high in a log.
+    result = differential(
+        "Location: {INPUT}",
+        "x\r\nSet-Cookie: y",
+        lang="crlf",
+        dialects=["header", "log"],
+    )
+    assert result.per_dialect["header"]["risk"] == "CRITICAL"
+    assert result.per_dialect["log"]["risk"] == "HIGH"
+
+
+def test_differential_rejects_no_dialect_lang():
+    with pytest.raises(ValueError):
+        differential("http://x/?u={INPUT}", "http://169.254.169.254/", "ssrf", ["a"])
+
+
 # --- CLI ---
 
 
@@ -119,3 +195,10 @@ def test_cli_fuzz_json(capsys):
 def test_cli_fuzz_rejects_prompt():
     with pytest.raises(SystemExit):
         main(["--fuzz", "-l", "prompt", "{INPUT}"])
+
+
+def test_cli_fuzz_ssrf_json(capsys):
+    code = main(["--fuzz", "-l", "ssrf", "--json", "http://api/f?url={INPUT}"])
+    data = json.loads(capsys.readouterr().out)
+    assert data["valid"] > 0
+    assert code == 2
