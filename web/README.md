@@ -5,9 +5,12 @@ the FastAPI backend and visualizes the breakout: the rendered command with the
 injected payload highlighted and a caret at the breakout point, context and risk
 badges, an execution flow diagram, prompt and agent findings, and ranked payload
 mutations. It also runs the fuzzing engine (ranked exploit paths with their
-breakout stages) and the cross-dialect differential (a per-dialect table that
-highlights a parser divergence). The current inputs are mirrored into the URL,
-so an analysis is shareable by link (Ctrl / Cmd + Enter analyzes).
+breakout stages), the cross-dialect differential (a per-dialect table that
+highlights a parser divergence), and the LLM-assisted suggest / explain (with an
+engine-validated payload list and a natural-language write-up, backed by the
+`/suggest` and `/explain` endpoints). The current inputs are mirrored into the
+URL, so an analysis is shareable by link (Ctrl / Cmd + Enter analyzes), and a
+light / dark theme toggle is provided.
 
 ## Prerequisites
 

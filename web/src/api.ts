@@ -1,9 +1,11 @@
 import {
   AnalysisResult,
   DifferentialResult,
+  ExplainResult,
   FuzzResult,
   Lang,
   MutationResult,
+  SuggestResult,
   classify,
 } from "./types";
 
@@ -64,6 +66,33 @@ export async function differential(
     dialects,
   };
   return (await post("/differential", body)) as unknown as DifferentialResult;
+}
+
+export async function suggest(
+  args: AnalyzeArgs,
+  provider: string,
+): Promise<SuggestResult> {
+  const body: Record<string, unknown> = {
+    template: args.template,
+    lang: args.lang,
+    provider,
+  };
+  if (args.dialect) body.dialect = args.dialect;
+  return (await post("/suggest", body)) as unknown as SuggestResult;
+}
+
+export async function explain(
+  args: AnalyzeArgs,
+  provider: string,
+): Promise<ExplainResult> {
+  const body: Record<string, unknown> = {
+    template: args.template,
+    payload: args.payload,
+    lang: args.lang,
+    provider,
+  };
+  if (args.dialect) body.dialect = args.dialect;
+  return (await post("/explain", body)) as unknown as ExplainResult;
 }
 
 export { BASE as API_BASE };

@@ -140,6 +140,27 @@ export interface DifferentialResult {
   per_dialect: Record<string, DialectVerdict>;
 }
 
+export interface Suggestion {
+  payload: string;
+  risk: Risk;
+  context: string;
+  command_injected: boolean;
+  substitution_injected: boolean;
+}
+
+export interface SuggestResult {
+  template: string;
+  lang: string;
+  dialect: string | null;
+  proposed: number;
+  valid: number;
+  validated: Suggestion[];
+}
+
+export interface ExplainResult {
+  explanation: string;
+}
+
 export function classify(raw: Record<string, unknown>): AnalysisResult {
   if ("findings" in raw && "role_context" in raw) {
     return { kind: "prompt", ...(raw as object) } as PromptResult;
