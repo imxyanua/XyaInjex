@@ -7,16 +7,16 @@ actually achieves a breakout.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 
-from ..analyzer import analyze
-from ..dialects import parse_dialect, parse_sql_dialect, parse_template_engine
+from ..dispatch import BREAKOUT_LANGS, analyze_lang
 from ..models import AnalysisResult, Risk
-from ..sql import analyze_sql
-from ..template import analyze_template
 from .providers import LLMProvider
 
-_LANGS = ("shell", "sql", "template")
+# A leading list marker: "- ", "* ", "+ ", "1. ", "2) ". Matched conservatively
+# so a payload that legitimately starts with "." (e.g. ../ traversal) survives.
+_LIST_MARKER = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)")
 
 _RISK_ORDER = {
     Risk.CRITICAL: 4,
@@ -34,18 +34,6 @@ _SYSTEM = (
 )
 
 
-def _analyze(
-    template: str, payload: str, lang: str, dialect: str | None
-) -> AnalysisResult:
-    if lang == "sql":
-        return analyze_sql(template, payload, parse_sql_dialect(dialect or "mysql"))
-    if lang == "template":
-        return analyze_template(
-            template, payload, parse_template_engine(dialect or "jinja2")
-        )
-    return analyze(template, payload, parse_dialect(dialect or "posix"))
-
-
 def _injects(result: AnalysisResult) -> bool:
     b = result.breakout
     return b.command_injected or b.substitution_injected
@@ -59,7 +47,7 @@ def _parse_payloads(text: str, limit: int) -> list[str]:
         # Drop obvious list markers and code fences.
         if line.startswith("```") or not line:
             continue
-        line = line.lstrip("-*0123456789. ").strip("`")
+        line = _LIST_MARKER.sub("", line, count=1).strip("`")
         if line and line not in seen:
             seen.add(line)
             out.append(line)
@@ -113,8 +101,10 @@ def suggest_payloads(
     n: int = 12,
 ) -> SuggestResult:
     """Ask ``provider`` for payloads and return the ones the engine validates."""
-    if lang not in _LANGS:
-        raise ValueError(f"suggestion supports {_LANGS}, not {lang!r}")
+    if lang not in BREAKOUT_LANGS:
+        raise ValueError(
+            "suggestion supports " + ", ".join(BREAKOUT_LANGS) + f", not {lang!r}"
+        )
 
     prompt = (
         f"Language: {lang}\n"
@@ -127,7 +117,7 @@ def suggest_payloads(
 
     validated: list[Suggestion] = []
     for payload in proposed:
-        result = _analyze(template, payload, lang, dialect)
+        result = analyze_lang(template, payload, lang, dialect)
         if _injects(result):
             b = result.breakout
             validated.append(

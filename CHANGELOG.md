@@ -19,6 +19,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dialect-selecting languages code and crlf in addition to shell / sql /
   template; a no-dialect analyzer is rejected with a clear message since it has a
   single parser and nothing to compare.
+- LLM-assisted suggestion (`--ai-suggest`) and explanation (`--ai-explain`) now
+  work for every breakout analyzer rather than only shell / sql / template; the
+  engine still validates each suggestion, so a payload is only kept when it
+  actually breaks out.
+
+### Fixed
+
+- The LLM suggestion parser stripped a leading `.` while removing list markers,
+  which mangled path-traversal payloads (`../../etc/passwd`); it now strips only
+  genuine list markers (`- `, `* `, `1. `).
+
+### Internal
+
+- Extracted the per-language analyze / seed dispatch into a single
+  `xyainjex.dispatch` module shared by the fuzzing engine and the LLM suggester,
+  replacing three copies of the same dispatch.
 
 ## [0.6.0] - 2026-07-04
 
