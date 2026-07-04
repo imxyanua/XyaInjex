@@ -28,6 +28,7 @@ from .llm import (
     get_provider,
     suggest_payloads,
 )
+from .mail import analyze_mail, mutate_mail
 from .models import (
     AnalysisResult,
     Balance,
@@ -79,6 +80,7 @@ __all__ = [
     "analyze_ssi",
     "analyze_ssrf",
     "analyze_path",
+    "analyze_mail",
     "analyze_xss",
     "analyze_prompt",
     "analyze_agent",
@@ -105,6 +107,7 @@ __all__ = [
     "mutate_ssi",
     "mutate_ssrf",
     "mutate_path",
+    "mutate_mail",
     "mutate_xss",
     "parse_code_lang",
     "parse_crlf_kind",

