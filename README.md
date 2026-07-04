@@ -103,6 +103,15 @@ SSRF (server-side request forgery):
   protocol-relative or absolute URL, and obfuscated (decimal / hex / octal) IP
   encodings, with per-context payload mutation.
 
+Path traversal / LFI:
+
+- Analyzes an input that reaches a filesystem path, classifying whether it is
+  the whole path, a base directory, or a path with a fixed suffix. Detects a
+  `../` traversal (including percent-encoded and `....//` filter-bypass forms),
+  an absolute path that resets the base, a null-byte extension bypass, a remote
+  scheme (RFI), and a PHP / stream wrapper (`php://filter`, `php://input`,
+  `expect://`, `data://`, ...), with per-context payload mutation.
+
 Code (eval sink) injection:
 
 - Analyzes an input reaching an eval-style sink in Python, JavaScript, or PHP,
@@ -325,6 +334,12 @@ Analyze SSRF with `--lang ssrf`:
 ```bash
 xyainjex -l ssrf 'http://api.example.com/fetch?url={INPUT}' \
   'http://169.254.169.254/latest/meta-data/'
+```
+
+Analyze path traversal / LFI with `--lang path`:
+
+```bash
+xyainjex -l path '/var/www/uploads/{INPUT}' '../../../../etc/passwd'
 ```
 
 Analyze code (eval sink) injection with `--lang code` (`-d` python, javascript,

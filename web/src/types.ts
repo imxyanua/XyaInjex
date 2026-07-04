@@ -13,6 +13,7 @@ export type Lang =
   | "ssi"
   | "xss"
   | "ssrf"
+  | "path"
   | "code"
   | "crlf"
   | "prompt"

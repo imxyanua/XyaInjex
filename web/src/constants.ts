@@ -15,6 +15,7 @@ export const LANGS: { value: Lang; label: string }[] = [
   { value: "ssi", label: "SSI" },
   { value: "xss", label: "HTML / XSS" },
   { value: "ssrf", label: "SSRF / URL" },
+  { value: "path", label: "Path / LFI" },
   { value: "code", label: "Code (eval)" },
   { value: "crlf", label: "CRLF" },
   { value: "prompt", label: "Prompt" },
@@ -51,6 +52,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   ssi: [],
   xss: [],
   ssrf: [],
+  path: [],
   code: ["python", "javascript", "php"],
   crlf: ["header", "log"],
   prompt: [],
@@ -120,6 +122,10 @@ export const EXAMPLES: Record<Lang, Example> = {
     template: "http://api.example.com/fetch?url={INPUT}",
     payload: "http://169.254.169.254/latest/meta-data/",
   },
+  path: {
+    template: "/var/www/uploads/{INPUT}",
+    payload: "../../../../etc/passwd",
+  },
   code: {
     template: 'eval("result = {INPUT}")',
     payload: "\"; __import__('os').system('id') #",
@@ -153,5 +159,6 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "ssi" ||
   lang === "xss" ||
   lang === "ssrf" ||
+  lang === "path" ||
   lang === "code" ||
   lang === "crlf";
