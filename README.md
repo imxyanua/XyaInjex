@@ -465,7 +465,9 @@ for s in suggested.validated:
 ## Web frontend
 
 A React (Vite + TypeScript) frontend lives in [web/](web/). It calls the HTTP
-API and visualizes the breakout, findings, and payload mutations. Run the API
+API and visualizes the breakout (with the injected payload highlighted),
+findings, and payload mutations, and runs the fuzzing (ranked exploit paths) and
+cross-dialect differential (per-dialect divergence table) engines. Run the API
 with CORS allowing the dev server, then start the frontend:
 
 ```bash

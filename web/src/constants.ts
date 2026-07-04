@@ -150,6 +150,24 @@ export const EXAMPLES: Record<Lang, Example> = {
   },
 };
 
+// Fuzzing works for every breakout analyzer; only prompt / agent are excluded.
+const NON_BREAKOUT: Lang[] = ["prompt", "agent"];
+
+export const supportsFuzz = (lang: Lang): boolean =>
+  !NON_BREAKOUT.includes(lang);
+
+// Differential comparison needs a language that selects a dialect / kind.
+export const DIFFERENTIAL_LANGS: Lang[] = [
+  "shell",
+  "sql",
+  "template",
+  "code",
+  "crlf",
+];
+
+export const supportsDifferential = (lang: Lang): boolean =>
+  DIFFERENTIAL_LANGS.includes(lang);
+
 export const supportsMutation = (lang: Lang): boolean =>
   lang === "shell" ||
   lang === "sql" ||

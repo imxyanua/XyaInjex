@@ -1,4 +1,11 @@
-import { AnalysisResult, Lang, MutationResult, classify } from "./types";
+import {
+  AnalysisResult,
+  DifferentialResult,
+  FuzzResult,
+  Lang,
+  MutationResult,
+  classify,
+} from "./types";
 
 const BASE = (import.meta.env.VITE_API_BASE as string) || "http://localhost:8000";
 
@@ -38,6 +45,25 @@ export async function mutate(args: AnalyzeArgs): Promise<MutationResult> {
   const body: Record<string, unknown> = { template: args.template, lang: args.lang };
   if (args.dialect) body.dialect = args.dialect;
   return (await post("/mutate", body)) as unknown as MutationResult;
+}
+
+export async function fuzz(args: AnalyzeArgs): Promise<FuzzResult> {
+  const body: Record<string, unknown> = { template: args.template, lang: args.lang };
+  if (args.dialect) body.dialect = args.dialect;
+  return (await post("/fuzz", body)) as unknown as FuzzResult;
+}
+
+export async function differential(
+  args: AnalyzeArgs,
+  dialects: string[],
+): Promise<DifferentialResult> {
+  const body = {
+    template: args.template,
+    payload: args.payload,
+    lang: args.lang,
+    dialects,
+  };
+  return (await post("/differential", body)) as unknown as DifferentialResult;
 }
 
 export { BASE as API_BASE };

@@ -1,9 +1,12 @@
 # XyaInjex web
 
 A small React (Vite + TypeScript) frontend for the XyaInjex analyzer. It calls
-the FastAPI backend and visualizes the breakout: the rendered command with a
-caret at the breakout point, context and risk badges, an execution flow diagram,
-prompt and agent findings, and ranked payload mutations.
+the FastAPI backend and visualizes the breakout: the rendered command with the
+injected payload highlighted and a caret at the breakout point, context and risk
+badges, an execution flow diagram, prompt and agent findings, and ranked payload
+mutations. It also runs the fuzzing engine (ranked exploit paths with their
+breakout stages) and the cross-dialect differential (a per-dialect table that
+highlights a parser divergence).
 
 ## Prerequisites
 

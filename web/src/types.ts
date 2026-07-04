@@ -106,6 +106,40 @@ export interface MutationResult {
   candidates: MutationCandidate[];
 }
 
+export interface ExploitPath {
+  payload: string;
+  risk: Risk;
+  context: string;
+  syntax_valid: boolean;
+  strategy: string;
+  stages: string[];
+}
+
+export interface FuzzResult {
+  template: string;
+  lang: string;
+  dialect: string | null;
+  generated: number;
+  valid: number;
+  contexts_reached: string[];
+  strategies: string[];
+  paths: ExploitPath[];
+}
+
+export interface DialectVerdict {
+  risk: Risk;
+  command_injected: boolean;
+  context: string;
+}
+
+export interface DifferentialResult {
+  template: string;
+  payload: string;
+  lang: string;
+  divergent: boolean;
+  per_dialect: Record<string, DialectVerdict>;
+}
+
 export function classify(raw: Record<string, unknown>): AnalysisResult {
   if ("findings" in raw && "role_context" in raw) {
     return { kind: "prompt", ...(raw as object) } as PromptResult;
