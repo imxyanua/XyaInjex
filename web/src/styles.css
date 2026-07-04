@@ -160,8 +160,8 @@ body::before {
 .tabs {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 10px;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 16px;
 }
 
@@ -169,27 +169,38 @@ body::before {
   content: "lang:";
   color: var(--muted);
   font-size: 13px;
-  margin-right: 4px;
+  margin-right: 2px;
+  align-self: center;
 }
 
+/* Bordered chips: each language is a distinct, comfortably sized target so the
+   list is easy to scan and hard to misclick. */
 .tab {
-  background: transparent;
-  border: none;
+  background: var(--panel);
+  border: 1px solid var(--border);
   color: var(--muted);
-  padding: 2px 4px;
+  padding: 7px 13px;
+  border-radius: 6px;
   cursor: pointer;
   font-family: var(--mono);
   font-size: 13px;
-  border-bottom: 1px solid transparent;
+  line-height: 1.2;
+  transition:
+    border-color 0.12s ease,
+    color 0.12s ease,
+    background 0.12s ease;
 }
 
 .tab:hover {
   color: var(--text);
+  border-color: var(--border-2);
+  background: var(--panel-2);
 }
 
 .tab.active {
   color: var(--accent);
-  border-bottom-color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-dim);
   text-shadow: 0 0 6px var(--glow);
 }
 
