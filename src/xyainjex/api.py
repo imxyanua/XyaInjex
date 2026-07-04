@@ -43,7 +43,7 @@ from .xpath import analyze_xpath, mutate_xpath
 from .xss import analyze_xss, mutate_xss
 from .yaml import analyze_yaml, mutate_yaml
 
-app = FastAPI(title="XyaInjex", version="0.7.0")
+app = FastAPI(title="XyaInjex", version="0.8.0")
 
 # Allow the web frontend to call the API from the browser. Origins are taken
 # from XYAINJEX_CORS_ORIGINS (comma separated) and default to the local Vite

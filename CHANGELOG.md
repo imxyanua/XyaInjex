@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-04
+
 ### Changed
 
 - Web frontend redesigned with a terminal / hacker aesthetic: a monospace
@@ -14,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bar and shell prompt, subtle CRT scanlines and a blinking cursor, bracketed
   `[ actions ]` and `[RISK]` tags, a horizontal `context ──▶ injection ──▶ EXEC`
   flow, and an empty-state prompt.
+- The language selector is now bordered chips grouped by category (Command /
+  Query, Markup / Web, Serialization, Web request, LLM) under small headers, so
+  the twenty languages are easy to scan and each is a distinct, comfortable
+  target.
 
 ### Added
 
@@ -240,7 +246,8 @@ reports how a payload escapes it and what execution path the breakout creates.
   and format configuration, a GitHub Actions CI workflow, and a test suite of
   233 cases.
 
-[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/imxyanua/XyaInjex/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/imxyanua/XyaInjex/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/imxyanua/XyaInjex/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/imxyanua/XyaInjex/compare/v0.4.0...v0.5.0
