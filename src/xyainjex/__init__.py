@@ -59,6 +59,7 @@ from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
 from .xss import analyze_xss, mutate_xss
+from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
 
 __version__ = "0.8.0"
@@ -82,6 +83,7 @@ __all__ = [
     "analyze_path",
     "analyze_mail",
     "analyze_xss",
+    "analyze_xxe",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -109,6 +111,7 @@ __all__ = [
     "mutate_path",
     "mutate_mail",
     "mutate_xss",
+    "mutate_xxe",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

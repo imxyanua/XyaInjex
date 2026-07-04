@@ -28,6 +28,7 @@ from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
 from .xss import analyze_xss, mutate_xss
+from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
 
 # No-dialect analyzers: (analyze(template, payload), mutate(template)).
@@ -45,6 +46,7 @@ _SIMPLE = {
     "ssrf": (analyze_ssrf, mutate_ssrf),
     "path": (analyze_path, mutate_path),
     "mail": (analyze_mail, mutate_mail),
+    "xxe": (analyze_xxe, mutate_xxe),
 }
 
 # Languages whose analyzer selects a dialect / kind (so they can be compared).

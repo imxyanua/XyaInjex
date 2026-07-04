@@ -15,6 +15,7 @@ export type Lang =
   | "ssrf"
   | "path"
   | "mail"
+  | "xxe"
   | "code"
   | "crlf"
   | "prompt"

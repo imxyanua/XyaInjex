@@ -41,6 +41,7 @@ from .template import analyze_template, mutate_template
 from .xml import analyze_xml, mutate_xml
 from .xpath import analyze_xpath, mutate_xpath
 from .xss import analyze_xss, mutate_xss
+from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
 
 app = FastAPI(title="XyaInjex", version="0.8.0")
@@ -126,6 +127,7 @@ def _require_lang(lang: str) -> str:
         "ssrf",
         "path",
         "mail",
+        "xxe",
         "code",
         "crlf",
         "prompt",
@@ -174,6 +176,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_path(req.template, req.payload).to_dict()
         if lang == "mail":
             return analyze_mail(req.template, req.payload).to_dict()
+        if lang == "xxe":
+            return analyze_xxe(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -226,6 +230,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_path(req.template).to_dict()
         if lang == "mail":
             return mutate_mail(req.template).to_dict()
+        if lang == "xxe":
+            return mutate_xxe(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")

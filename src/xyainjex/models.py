@@ -136,6 +136,9 @@ class Context(Enum):
     MAIL_HEADER = "mail_header"
     MAIL_BODY = "mail_body"
     SMTP_COMMAND = "smtp_command"
+    # XXE (XML external entity) contexts
+    XXE_DOCUMENT = "xxe_document"
+    XXE_CONTENT = "xxe_content"
 
     @property
     def quote_char(self) -> str | None:
