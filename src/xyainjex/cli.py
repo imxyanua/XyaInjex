@@ -23,6 +23,7 @@ from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
 from .path import analyze_path, mutate_path
 from .prompt import analyze_prompt
+from .prototype import analyze_prototype, mutate_prototype
 from .report import to_json, visualize
 from .sql import analyze_sql, mutate_sql
 from .ssi import analyze_ssi, mutate_ssi
@@ -91,7 +92,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
             "nosql, xml, yaml, graphql, el, csv, ssi, xss, ssrf, path, mail, "
-            "xxe, code, crlf, prompt, or agent"
+            "xxe, prototype, code, crlf, prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -140,6 +141,7 @@ def main(argv: list[str] | None = None) -> int:
         "path",
         "mail",
         "xxe",
+        "prototype",
         "code",
         "crlf",
         "prompt",
@@ -163,6 +165,7 @@ def main(argv: list[str] | None = None) -> int:
         "path": (analyze_path, mutate_path),
         "mail": (analyze_mail, mutate_mail),
         "xxe": (analyze_xxe, mutate_xxe),
+        "prototype": (analyze_prototype, mutate_prototype),
     }
 
     try:

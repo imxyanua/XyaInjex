@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Prototype pollution analyzer: classifies whether the input is a JSON object
+  that is deep-merged or a property path (bracket / dot notation), and detects a
+  dangerous key (`__proto__`, `constructor`, `prototype`) that sets a property on
+  `Object.prototype` — distinguishing a real pollution (a nested property) from
+  merely naming the key, flagging the `constructor.prototype` filter-bypass chain
+  and known RCE gadget properties (`NODE_OPTIONS`, `execArgv`, ...), with payload
+  mutation and CLI (`--lang prototype`), HTTP API, and web frontend support.
 - XXE (XML external entity) analyzer: classifies whether the input starts the
   XML document (so it can introduce a `<!DOCTYPE>`) or lands inside an element,
   and detects an external general or parameter entity, an external DTD subset,

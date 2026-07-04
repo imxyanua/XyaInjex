@@ -16,6 +16,7 @@ export type Lang =
   | "path"
   | "mail"
   | "xxe"
+  | "prototype"
   | "code"
   | "crlf"
   | "prompt"
