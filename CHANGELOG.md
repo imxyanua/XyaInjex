@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- HTTP API endpoints `/suggest` and `/explain` expose the LLM-assisted payload
+  suggestion and explanation (previously CLI-only). Both take a `provider` name
+  (mock, openai, claude, ollama); the engine still validates every suggested
+  payload, and an unknown provider or a non-breakout language returns 400.
 - Web frontend now surfaces the fuzzing and differential engine features that
   were previously API-only: a Fuzz action (for every breakout language) lists the
   ranked exploit paths with their strategy and breakout stages, and a

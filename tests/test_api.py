@@ -637,3 +637,66 @@ def test_differential_rejects_no_dialect_lang():
         },
     )
     assert resp.status_code == 400
+
+
+# --- /suggest and /explain (LLM-assisted) ---
+
+
+def test_suggest_endpoint_mock_empty():
+    # The default mock provider returns nothing, so nothing is validated.
+    resp = client.post(
+        "/suggest", json={"template": 'curl "{INPUT}"', "lang": "shell"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] == 0
+
+
+def test_suggest_endpoint_validates(monkeypatch):
+    from xyainjex.llm import MockProvider
+
+    provider = MockProvider(responses=["http://169.254.169.254/\nnot-a-url"])
+    monkeypatch.setattr("xyainjex.api.get_provider", lambda name, **kw: provider)
+    resp = client.post(
+        "/suggest", json={"template": "http://a/?u={INPUT}", "lang": "ssrf"}
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["valid"] == 1
+    assert data["validated"][0]["risk"] == "CRITICAL"
+
+
+def test_suggest_unknown_provider():
+    resp = client.post(
+        "/suggest",
+        json={"template": "x{INPUT}", "lang": "shell", "provider": "bogus"},
+    )
+    assert resp.status_code == 400
+
+
+def test_suggest_rejects_prompt_lang():
+    resp = client.post("/suggest", json={"template": "{INPUT}", "lang": "prompt"})
+    assert resp.status_code == 400
+
+
+def test_explain_endpoint(monkeypatch):
+    from xyainjex.llm import MockProvider
+
+    provider = MockProvider(handler=lambda prompt, system: "report text")
+    monkeypatch.setattr("xyainjex.api.get_provider", lambda name, **kw: provider)
+    resp = client.post(
+        "/explain",
+        json={
+            "template": "http://a/?u={INPUT}",
+            "payload": "http://169.254.169.254/",
+            "lang": "ssrf",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["explanation"] == "report text"
+
+
+def test_explain_rejects_non_breakout_lang():
+    resp = client.post(
+        "/explain", json={"template": "{INPUT}", "payload": "x", "lang": "agent"}
+    )
+    assert resp.status_code == 400

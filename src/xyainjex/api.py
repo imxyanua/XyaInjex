@@ -23,10 +23,12 @@ from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
+from .dispatch import BREAKOUT_LANGS, analyze_lang
 from .el import analyze_el, mutate_el
 from .fuzz import differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .ldap import analyze_ldap, mutate_ldap
+from .llm import explain, get_provider, suggest_payloads
 from .mail import analyze_mail, mutate_mail
 from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
@@ -87,6 +89,22 @@ class DifferentialRequest(BaseModel):
     payload: str
     lang: str = "shell"
     dialects: list[str]
+
+
+class SuggestRequest(BaseModel):
+    template: str
+    lang: str = "shell"
+    dialect: str | None = None
+    provider: str = "mock"
+    n: int = 12
+
+
+class ExplainRequest(BaseModel):
+    template: str
+    payload: str
+    lang: str = "shell"
+    dialect: str | None = None
+    provider: str = "mock"
 
 
 def _require_lang(lang: str) -> str:
@@ -249,3 +267,46 @@ def differential_endpoint(req: DifferentialRequest) -> dict:
         ).to_dict()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/suggest")
+def suggest_endpoint(req: SuggestRequest) -> dict:
+    """Ask an LLM provider for payloads and return the ones the engine validates.
+
+    The provider is chosen by name (mock, openai, claude, ollama); the engine
+    remains the source of truth, so only payloads that actually break out are
+    returned.
+    """
+    n = max(1, min(req.n, 50))
+    try:
+        provider = get_provider(req.provider)
+        return suggest_payloads(
+            req.template,
+            provider,
+            lang=req.lang.strip().lower(),
+            dialect=req.dialect,
+            n=n,
+        ).to_dict()
+    except (ValueError, ImportError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # provider/runtime failure (e.g. LLM unreachable)
+        raise HTTPException(status_code=502, detail=f"provider error: {exc}") from exc
+
+
+@app.post("/explain")
+def explain_endpoint(req: ExplainRequest) -> dict:
+    """Analyze a payload, then ask an LLM provider to explain the breakout."""
+    lang = req.lang.strip().lower()
+    if lang not in BREAKOUT_LANGS:
+        raise HTTPException(
+            status_code=400,
+            detail="explain supports: " + ", ".join(BREAKOUT_LANGS),
+        )
+    try:
+        provider = get_provider(req.provider)
+        result = analyze_lang(req.template, req.payload, lang, req.dialect)
+        return {"explanation": explain(result, provider)}
+    except (ValueError, ImportError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # provider/runtime failure (e.g. LLM unreachable)
+        raise HTTPException(status_code=502, detail=f"provider error: {exc}") from exc
