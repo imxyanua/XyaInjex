@@ -1,15 +1,25 @@
 import { useState } from "react";
-import { analyze, mutate, API_BASE } from "./api";
+import { analyze, differential, fuzz, mutate, API_BASE } from "./api";
 import {
   DIALECTS,
   EXAMPLES,
   LANGS,
   SOURCES,
+  supportsDifferential,
+  supportsFuzz,
   supportsMutation,
 } from "./constants";
-import { AnalysisResult, Lang, MutationResult } from "./types";
+import {
+  AnalysisResult,
+  DifferentialResult,
+  FuzzResult,
+  Lang,
+  MutationResult,
+} from "./types";
 import { BreakoutView } from "./components/BreakoutView";
+import { DifferentialPanel } from "./components/DifferentialPanel";
 import { FindingsView } from "./components/FindingsView";
+import { FuzzPanel } from "./components/FuzzPanel";
 import { MutationPanel } from "./components/MutationPanel";
 
 export default function App() {
@@ -20,8 +30,17 @@ export default function App() {
   const [payload, setPayload] = useState<string>(EXAMPLES.shell.payload);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [mutation, setMutation] = useState<MutationResult | null>(null);
+  const [fuzzResult, setFuzzResult] = useState<FuzzResult | null>(null);
+  const [diff, setDiff] = useState<DifferentialResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  function clearOutputs() {
+    setResult(null);
+    setMutation(null);
+    setFuzzResult(null);
+    setDiff(null);
+  }
 
   function switchLang(next: Lang) {
     setLang(next);
@@ -29,22 +48,24 @@ export default function App() {
     setSource(SOURCES[0]);
     setTemplate(EXAMPLES[next].template);
     setPayload(EXAMPLES[next].payload);
-    setResult(null);
-    setMutation(null);
+    clearOutputs();
     setError(null);
   }
 
-  async function run(action: "analyze" | "mutate") {
+  async function run(action: "analyze" | "mutate" | "fuzz" | "differential") {
     setBusy(true);
     setError(null);
     try {
       const args = { lang, template, payload, dialect, source };
+      clearOutputs();
       if (action === "analyze") {
-        setMutation(null);
         setResult(await analyze(args));
-      } else {
-        setResult(null);
+      } else if (action === "mutate") {
         setMutation(await mutate(args));
+      } else if (action === "fuzz") {
+        setFuzzResult(await fuzz(args));
+      } else {
+        setDiff(await differential(args, DIALECTS[lang]));
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -137,6 +158,16 @@ export default function App() {
               Mutate
             </button>
           )}
+          {!isAgent && supportsFuzz(lang) && (
+            <button onClick={() => run("fuzz")} disabled={busy}>
+              Fuzz
+            </button>
+          )}
+          {supportsDifferential(lang) && (
+            <button onClick={() => run("differential")} disabled={busy}>
+              Differential
+            </button>
+          )}
         </div>
       </div>
 
@@ -149,6 +180,10 @@ export default function App() {
       {mutation && (
         <MutationPanel result={mutation} onPick={(p) => setPayload(p)} />
       )}
+      {fuzzResult && (
+        <FuzzPanel result={fuzzResult} onPick={(p) => setPayload(p)} />
+      )}
+      {diff && <DifferentialPanel result={diff} />}
 
       <footer>
         API: <code>{API_BASE}</code>

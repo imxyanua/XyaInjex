@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Web frontend now surfaces the fuzzing and differential engine features that
+  were previously API-only: a Fuzz action (for every breakout language) lists the
+  ranked exploit paths with their strategy and breakout stages, and a
+  Differential action (for the dialect-selecting languages) shows a per-dialect
+  table that highlights a parser divergence. The breakout view also highlights
+  the injected payload within the rendered output.
+
 ## [0.7.0] - 2026-07-04
 
 ### Changed

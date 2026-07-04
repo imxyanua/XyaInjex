@@ -12,6 +12,20 @@ function Caret({ rendered, index }: { rendered: string; index: number | null }) 
   );
 }
 
+function Rendered({ rendered, payload }: { rendered: string; payload: string }) {
+  const at = payload ? rendered.indexOf(payload) : -1;
+  if (at < 0) {
+    return <div className="mono">{rendered || " "}</div>;
+  }
+  return (
+    <div className="mono">
+      {rendered.slice(0, at)}
+      <span className="payload-hl">{payload}</span>
+      {rendered.slice(at + payload.length)}
+    </div>
+  );
+}
+
 export function BreakoutView({ result }: { result: BreakoutResult }) {
   const b = result.breakout;
   return (
@@ -26,7 +40,7 @@ export function BreakoutView({ result }: { result: BreakoutResult }) {
       </div>
 
       <div className="rendered">
-        <div className="mono">{result.rendered || " "}</div>
+        <Rendered rendered={result.rendered} payload={result.payload} />
         <Caret rendered={result.rendered} index={b.breakout_index} />
       </div>
 
