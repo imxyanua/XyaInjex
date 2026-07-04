@@ -61,6 +61,8 @@ export const DIALECTS: Record<Lang, string[]> = {
   agent: [],
 };
 
+export const PROVIDERS = ["mock", "ollama", "openai", "claude"];
+
 export const SOURCES = [
   "tool_output",
   "agent_message",

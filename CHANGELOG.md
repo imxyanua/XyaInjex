@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are mirrored into the URL query, so a link restores the exact inputs; a
   "Copy link" button and a copy button on the rendered output are provided, and
   Ctrl / Cmd + Enter runs the analysis.
+- Web frontend: LLM-assisted panels. An **AI Suggest** action lists the
+  engine-validated payloads a chosen provider proposes, and an **AI Explain**
+  action shows a natural-language write-up of the current breakout, backed by the
+  new `/suggest` and `/explain` endpoints. A light / dark theme toggle (persisted
+  and honoring the system preference) was added, and the API base URL footer was
+  removed.
 
 ## [0.7.0] - 2026-07-04
 

@@ -9,6 +9,16 @@
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --panel: #f6f8fa;
+  --panel-2: #eaeef2;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #656d76;
+  --accent: #0969da;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -27,10 +37,28 @@ body {
   padding: 24px 20px 60px;
 }
 
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
 header h1 {
   margin: 0;
   font-size: 28px;
   letter-spacing: -0.5px;
+}
+
+.theme-toggle {
+  white-space: nowrap;
+  margin-top: 4px;
+}
+
+.explain-text {
+  margin: 8px 0 0;
+  font-size: 14px;
+  white-space: pre-wrap;
 }
 
 .tagline {

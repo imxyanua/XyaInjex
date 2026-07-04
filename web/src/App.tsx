@@ -1,9 +1,10 @@
 import { KeyboardEvent, useEffect, useState } from "react";
-import { analyze, differential, fuzz, mutate, API_BASE } from "./api";
+import { analyze, differential, explain, fuzz, mutate, suggest } from "./api";
 import {
   DIALECTS,
   EXAMPLES,
   LANGS,
+  PROVIDERS,
   SOURCES,
   supportsDifferential,
   supportsFuzz,
@@ -15,7 +16,9 @@ import {
   FuzzResult,
   Lang,
   MutationResult,
+  SuggestResult,
 } from "./types";
+import { initialTheme, applyTheme, Theme } from "./theme";
 import { readUrlState, shareLink, writeUrlState } from "./url";
 import { BreakoutView } from "./components/BreakoutView";
 import { CopyButton } from "./components/CopyButton";
@@ -23,6 +26,7 @@ import { DifferentialPanel } from "./components/DifferentialPanel";
 import { FindingsView } from "./components/FindingsView";
 import { FuzzPanel } from "./components/FuzzPanel";
 import { MutationPanel } from "./components/MutationPanel";
+import { SuggestPanel } from "./components/SuggestPanel";
 
 const initial = readUrlState();
 const initialLang = initial.lang ?? "shell";
@@ -39,23 +43,33 @@ export default function App() {
   const [payload, setPayload] = useState<string>(
     initial.payload ?? EXAMPLES[initialLang].payload,
   );
+  const [provider, setProvider] = useState<string>(PROVIDERS[0]);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [mutation, setMutation] = useState<MutationResult | null>(null);
   const [fuzzResult, setFuzzResult] = useState<FuzzResult | null>(null);
   const [diff, setDiff] = useState<DifferentialResult | null>(null);
+  const [suggestion, setSuggestion] = useState<SuggestResult | null>(null);
+  const [explanation, setExplanation] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [theme, setTheme] = useState<Theme>(initialTheme);
 
   // Mirror the current inputs into the URL so the analysis is shareable.
   useEffect(() => {
     writeUrlState({ lang, dialect, source, template, payload });
   }, [lang, dialect, source, template, payload]);
 
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
   function clearOutputs() {
     setResult(null);
     setMutation(null);
     setFuzzResult(null);
     setDiff(null);
+    setSuggestion(null);
+    setExplanation(null);
   }
 
   function switchLang(next: Lang) {
@@ -68,7 +82,15 @@ export default function App() {
     setError(null);
   }
 
-  async function run(action: "analyze" | "mutate" | "fuzz" | "differential") {
+  type Action =
+    | "analyze"
+    | "mutate"
+    | "fuzz"
+    | "differential"
+    | "suggest"
+    | "explain";
+
+  async function run(action: Action) {
     setBusy(true);
     setError(null);
     try {
@@ -80,8 +102,12 @@ export default function App() {
         setMutation(await mutate(args));
       } else if (action === "fuzz") {
         setFuzzResult(await fuzz(args));
-      } else {
+      } else if (action === "differential") {
         setDiff(await differential(args, DIALECTS[lang]));
+      } else if (action === "suggest") {
+        setSuggestion(await suggest(args, provider));
+      } else {
+        setExplanation((await explain(args, provider)).explanation);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -108,8 +134,17 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>XyaInjex</h1>
-        <p className="tagline">Injection context and breakout analyzer</p>
+        <div className="titles">
+          <h1>XyaInjex</h1>
+          <p className="tagline">Injection context and breakout analyzer</p>
+        </div>
+        <button
+          className="copy theme-toggle"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          title="Toggle light / dark theme"
+        >
+          {theme === "dark" ? "☀ Light" : "🌙 Dark"}
+        </button>
       </header>
 
       <div className="tabs">
@@ -196,6 +231,34 @@ export default function App() {
           )}
           <CopyButton text={shareUrl} label="Copy link" />
         </div>
+
+        {!isAgent && supportsFuzz(lang) && (
+          <div className="row ai-row">
+            <label className="inline">
+              <span>LLM provider</span>
+              <select
+                value={provider}
+                onChange={(e) => setProvider(e.target.value)}
+              >
+                {PROVIDERS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button onClick={() => run("suggest")} disabled={busy}>
+              AI Suggest
+            </button>
+            <button
+              onClick={() => run("explain")}
+              disabled={busy || !payload}
+            >
+              AI Explain
+            </button>
+          </div>
+        )}
+
         <p className="hint">Press ⌘/Ctrl + Enter to analyze.</p>
       </div>
 
@@ -212,10 +275,20 @@ export default function App() {
         <FuzzPanel result={fuzzResult} onPick={(p) => setPayload(p)} />
       )}
       {diff && <DifferentialPanel result={diff} />}
-
-      <footer>
-        API: <code>{API_BASE}</code>
-      </footer>
+      {suggestion && (
+        <SuggestPanel result={suggestion} onPick={(p) => setPayload(p)} />
+      )}
+      {explanation !== null && (
+        <div className="result explain">
+          <div className="rendered-head">
+            <span className="rendered-label">AI explanation</span>
+            <CopyButton text={explanation} />
+          </div>
+          <p className="explain-text">
+            {explanation || "The provider returned no text."}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
