@@ -511,6 +511,30 @@ def test_mutate_ssrf_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_path_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "/var/www/uploads/{INPUT}",
+            "payload": "../../../../etc/passwd",
+            "lang": "path",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "path_base"
+    assert data["risk"] == "HIGH"
+
+
+def test_mutate_path_endpoint():
+    resp = client.post(
+        "/mutate", json={"template": "/var/www/uploads/{INPUT}", "lang": "path"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

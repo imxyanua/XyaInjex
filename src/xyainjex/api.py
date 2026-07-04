@@ -29,6 +29,7 @@ from .graphql import analyze_graphql, mutate_graphql
 from .ldap import analyze_ldap, mutate_ldap
 from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
+from .path import analyze_path, mutate_path
 from .prompt import analyze_prompt
 from .sql import analyze_sql, mutate_sql
 from .ssi import analyze_ssi, mutate_ssi
@@ -104,6 +105,7 @@ def _require_lang(lang: str) -> str:
         "ssi",
         "xss",
         "ssrf",
+        "path",
         "code",
         "crlf",
         "prompt",
@@ -148,6 +150,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_xss(req.template, req.payload).to_dict()
         if lang == "ssrf":
             return analyze_ssrf(req.template, req.payload).to_dict()
+        if lang == "path":
+            return analyze_path(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -196,6 +200,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_xss(req.template).to_dict()
         if lang == "ssrf":
             return mutate_ssrf(req.template).to_dict()
+        if lang == "path":
+            return mutate_path(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")

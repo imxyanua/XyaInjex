@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `dict`, ...), an `@` authority override, a protocol-relative or absolute URL,
   and obfuscated (decimal / hex / octal) IP encodings, with payload mutation and
   CLI (`--lang ssrf`), HTTP API, and web frontend support.
+- Path traversal / LFI analyzer: classifies whether the input is the whole path,
+  a base directory, or a path with a fixed suffix, and detects a `../` traversal
+  (including percent-encoded and `....//` filter-bypass forms), an absolute path,
+  a null-byte extension bypass, a remote scheme (RFI), and a PHP / stream wrapper
+  (`php://filter`, `php://input`, `expect://`, `data://`, ...), with payload
+  mutation and CLI (`--lang path`), HTTP API, and web frontend support.
 
 ## [0.5.0] - 2026-07-04
 

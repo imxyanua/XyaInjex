@@ -128,6 +128,10 @@ class Context(Enum):
     SSRF_HOST = "ssrf_host"
     SSRF_PATH = "ssrf_path"
     SSRF_QUERY = "ssrf_query"
+    # Path traversal / LFI contexts
+    PATH_FULL = "path_full"
+    PATH_BASE = "path_base"
+    PATH_EXT = "path_ext"
 
     @property
     def quote_char(self) -> str | None:

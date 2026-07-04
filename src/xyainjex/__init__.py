@@ -42,6 +42,7 @@ from .models import (
 )
 from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
+from .path import analyze_path, mutate_path
 from .prompt import (
     PromptAnalysis,
     PromptFinding,
@@ -77,6 +78,7 @@ __all__ = [
     "analyze_csv",
     "analyze_ssi",
     "analyze_ssrf",
+    "analyze_path",
     "analyze_xss",
     "analyze_prompt",
     "analyze_agent",
@@ -102,6 +104,7 @@ __all__ = [
     "mutate_csv",
     "mutate_ssi",
     "mutate_ssrf",
+    "mutate_path",
     "mutate_xss",
     "parse_code_lang",
     "parse_crlf_kind",
