@@ -6,7 +6,8 @@ injected payload highlighted and a caret at the breakout point, context and risk
 badges, an execution flow diagram, prompt and agent findings, and ranked payload
 mutations. It also runs the fuzzing engine (ranked exploit paths with their
 breakout stages) and the cross-dialect differential (a per-dialect table that
-highlights a parser divergence).
+highlights a parser divergence). The current inputs are mirrored into the URL,
+so an analysis is shareable by link (Ctrl / Cmd + Enter analyzes).
 
 ## Prerequisites
 

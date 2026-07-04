@@ -116,7 +116,7 @@ select:focus {
 }
 
 button.primary,
-button:not(.tab):not(.candidate) {
+button:not(.tab):not(.candidate):not(.copy) {
   background: var(--panel-2);
   border: 1px solid var(--border);
   color: var(--text);
@@ -124,6 +124,27 @@ button:not(.tab):not(.candidate) {
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+}
+
+button.copy {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+button.copy:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 button.primary {
@@ -215,6 +236,18 @@ button:disabled {
   border-radius: 8px;
   padding: 12px;
   overflow-x: auto;
+}
+
+.rendered-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rendered-label {
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .caret-line {
@@ -409,7 +442,7 @@ button:disabled {
   flex-direction: column;
   border: 1px solid var(--border);
   border-radius: 8px;
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .diff-row {
@@ -420,6 +453,7 @@ button:disabled {
   padding: 8px 12px;
   font-size: 13px;
   border-top: 1px solid var(--border);
+  min-width: 340px;
 }
 
 .diff-row:first-child {

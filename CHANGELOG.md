@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Differential action (for the dialect-selecting languages) shows a per-dialect
   table that highlights a parser divergence. The breakout view also highlights
   the injected payload within the rendered output.
+- Web frontend: shareable analyses. The language, dialect, template, and payload
+  are mirrored into the URL query, so a link restores the exact inputs; a
+  "Copy link" button and a copy button on the rendered output are provided, and
+  Ctrl / Cmd + Enter runs the analysis.
 
 ## [0.7.0] - 2026-07-04
 

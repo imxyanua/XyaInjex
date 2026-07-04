@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { KeyboardEvent, useEffect, useState } from "react";
 import { analyze, differential, fuzz, mutate, API_BASE } from "./api";
 import {
   DIALECTS,
@@ -16,24 +16,40 @@ import {
   Lang,
   MutationResult,
 } from "./types";
+import { readUrlState, shareLink, writeUrlState } from "./url";
 import { BreakoutView } from "./components/BreakoutView";
+import { CopyButton } from "./components/CopyButton";
 import { DifferentialPanel } from "./components/DifferentialPanel";
 import { FindingsView } from "./components/FindingsView";
 import { FuzzPanel } from "./components/FuzzPanel";
 import { MutationPanel } from "./components/MutationPanel";
 
+const initial = readUrlState();
+const initialLang = initial.lang ?? "shell";
+
 export default function App() {
-  const [lang, setLang] = useState<Lang>("shell");
-  const [dialect, setDialect] = useState<string>(DIALECTS.shell[0]);
-  const [source, setSource] = useState<string>(SOURCES[0]);
-  const [template, setTemplate] = useState<string>(EXAMPLES.shell.template);
-  const [payload, setPayload] = useState<string>(EXAMPLES.shell.payload);
+  const [lang, setLang] = useState<Lang>(initialLang);
+  const [dialect, setDialect] = useState<string>(
+    initial.dialect ?? DIALECTS[initialLang][0] ?? "",
+  );
+  const [source, setSource] = useState<string>(initial.source ?? SOURCES[0]);
+  const [template, setTemplate] = useState<string>(
+    initial.template ?? EXAMPLES[initialLang].template,
+  );
+  const [payload, setPayload] = useState<string>(
+    initial.payload ?? EXAMPLES[initialLang].payload,
+  );
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [mutation, setMutation] = useState<MutationResult | null>(null);
   const [fuzzResult, setFuzzResult] = useState<FuzzResult | null>(null);
   const [diff, setDiff] = useState<DifferentialResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Mirror the current inputs into the URL so the analysis is shareable.
+  useEffect(() => {
+    writeUrlState({ lang, dialect, source, template, payload });
+  }, [lang, dialect, source, template, payload]);
 
   function clearOutputs() {
     setResult(null);
@@ -74,6 +90,14 @@ export default function App() {
     }
   }
 
+  function onKey(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && !busy) {
+      e.preventDefault();
+      run("analyze");
+    }
+  }
+
+  const shareUrl = shareLink({ lang, dialect, source, template, payload });
   const isAgent = lang === "agent";
   const templateLabel = isAgent
     ? "Untrusted content"
@@ -106,6 +130,7 @@ export default function App() {
           <textarea
             value={template}
             onChange={(e) => setTemplate(e.target.value)}
+            onKeyDown={onKey}
             spellCheck={false}
             rows={2}
           />
@@ -117,6 +142,7 @@ export default function App() {
             <textarea
               value={payload}
               onChange={(e) => setPayload(e.target.value)}
+              onKeyDown={onKey}
               spellCheck={false}
               rows={2}
             />
@@ -168,7 +194,9 @@ export default function App() {
               Differential
             </button>
           )}
+          <CopyButton text={shareUrl} label="Copy link" />
         </div>
+        <p className="hint">Press ⌘/Ctrl + Enter to analyze.</p>
       </div>
 
       {error && <div className="error">Error: {error}</div>}
