@@ -21,6 +21,7 @@ from .models import AnalysisResult
 from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
 from .path import analyze_path, mutate_path
+from .prototype import analyze_prototype, mutate_prototype
 from .sql import analyze_sql, mutate_sql
 from .ssi import analyze_ssi, mutate_ssi
 from .ssrf import analyze_ssrf, mutate_ssrf
@@ -47,6 +48,7 @@ _SIMPLE = {
     "path": (analyze_path, mutate_path),
     "mail": (analyze_mail, mutate_mail),
     "xxe": (analyze_xxe, mutate_xxe),
+    "prototype": (analyze_prototype, mutate_prototype),
 }
 
 # Languages whose analyzer selects a dialect / kind (so they can be compared).

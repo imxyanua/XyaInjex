@@ -51,6 +51,7 @@ from .prompt import (
     analyze_prompt,
     detect_hidden,
 )
+from .prototype import analyze_prototype, mutate_prototype
 from .shell.breakout import render
 from .sql import analyze_sql, mutate_sql
 from .ssi import analyze_ssi, mutate_ssi
@@ -84,6 +85,7 @@ __all__ = [
     "analyze_mail",
     "analyze_xss",
     "analyze_xxe",
+    "analyze_prototype",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -112,6 +114,7 @@ __all__ = [
     "mutate_mail",
     "mutate_xss",
     "mutate_xxe",
+    "mutate_prototype",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

@@ -582,6 +582,28 @@ def test_mutate_xxe_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_prototype_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "{INPUT}",
+            "payload": '{"__proto__": {"NODE_OPTIONS": "--inspect"}}',
+            "lang": "prototype",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "pp_json"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_prototype_endpoint():
+    resp = client.post("/mutate", json={"template": "{INPUT}", "lang": "prototype"})
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

@@ -139,6 +139,9 @@ class Context(Enum):
     # XXE (XML external entity) contexts
     XXE_DOCUMENT = "xxe_document"
     XXE_CONTENT = "xxe_content"
+    # Prototype pollution contexts
+    PP_JSON = "pp_json"
+    PP_PATH = "pp_path"
 
     @property
     def quote_char(self) -> str | None:

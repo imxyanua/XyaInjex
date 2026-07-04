@@ -139,6 +139,16 @@ Code (eval sink) injection:
   identifier (`eval`, `system`, `exec`, ...), opening a `${...}` template
   substitution, comment truncation (`#`, `//`), with sink payload mutation.
 
+Prototype pollution:
+
+- Analyzes an input that reaches an object built by a deep merge or a
+  bracket/dot path parser, classifying the JSON-object and property-path
+  vectors. Detects a dangerous key (`__proto__`, `constructor`, `prototype`)
+  that sets a property on `Object.prototype`, distinguishing a real pollution (a
+  nested property) from merely naming the key, and flags the
+  `constructor.prototype` filter-bypass chain and known RCE gadget properties
+  (`NODE_OPTIONS`, `execArgv`, ...), with per-vector payload mutation.
+
 CRLF (HTTP header / log) injection:
 
 - Analyzes an input reaching an HTTP header value or a log line, detecting raw
@@ -330,6 +340,12 @@ Analyze GraphQL injection with `--lang graphql`:
 
 ```bash
 xyainjex -l graphql '{ user(id: {INPUT}) { id } }' '1) { id password }'
+```
+
+Analyze prototype pollution with `--lang prototype`:
+
+```bash
+xyainjex -l prototype '{INPUT}' '{"__proto__": {"polluted": true}}'
 ```
 
 Analyze expression-language / JNDI injection with `--lang el`:
