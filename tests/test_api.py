@@ -604,6 +604,28 @@ def test_mutate_prototype_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_argument_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "curl {INPUT}",
+            "payload": "--upload-pack=touch /tmp/x",
+            "lang": "argument",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "arg_option"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_argument_endpoint():
+    resp = client.post("/mutate", json={"template": "curl {INPUT}", "lang": "argument"})
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

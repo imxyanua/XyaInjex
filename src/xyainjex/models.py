@@ -142,6 +142,9 @@ class Context(Enum):
     # Prototype pollution contexts
     PP_JSON = "pp_json"
     PP_PATH = "pp_path"
+    # Argument / option injection contexts
+    ARG_OPTION = "arg_option"
+    ARG_VALUE = "arg_value"
 
     @property
     def quote_char(self) -> str | None:
