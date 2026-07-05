@@ -21,6 +21,7 @@ from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
+from .host import analyze_host, mutate_host
 from .ldap import analyze_ldap, mutate_ldap
 from .llm import (
     LLMProvider,
@@ -92,6 +93,7 @@ __all__ = [
     "analyze_argument",
     "analyze_deserialize",
     "analyze_orm",
+    "analyze_host",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -124,6 +126,7 @@ __all__ = [
     "mutate_argument",
     "mutate_deserialize",
     "mutate_orm",
+    "mutate_host",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

@@ -141,6 +141,16 @@ Email header / SMTP injection:
   `DATA`), or sends a lone `.` line that ends the DATA phase, including encoded
   CR/LF, with per-context payload mutation.
 
+Host header injection:
+
+- Analyzes an input that controls the HTTP `Host` (or `X-Forwarded-Host`) value,
+  classifying which header it is. Detects an attacker-controlled host, a CRLF
+  break (response splitting / header injection), an `@` userinfo override, an
+  absolute URL, a second host (comma / space, for last-wins parsers), a
+  non-standard port, and an internal target. Treats `X-Forwarded-Host` (trusted
+  but unvalidated) as more directly poisoning app-generated URLs (password
+  reset) and the cache, with per-context payload mutation.
+
 Code (eval sink) injection:
 
 - Analyzes an input reaching an eval-style sink in Python, JavaScript, or PHP,
@@ -444,6 +454,12 @@ Analyze email header / SMTP injection with `--lang mail`:
 
 ```bash
 xyainjex -l mail 'To: {INPUT}' $'user@example.com\r\nBcc: attacker@evil.example'
+```
+
+Analyze host header injection with `--lang host`:
+
+```bash
+xyainjex -l host 'Host: {INPUT}' 'expected.example.com@evil.example.com'
 ```
 
 Analyze code (eval sink) injection with `--lang code` (`-d` python, javascript,
