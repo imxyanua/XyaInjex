@@ -16,6 +16,7 @@ from .argument import analyze_argument, mutate_argument
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
+from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
@@ -88,6 +89,7 @@ __all__ = [
     "analyze_xxe",
     "analyze_prototype",
     "analyze_argument",
+    "analyze_deserialize",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -118,6 +120,7 @@ __all__ = [
     "mutate_xxe",
     "mutate_prototype",
     "mutate_argument",
+    "mutate_deserialize",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

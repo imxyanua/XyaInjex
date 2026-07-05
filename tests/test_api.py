@@ -626,6 +626,28 @@ def test_mutate_argument_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_deserialize_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "{INPUT}",
+            "payload": "rO0ABXNyABFqYXZhLnV0aWwuSGFzaE1hcA==",
+            "lang": "deserialize",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "deserialize_encoded"
+    assert data["risk"] == "HIGH"
+
+
+def test_mutate_deserialize_endpoint():
+    resp = client.post("/mutate", json={"template": "{INPUT}", "lang": "deserialize"})
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

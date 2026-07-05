@@ -12,6 +12,7 @@ from .argument import analyze_argument, mutate_argument
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
+from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import analyze_lang
 from .el import analyze_el, mutate_el
@@ -93,7 +94,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
             "nosql, xml, yaml, graphql, el, csv, ssi, xss, ssrf, path, mail, "
-            "xxe, prototype, argument, code, crlf, prompt, or agent"
+            "xxe, prototype, argument, deserialize, code, crlf, prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -144,6 +145,7 @@ def main(argv: list[str] | None = None) -> int:
         "xxe",
         "prototype",
         "argument",
+        "deserialize",
         "code",
         "crlf",
         "prompt",
@@ -169,6 +171,7 @@ def main(argv: list[str] | None = None) -> int:
         "xxe": (analyze_xxe, mutate_xxe),
         "prototype": (analyze_prototype, mutate_prototype),
         "argument": (analyze_argument, mutate_argument),
+        "deserialize": (analyze_deserialize, mutate_deserialize),
     }
 
     try:

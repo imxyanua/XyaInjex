@@ -145,6 +145,9 @@ class Context(Enum):
     # Argument / option injection contexts
     ARG_OPTION = "arg_option"
     ARG_VALUE = "arg_value"
+    # Insecure deserialization contexts
+    DESERIALIZE_RAW = "deserialize_raw"
+    DESERIALIZE_ENCODED = "deserialize_encoded"
 
     @property
     def quote_char(self) -> str | None:

@@ -13,6 +13,7 @@ from .argument import analyze_argument, mutate_argument
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
+from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
 from .graphql import analyze_graphql, mutate_graphql
@@ -51,6 +52,7 @@ _SIMPLE = {
     "xxe": (analyze_xxe, mutate_xxe),
     "prototype": (analyze_prototype, mutate_prototype),
     "argument": (analyze_argument, mutate_argument),
+    "deserialize": (analyze_deserialize, mutate_deserialize),
 }
 
 # Languages whose analyzer selects a dialect / kind (so they can be compared).
