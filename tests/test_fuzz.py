@@ -134,6 +134,12 @@ def test_fuzz_host_finds_poisoning():
     assert "host_header" in result.contexts_reached
 
 
+def test_fuzz_redis_finds_command_injection():
+    result = fuzz("GET {INPUT}", lang="redis")
+    assert result.valid > 0
+    assert "redis_argument" in result.contexts_reached
+
+
 def test_fuzz_code_dialect_seeds():
     result = fuzz("eval({INPUT})", lang="code", dialect="python")
     assert result.valid > 0

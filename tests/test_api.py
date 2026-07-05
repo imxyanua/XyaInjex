@@ -694,6 +694,28 @@ def test_mutate_host_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_redis_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "{INPUT}",
+            "payload": "CONFIG SET dir /var/www/html",
+            "lang": "redis",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "redis_inline"
+    assert data["risk"] == "CRITICAL"
+
+
+def test_mutate_redis_endpoint():
+    resp = client.post("/mutate", json={"template": "GET {INPUT}", "lang": "redis"})
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

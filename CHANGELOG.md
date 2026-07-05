@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Redis / RESP injection analyzer: for an input reaching a Redis command
+  (directly or smuggled through gopher:// SSRF), classifies whether it is a
+  command argument (needing a CRLF to break out) or the inline command line, and
+  detects an injected command — rating an RCE command (`EVAL`, `MODULE`,
+  `SLAVEOF`/`REPLICAOF`, `CONFIG SET dir`/`dbfilename` for a webshell) critical, a
+  write / destructive command (`SET`, `FLUSHALL`, `CONFIG`, ...) high, and a read
+  command medium, also recognizing raw RESP array framing and encoded CRLF, with
+  payload mutation and CLI (`--lang redis`), HTTP API, and web frontend support.
 - Host header injection analyzer: for an input that controls the HTTP `Host` (or
   `X-Forwarded-Host`) value, classifies which header it is and detects an
   attacker-controlled host, a CRLF break (response splitting / header

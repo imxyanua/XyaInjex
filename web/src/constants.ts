@@ -23,6 +23,7 @@ export const LANG_GROUPS: LangGroup[] = [
       { value: "nosql", label: "NoSQL" },
       { value: "graphql", label: "GraphQL" },
       { value: "orm", label: "ORM lookup" },
+      { value: "redis", label: "Redis / RESP" },
       { value: "el", label: "EL / JNDI" },
       { value: "code", label: "Code (eval)" },
       { value: "argument", label: "Argument / option" },
@@ -94,6 +95,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   yaml: [],
   graphql: [],
   orm: [],
+  redis: [],
   el: [],
   csv: [],
   ssi: [],
@@ -164,6 +166,10 @@ export const EXAMPLES: Record<Lang, Example> = {
   orm: {
     template: "User.objects.filter({INPUT})",
     payload: "user__password__startswith=a",
+  },
+  redis: {
+    template: "GET {INPUT}",
+    payload: "x\r\nCONFIG SET dir /var/www/html\r\n",
   },
   csv: {
     template: "name,{INPUT},email",
@@ -257,6 +263,7 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "yaml" ||
   lang === "graphql" ||
   lang === "orm" ||
+  lang === "redis" ||
   lang === "el" ||
   lang === "csv" ||
   lang === "ssi" ||

@@ -154,6 +154,9 @@ class Context(Enum):
     # Host header injection contexts
     HOST_HEADER = "host_header"
     HOST_FORWARDED = "host_forwarded"
+    # Redis / RESP injection contexts
+    REDIS_ARGUMENT = "redis_argument"
+    REDIS_INLINE = "redis_inline"
 
     @property
     def quote_char(self) -> str | None:

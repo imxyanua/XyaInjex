@@ -9,6 +9,7 @@ export type Lang =
   | "yaml"
   | "graphql"
   | "orm"
+  | "redis"
   | "el"
   | "csv"
   | "ssi"
