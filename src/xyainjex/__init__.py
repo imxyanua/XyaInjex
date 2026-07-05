@@ -12,6 +12,7 @@ from .agent import (
     parse_source,
 )
 from .analyzer import analyze
+from .argument import analyze_argument, mutate_argument
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
@@ -86,6 +87,7 @@ __all__ = [
     "analyze_xss",
     "analyze_xxe",
     "analyze_prototype",
+    "analyze_argument",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -115,6 +117,7 @@ __all__ = [
     "mutate_xss",
     "mutate_xxe",
     "mutate_prototype",
+    "mutate_argument",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

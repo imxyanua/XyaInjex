@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Argument / option injection analyzer: for an input passed as a subprocess
+  argument (run without a shell), classifies whether it occupies its own
+  argument slot or is glued to a preceding token, and detects a leading `-` /
+  `--` parsed as an option, distinguishing a command-execution flag
+  (`--upload-pack`, `--checkpoint-action`, `-exec`, `ProxyCommand=`) from a
+  file read/write flag (`-o`, `--config`, ...), and treating a leading `--`
+  end-of-options separator as neutralizing, with payload mutation and CLI
+  (`--lang argument`), HTTP API, and web frontend support.
 - Prototype pollution analyzer: classifies whether the input is a JSON object
   that is deep-merged or a property path (bracket / dot notation), and detects a
   dangerous key (`__proto__`, `constructor`, `prototype`) that sets a property on

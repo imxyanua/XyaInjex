@@ -139,6 +139,16 @@ Code (eval sink) injection:
   identifier (`eval`, `system`, `exec`, ...), opening a `${...}` template
   substitution, comment truncation (`#`, `//`), with sink payload mutation.
 
+Argument / option injection:
+
+- Analyzes an input passed as a subprocess argument (run without a shell, as an
+  argv list), classifying whether it occupies its own argument slot or is glued
+  to a preceding token. Detects a leading `-` / `--` that the program parses as
+  an option, distinguishing a command-execution flag (`--upload-pack`,
+  `--checkpoint-action`, `-exec`, `ProxyCommand=`) from a file read/write flag
+  (`-o`, `--config`, ...), and treats a leading `--` end-of-options separator as
+  neutralizing, with option payload mutation.
+
 Prototype pollution:
 
 - Analyzes an input that reaches an object built by a deep merge or a
@@ -346,6 +356,12 @@ Analyze prototype pollution with `--lang prototype`:
 
 ```bash
 xyainjex -l prototype '{INPUT}' '{"__proto__": {"polluted": true}}'
+```
+
+Analyze argument / option injection with `--lang argument`:
+
+```bash
+xyainjex -l argument 'curl {INPUT}' '-o /tmp/pwned'
 ```
 
 Analyze expression-language / JNDI injection with `--lang el`:

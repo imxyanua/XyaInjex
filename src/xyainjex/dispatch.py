@@ -9,6 +9,7 @@ that dispatch and for the lists of supported languages.
 from __future__ import annotations
 
 from .analyzer import analyze
+from .argument import analyze_argument, mutate_argument
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
@@ -49,6 +50,7 @@ _SIMPLE = {
     "mail": (analyze_mail, mutate_mail),
     "xxe": (analyze_xxe, mutate_xxe),
     "prototype": (analyze_prototype, mutate_prototype),
+    "argument": (analyze_argument, mutate_argument),
 }
 
 # Languages whose analyzer selects a dialect / kind (so they can be compared).

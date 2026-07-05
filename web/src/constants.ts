@@ -24,6 +24,7 @@ export const LANG_GROUPS: LangGroup[] = [
       { value: "graphql", label: "GraphQL" },
       { value: "el", label: "EL / JNDI" },
       { value: "code", label: "Code (eval)" },
+      { value: "argument", label: "Argument / option" },
     ],
   },
   {
@@ -98,6 +99,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   mail: [],
   xxe: [],
   prototype: [],
+  argument: [],
   code: ["python", "javascript", "php"],
   crlf: ["header", "log"],
   prompt: [],
@@ -186,6 +188,10 @@ export const EXAMPLES: Record<Lang, Example> = {
     template: "{INPUT}",
     payload: '{"__proto__": {"polluted": true}}',
   },
+  argument: {
+    template: "curl {INPUT}",
+    payload: "-o /tmp/pwned",
+  },
   code: {
     template: 'eval("result = {INPUT}")',
     payload: "\"; __import__('os').system('id') #",
@@ -241,5 +247,6 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "mail" ||
   lang === "xxe" ||
   lang === "prototype" ||
+  lang === "argument" ||
   lang === "code" ||
   lang === "crlf";

@@ -19,6 +19,7 @@ except ImportError as exc:  # pragma: no cover - import guard
 
 from .agent import analyze_agent, parse_source
 from .analyzer import analyze
+from .argument import analyze_argument, mutate_argument
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
@@ -130,6 +131,7 @@ def _require_lang(lang: str) -> str:
         "mail",
         "xxe",
         "prototype",
+        "argument",
         "code",
         "crlf",
         "prompt",
@@ -182,6 +184,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_xxe(req.template, req.payload).to_dict()
         if lang == "prototype":
             return analyze_prototype(req.template, req.payload).to_dict()
+        if lang == "argument":
+            return analyze_argument(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -238,6 +242,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_xxe(req.template).to_dict()
         if lang == "prototype":
             return mutate_prototype(req.template).to_dict()
+        if lang == "argument":
+            return mutate_argument(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")
