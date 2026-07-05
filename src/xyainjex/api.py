@@ -20,6 +20,7 @@ except ImportError as exc:  # pragma: no cover - import guard
 from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .argument import analyze_argument, mutate_argument
+from .build import build
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
@@ -89,6 +90,13 @@ class FuzzRequest(BaseModel):
     lang: str = "shell"
     dialect: str | None = None
     command: str = "id"
+
+
+class BuildRequest(BaseModel):
+    template: str
+    lang: str = "shell"
+    dialect: str | None = None
+    goal: str | None = None
 
 
 class DifferentialRequest(BaseModel):
@@ -284,6 +292,19 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_template(req.template, engine).to_dict()
         dialect = parse_dialect(req.dialect or "posix")
         return mutate(req.template, command=req.command, dialect=dialect).to_dict()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/build")
+def build_endpoint(req: BuildRequest) -> dict:
+    try:
+        return build(
+            req.template,
+            lang=req.lang.strip().lower(),
+            goal=req.goal,
+            dialect=req.dialect,
+        ).to_dict()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

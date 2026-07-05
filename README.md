@@ -336,6 +336,15 @@ Generate context aware payload mutations for a template:
 xyainjex --mutate 'curl "{INPUT}"'
 ```
 
+Build a payload for a specific goal with `--build` / `--goal` (the inverse of
+analysis: the engine constructs candidates and returns the one that breaks out):
+
+```bash
+xyainjex --build --goal 'id' 'curl "{INPUT}"'
+xyainjex --build -l template --goal '7*7' 'Hello {INPUT}'
+xyainjex --build -l ssrf --goal 'http://169.254.169.254/' 'http://api/?u={INPUT}'
+```
+
 Select a dialect with `--dialect` / `-d` (`posix` default, `cmd`, `powershell`):
 
 ```bash
@@ -605,7 +614,7 @@ curl -s localhost:8000/analyze \
   -d '{"template": "curl \"{INPUT}\"", "payload": "\"; id ; #"}'
 ```
 
-Endpoints: `/analyze`, `/mutate`, `/fuzz`, `/differential`, `/suggest`, and
+Endpoints: `/analyze`, `/mutate`, `/build`, `/fuzz`, `/differential`, `/suggest`, and
 `/explain`. The `/suggest` and `/explain` endpoints take a `provider` (mock,
 openai, claude, ollama) and, as on the CLI, the engine still validates every
 LLM-suggested payload.
