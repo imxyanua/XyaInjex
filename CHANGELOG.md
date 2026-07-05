@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Payload builder (`--build`, `/build`): the inverse of the analyzer. Given a
+  template and a `--goal` (a command, an expression, a target URL, a file, or a
+  header — per language), it constructs candidate breakout payloads, validates
+  each with the analyzer, and returns the one that actually breaks out of the
+  template's context. Supports shell, sql, template, code, xss, ssrf, path,
+  redis, xxe, crlf, and mail.
+
 ## [0.10.0] - 2026-07-05
 
 ### Added

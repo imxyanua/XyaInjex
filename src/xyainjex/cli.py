@@ -9,6 +9,7 @@ import sys
 from .agent import analyze_agent, parse_source
 from .analyzer import analyze
 from .argument import analyze_argument, mutate_argument
+from .build import BUILD_LANGS, build
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
@@ -69,6 +70,20 @@ def build_parser() -> argparse.ArgumentParser:
         "--fuzz",
         action="store_true",
         help="expand and test payloads to discover exploit paths (any breakout lang)",
+    )
+    parser.add_argument(
+        "--build",
+        action="store_true",
+        help="construct a payload that breaks out and achieves --goal",
+    )
+    parser.add_argument(
+        "--goal",
+        default=None,
+        help=(
+            "target for --build: a command (shell/redis), an expression "
+            "(template/code), a URL/host (ssrf), a file (path/xxe), or a header "
+            "(crlf/mail)"
+        ),
     )
     parser.add_argument(
         "--ai-suggest",
@@ -196,6 +211,18 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(_render_fuzz(result))
             return 0 if result.valid == 0 else 2
+
+        if args.build:
+            if lang not in BUILD_LANGS:
+                parser.error("--build supports: " + ", ".join(BUILD_LANGS))
+            result = build(
+                args.template, lang=lang, goal=args.goal, dialect=args.dialect
+            )
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_build(result))
+            return 0
 
         if args.ai_suggest:
             if lang not in FUZZ_LANGS:
@@ -340,6 +367,23 @@ def _render_suggest(result) -> str:
             lines.append(f"  [{s.risk.value:8}] {s.payload!r}  ({s.context})")
     else:
         lines.append("No proposed payload achieved a breakout.")
+    return "\n".join(lines)
+
+
+def _render_build(result) -> str:
+    lines = ["XyaInjex payload builder", "=" * 40]
+    lines.append(f"Template : {result.template}")
+    lines.append(f"Lang     : {result.lang}  Dialect: {result.dialect or 'default'}")
+    goal = result.goal if result.goal is not None else "(default)"
+    lines.append(f"Goal     : {goal}")
+    ok = "yes" if result.validated else "no (best effort)"
+    lines.append(
+        f"Breakout : {ok}   Risk: {result.risk}   Context: {result.context}"
+    )
+    lines.append(f"Strategy : {result.strategy}")
+    lines.append("")
+    lines.append(f"Payload  : {result.payload!r}")
+    lines.append(f"Rendered : {result.rendered}")
     return "\n".join(lines)
 
 

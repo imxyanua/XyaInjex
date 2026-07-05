@@ -716,6 +716,22 @@ def test_mutate_redis_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_build_endpoint():
+    resp = client.post(
+        "/build",
+        json={"template": 'curl "{INPUT}"', "lang": "shell", "goal": "id"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["validated"] is True
+    assert "id" in data["payload"]
+
+
+def test_build_endpoint_rejects_unsupported_lang():
+    resp = client.post("/build", json={"template": "{INPUT}", "lang": "prompt"})
+    assert resp.status_code == 400
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",
