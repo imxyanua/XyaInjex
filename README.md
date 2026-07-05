@@ -633,4 +633,4 @@ Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.10.0
 ## License
 
 For security research, education, and authorized defensive testing only. Use
-responsibly and only on systems you own or are authorized to test. See LICENSE.
+responsibly and only on systems you own or are authorized to test. See [LICENSE](LICENSE).
