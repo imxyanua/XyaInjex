@@ -151,6 +151,9 @@ class Context(Enum):
     # ORM lookup injection contexts
     ORM_LOOKUP_KEY = "orm_lookup_key"
     ORM_LOOKUP_VALUE = "orm_lookup_value"
+    # Host header injection contexts
+    HOST_HEADER = "host_header"
+    HOST_FORWARDED = "host_forwarded"
 
     @property
     def quote_char(self) -> str | None:

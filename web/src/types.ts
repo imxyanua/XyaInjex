@@ -16,6 +16,7 @@ export type Lang =
   | "ssrf"
   | "path"
   | "mail"
+  | "host"
   | "xxe"
   | "prototype"
   | "argument"

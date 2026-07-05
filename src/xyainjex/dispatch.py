@@ -17,6 +17,7 @@ from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
 from .graphql import analyze_graphql, mutate_graphql
+from .host import analyze_host, mutate_host
 from .ldap import analyze_ldap, mutate_ldap
 from .mail import analyze_mail, mutate_mail
 from .models import AnalysisResult
@@ -55,6 +56,7 @@ _SIMPLE = {
     "argument": (analyze_argument, mutate_argument),
     "deserialize": (analyze_deserialize, mutate_deserialize),
     "orm": (analyze_orm, mutate_orm),
+    "host": (analyze_host, mutate_host),
 }
 
 # Languages whose analyzer selects a dialect / kind (so they can be compared).

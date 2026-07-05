@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Host header injection analyzer: for an input that controls the HTTP `Host` (or
+  `X-Forwarded-Host`) value, classifies which header it is and detects an
+  attacker-controlled host, a CRLF break (response splitting / header
+  injection), an `@` userinfo override, an absolute URL, a second host
+  (comma / space, last-wins parsers), a non-standard port, and an internal
+  target — treating `X-Forwarded-Host` (trusted but unvalidated) as more
+  directly poisoning, with payload mutation and CLI (`--lang host`), HTTP API,
+  and web frontend support.
 - ORM lookup injection analyzer: for a Django-style filter whose key is
   user-controlled, classifies whether the input is a filter key or a value, and
   detects a `field__lookup` suffix or a `relation__field` traversal that changes

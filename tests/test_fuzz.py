@@ -128,6 +128,12 @@ def test_fuzz_orm_finds_lookup_injection():
     assert "orm_lookup_key" in result.contexts_reached
 
 
+def test_fuzz_host_finds_poisoning():
+    result = fuzz("Host: {INPUT}", lang="host")
+    assert result.valid > 0
+    assert "host_header" in result.contexts_reached
+
+
 def test_fuzz_code_dialect_seeds():
     result = fuzz("eval({INPUT})", lang="code", dialect="python")
     assert result.valid > 0

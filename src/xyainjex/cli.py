@@ -18,6 +18,7 @@ from .dispatch import analyze_lang
 from .el import analyze_el, mutate_el
 from .fuzz import FUZZ_LANGS, fuzz
 from .graphql import analyze_graphql, mutate_graphql
+from .host import analyze_host, mutate_host
 from .ldap import analyze_ldap, mutate_ldap
 from .llm import explain, get_provider, suggest_payloads
 from .mail import analyze_mail, mutate_mail
@@ -95,8 +96,8 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
             "nosql, xml, yaml, graphql, el, csv, ssi, xss, ssrf, path, mail, "
-            "xxe, prototype, argument, deserialize, orm, code, crlf, prompt, "
-            "or agent"
+            "xxe, prototype, argument, deserialize, orm, host, code, crlf, "
+            "prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -149,6 +150,7 @@ def main(argv: list[str] | None = None) -> int:
         "argument",
         "deserialize",
         "orm",
+        "host",
         "code",
         "crlf",
         "prompt",
@@ -176,6 +178,7 @@ def main(argv: list[str] | None = None) -> int:
         "argument": (analyze_argument, mutate_argument),
         "deserialize": (analyze_deserialize, mutate_deserialize),
         "orm": (analyze_orm, mutate_orm),
+        "host": (analyze_host, mutate_host),
     }
 
     try:

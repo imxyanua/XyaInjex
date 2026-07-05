@@ -29,6 +29,7 @@ from .dispatch import BREAKOUT_LANGS, analyze_lang
 from .el import analyze_el, mutate_el
 from .fuzz import differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
+from .host import analyze_host, mutate_host
 from .ldap import analyze_ldap, mutate_ldap
 from .llm import explain, get_provider, suggest_payloads
 from .mail import analyze_mail, mutate_mail
@@ -136,6 +137,7 @@ def _require_lang(lang: str) -> str:
         "argument",
         "deserialize",
         "orm",
+        "host",
         "code",
         "crlf",
         "prompt",
@@ -194,6 +196,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_deserialize(req.template, req.payload).to_dict()
         if lang == "orm":
             return analyze_orm(req.template, req.payload).to_dict()
+        if lang == "host":
+            return analyze_host(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -256,6 +260,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_deserialize(req.template).to_dict()
         if lang == "orm":
             return mutate_orm(req.template).to_dict()
+        if lang == "host":
+            return mutate_host(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")

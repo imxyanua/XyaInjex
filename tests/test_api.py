@@ -672,6 +672,28 @@ def test_mutate_orm_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_host_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "Host: {INPUT}",
+            "payload": "expected.example.com@evil.example.com",
+            "lang": "host",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "host_header"
+    assert data["risk"] == "HIGH"
+
+
+def test_mutate_host_endpoint():
+    resp = client.post("/mutate", json={"template": "Host: {INPUT}", "lang": "host"})
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

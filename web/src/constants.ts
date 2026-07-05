@@ -54,6 +54,7 @@ export const LANG_GROUPS: LangGroup[] = [
       { value: "path", label: "Path / LFI" },
       { value: "crlf", label: "CRLF" },
       { value: "mail", label: "Mail / SMTP" },
+      { value: "host", label: "Host header" },
     ],
   },
   {
@@ -100,6 +101,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   ssrf: [],
   path: [],
   mail: [],
+  host: [],
   xxe: [],
   prototype: [],
   argument: [],
@@ -187,6 +189,10 @@ export const EXAMPLES: Record<Lang, Example> = {
     template: "To: {INPUT}",
     payload: "user@example.com\r\nBcc: attacker@evil.example",
   },
+  host: {
+    template: "Host: {INPUT}",
+    payload: "expected.example.com@evil.example.com",
+  },
   xxe: {
     template: "{INPUT}",
     payload:
@@ -258,6 +264,7 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "ssrf" ||
   lang === "path" ||
   lang === "mail" ||
+  lang === "host" ||
   lang === "xxe" ||
   lang === "prototype" ||
   lang === "argument" ||
