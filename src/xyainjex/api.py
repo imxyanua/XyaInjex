@@ -28,6 +28,7 @@ from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import BREAKOUT_LANGS, analyze_lang
 from .el import analyze_el, mutate_el
+from .encode import encode
 from .fuzz import differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .host import analyze_host, mutate_host
@@ -97,6 +98,13 @@ class BuildRequest(BaseModel):
     lang: str = "shell"
     dialect: str | None = None
     goal: str | None = None
+
+
+class EncodeRequest(BaseModel):
+    payload: str
+    lang: str = "shell"
+    dialect: str | None = None
+    template: str | None = None
 
 
 class DifferentialRequest(BaseModel):
@@ -303,6 +311,19 @@ def build_endpoint(req: BuildRequest) -> dict:
             req.template,
             lang=req.lang.strip().lower(),
             goal=req.goal,
+            dialect=req.dialect,
+        ).to_dict()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/encode")
+def encode_endpoint(req: EncodeRequest) -> dict:
+    try:
+        return encode(
+            req.payload,
+            lang=req.lang.strip().lower(),
+            template=req.template,
             dialect=req.dialect,
         ).to_dict()
     except ValueError as exc:

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Payload encoder (`--encode`, `/encode`): emit filter / WAF evasion encodings of
+  a payload (case folding, whitespace swaps, SQL inline comments, single and
+  double percent encoding). When a template is given, each variant is validated
+  by the analyzer and marked with whether it still breaks out — so the result
+  shows which encodings bypass a naive filter while still executing, rather than
+  guessing.
 - Payload builder (`--build`, `/build`): the inverse of the analyzer. Given a
   template and a `--goal` (a command, an expression, a target URL, a file, or a
   header — per language), it constructs candidate breakout payloads, validates
