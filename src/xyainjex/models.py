@@ -148,6 +148,9 @@ class Context(Enum):
     # Insecure deserialization contexts
     DESERIALIZE_RAW = "deserialize_raw"
     DESERIALIZE_ENCODED = "deserialize_encoded"
+    # ORM lookup injection contexts
+    ORM_LOOKUP_KEY = "orm_lookup_key"
+    ORM_LOOKUP_VALUE = "orm_lookup_value"
 
     @property
     def quote_char(self) -> str | None:

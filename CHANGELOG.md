@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- ORM lookup injection analyzer: for a Django-style filter whose key is
+  user-controlled, classifies whether the input is a filter key or a value, and
+  detects a `field__lookup` suffix or a `relation__field` traversal that changes
+  the query — flagging a reach to a sensitive field (`password`, `token`,
+  `is_superuser`, ...), a relation traversal to another model, a `__regex`
+  (ReDoS / info leak), and comparison lookups that enable blind exfiltration,
+  with payload mutation and CLI (`--lang orm`), HTTP API, and web frontend
+  support.
 - Insecure deserialization analyzer: detects a serialized-object payload across
   runtimes — a Java stream (`\xac\xed`/`rO0AB`), a PHP object (`O:n:"...":...`),
   a Python pickle (protocol opcode + STOP/REDUCE, or ASCII protocol 0), a .NET

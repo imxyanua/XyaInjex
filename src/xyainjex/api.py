@@ -34,6 +34,7 @@ from .llm import explain, get_provider, suggest_payloads
 from .mail import analyze_mail, mutate_mail
 from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
+from .orm import analyze_orm, mutate_orm
 from .path import analyze_path, mutate_path
 from .prompt import analyze_prompt
 from .prototype import analyze_prototype, mutate_prototype
@@ -134,6 +135,7 @@ def _require_lang(lang: str) -> str:
         "prototype",
         "argument",
         "deserialize",
+        "orm",
         "code",
         "crlf",
         "prompt",
@@ -190,6 +192,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_argument(req.template, req.payload).to_dict()
         if lang == "deserialize":
             return analyze_deserialize(req.template, req.payload).to_dict()
+        if lang == "orm":
+            return analyze_orm(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -250,6 +254,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_argument(req.template).to_dict()
         if lang == "deserialize":
             return mutate_deserialize(req.template).to_dict()
+        if lang == "orm":
+            return mutate_orm(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")

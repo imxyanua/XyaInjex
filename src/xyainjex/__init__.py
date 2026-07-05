@@ -45,6 +45,7 @@ from .models import (
 )
 from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
+from .orm import analyze_orm, mutate_orm
 from .path import analyze_path, mutate_path
 from .prompt import (
     PromptAnalysis,
@@ -90,6 +91,7 @@ __all__ = [
     "analyze_prototype",
     "analyze_argument",
     "analyze_deserialize",
+    "analyze_orm",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -121,6 +123,7 @@ __all__ = [
     "mutate_prototype",
     "mutate_argument",
     "mutate_deserialize",
+    "mutate_orm",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

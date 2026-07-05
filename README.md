@@ -62,6 +62,16 @@ GraphQL injection:
   introspection field, with field, directive, and introspection payload
   mutation.
 
+ORM lookup injection:
+
+- Analyzes an input that becomes a Django-style ORM filter, classifying whether
+  it is a filter key or a value. Detects a `field__lookup` suffix or a
+  `relation__field` traversal that changes the query, flagging a reach to a
+  sensitive field (`password`, `token`, `is_superuser`, ...), a relation
+  traversal to another model, a `__regex` (ReDoS / information leak), and
+  comparison lookups (`__startswith`, `__gt`, ...) that enable blind, char-by-char
+  exfiltration, with lookup payload mutation.
+
 Expression language (EL / OGNL / SpEL / JNDI) injection:
 
 - Analyzes an input reaching a Java expression-language interpolation (`${...}`,
@@ -361,6 +371,12 @@ Analyze GraphQL injection with `--lang graphql`:
 
 ```bash
 xyainjex -l graphql '{ user(id: {INPUT}) { id } }' '1) { id password }'
+```
+
+Analyze ORM lookup injection with `--lang orm`:
+
+```bash
+xyainjex -l orm 'User.objects.filter({INPUT})' 'user__password__startswith=a'
 ```
 
 Analyze prototype pollution with `--lang prototype`:

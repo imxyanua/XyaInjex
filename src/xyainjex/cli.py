@@ -23,6 +23,7 @@ from .llm import explain, get_provider, suggest_payloads
 from .mail import analyze_mail, mutate_mail
 from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
+from .orm import analyze_orm, mutate_orm
 from .path import analyze_path, mutate_path
 from .prompt import analyze_prompt
 from .prototype import analyze_prototype, mutate_prototype
@@ -94,7 +95,8 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
             "nosql, xml, yaml, graphql, el, csv, ssi, xss, ssrf, path, mail, "
-            "xxe, prototype, argument, deserialize, code, crlf, prompt, or agent"
+            "xxe, prototype, argument, deserialize, orm, code, crlf, prompt, "
+            "or agent"
         ),
     )
     parser.add_argument(
@@ -146,6 +148,7 @@ def main(argv: list[str] | None = None) -> int:
         "prototype",
         "argument",
         "deserialize",
+        "orm",
         "code",
         "crlf",
         "prompt",
@@ -172,6 +175,7 @@ def main(argv: list[str] | None = None) -> int:
         "prototype": (analyze_prototype, mutate_prototype),
         "argument": (analyze_argument, mutate_argument),
         "deserialize": (analyze_deserialize, mutate_deserialize),
+        "orm": (analyze_orm, mutate_orm),
     }
 
     try:

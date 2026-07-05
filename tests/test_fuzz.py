@@ -122,6 +122,12 @@ def test_fuzz_deserialize_finds_serialized_objects():
     assert result.valid > 0
 
 
+def test_fuzz_orm_finds_lookup_injection():
+    result = fuzz("User.objects.filter({INPUT})", lang="orm")
+    assert result.valid > 0
+    assert "orm_lookup_key" in result.contexts_reached
+
+
 def test_fuzz_code_dialect_seeds():
     result = fuzz("eval({INPUT})", lang="code", dialect="python")
     assert result.valid > 0
