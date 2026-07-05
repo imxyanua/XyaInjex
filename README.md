@@ -345,6 +345,13 @@ xyainjex --build -l template --goal '7*7' 'Hello {INPUT}'
 xyainjex --build -l ssrf --goal 'http://169.254.169.254/' 'http://api/?u={INPUT}'
 ```
 
+Encode a payload into filter / WAF evasion variants with `--encode` (each
+validated against the template to show which still break out):
+
+```bash
+xyainjex --encode -l sql "SELECT * FROM u WHERE n = '{INPUT}'" "' OR 1=1 -- "
+```
+
 Select a dialect with `--dialect` / `-d` (`posix` default, `cmd`, `powershell`):
 
 ```bash
@@ -614,7 +621,7 @@ curl -s localhost:8000/analyze \
   -d '{"template": "curl \"{INPUT}\"", "payload": "\"; id ; #"}'
 ```
 
-Endpoints: `/analyze`, `/mutate`, `/build`, `/fuzz`, `/differential`, `/suggest`, and
+Endpoints: `/analyze`, `/mutate`, `/build`, `/encode`, `/fuzz`, `/differential`, `/suggest`, and
 `/explain`. The `/suggest` and `/explain` endpoints take a `provider` (mock,
 openai, claude, ollama) and, as on the CLI, the engine still validates every
 LLM-suggested payload.

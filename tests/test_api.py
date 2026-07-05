@@ -732,6 +732,27 @@ def test_build_endpoint_rejects_unsupported_lang():
     assert resp.status_code == 400
 
 
+def test_encode_endpoint():
+    resp = client.post(
+        "/encode",
+        json={
+            "payload": "' OR 1=1 -- ",
+            "lang": "sql",
+            "template": "SELECT * FROM u WHERE n = '{INPUT}'",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] >= 1
+    assert data["surviving"] >= 1
+    assert data["variants"][0]["strategy"] == "original"
+
+
+def test_encode_endpoint_rejects_unsupported_lang():
+    resp = client.post("/encode", json={"payload": "x", "lang": "prompt"})
+    assert resp.status_code == 400
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

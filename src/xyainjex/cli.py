@@ -17,6 +17,7 @@ from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import analyze_lang
 from .el import analyze_el, mutate_el
+from .encode import encode
 from .fuzz import FUZZ_LANGS, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .host import analyze_host, mutate_host
@@ -84,6 +85,11 @@ def build_parser() -> argparse.ArgumentParser:
             "(template/code), a URL/host (ssrf), a file (path/xxe), or a header "
             "(crlf/mail)"
         ),
+    )
+    parser.add_argument(
+        "--encode",
+        action="store_true",
+        help="emit filter / WAF evasion encodings of the payload, engine-validated",
     )
     parser.add_argument(
         "--ai-suggest",
@@ -222,6 +228,20 @@ def main(argv: list[str] | None = None) -> int:
                 print(json.dumps(result.to_dict(), indent=2))
             else:
                 print(_render_build(result))
+            return 0
+
+        if args.encode:
+            if lang not in FUZZ_LANGS:
+                parser.error("--encode supports: " + ", ".join(FUZZ_LANGS))
+            if args.payload is None:
+                parser.error("--encode requires a payload to encode")
+            result = encode(
+                args.payload, lang=lang, template=args.template, dialect=args.dialect
+            )
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_encode(result))
             return 0
 
         if args.ai_suggest:
@@ -384,6 +404,24 @@ def _render_build(result) -> str:
     lines.append("")
     lines.append(f"Payload  : {result.payload!r}")
     lines.append(f"Rendered : {result.rendered}")
+    return "\n".join(lines)
+
+
+def _render_encode(result) -> str:
+    lines = ["XyaInjex payload encoder", "=" * 40]
+    lines.append(f"Payload : {result.payload!r}")
+    lines.append(f"Lang    : {result.lang}  Dialect: {result.dialect or 'default'}")
+    if result.template:
+        lines.append(f"Template: {result.template}")
+    lines.append(f"Variants: {result.total}   Surviving: {result.surviving}")
+    lines.append("")
+    for v in result.variants:
+        if v.validated is None:
+            tag = "     "
+        else:
+            tag = "[ok] " if v.validated else "[--] "
+        risk = f"  {v.risk}" if v.risk else ""
+        lines.append(f"  {tag}{v.payload!r}  ({v.strategy}){risk}")
     return "\n".join(lines)
 
 
