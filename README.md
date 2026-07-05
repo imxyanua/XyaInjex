@@ -612,7 +612,7 @@ LLM-suggested payload.
 
 ## Changelog
 
-Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.9.0.
+Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.10.0.
 
 ## License
 
