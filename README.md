@@ -149,6 +149,17 @@ Argument / option injection:
   (`-o`, `--config`, ...), and treats a leading `--` end-of-options separator as
   neutralizing, with option payload mutation.
 
+Insecure deserialization:
+
+- Analyzes an input that reaches a deserialization sink, detecting a
+  serialized-object payload across runtimes: a Java stream (`\xac\xed` / `rO0AB`),
+  a PHP object (`O:n:"...":...`), a Python pickle (a protocol opcode plus
+  STOP/REDUCE, or ASCII protocol 0), a .NET BinaryFormatter blob
+  (`AAEAAAD/////`), and a Ruby Marshal blob — including base64 / hex encoded
+  forms. Distinguishes object instantiation from plain serialized data and flags
+  known RCE gadget markers (`CommonsCollections`, `ObjectDataProvider`,
+  `__reduce__`, `system`, ...), with serialized-object payload mutation.
+
 Prototype pollution:
 
 - Analyzes an input that reaches an object built by a deep merge or a
@@ -362,6 +373,12 @@ Analyze argument / option injection with `--lang argument`:
 
 ```bash
 xyainjex -l argument 'curl {INPUT}' '-o /tmp/pwned'
+```
+
+Analyze insecure deserialization with `--lang deserialize`:
+
+```bash
+xyainjex -l deserialize '{INPUT}' 'O:8:"Exploit":1:{s:3:"cmd";s:2:"id";}'
 ```
 
 Analyze expression-language / JNDI injection with `--lang el`:

@@ -117,6 +117,11 @@ def test_fuzz_argument_finds_option_injection():
     assert "arg_option" in result.contexts_reached
 
 
+def test_fuzz_deserialize_finds_serialized_objects():
+    result = fuzz("{INPUT}", lang="deserialize")
+    assert result.valid > 0
+
+
 def test_fuzz_code_dialect_seeds():
     result = fuzz("eval({INPUT})", lang="code", dialect="python")
     assert result.valid > 0

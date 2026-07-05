@@ -43,6 +43,7 @@ export const LANG_GROUPS: LangGroup[] = [
       { value: "yaml", label: "YAML" },
       { value: "csv", label: "CSV formula" },
       { value: "prototype", label: "Prototype pollution" },
+      { value: "deserialize", label: "Deserialization" },
     ],
   },
   {
@@ -100,6 +101,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   xxe: [],
   prototype: [],
   argument: [],
+  deserialize: [],
   code: ["python", "javascript", "php"],
   crlf: ["header", "log"],
   prompt: [],
@@ -192,6 +194,10 @@ export const EXAMPLES: Record<Lang, Example> = {
     template: "curl {INPUT}",
     payload: "-o /tmp/pwned",
   },
+  deserialize: {
+    template: "{INPUT}",
+    payload: 'O:8:"Exploit":1:{s:3:"cmd";s:2:"id";}',
+  },
   code: {
     template: 'eval("result = {INPUT}")',
     payload: "\"; __import__('os').system('id') #",
@@ -248,5 +254,6 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "xxe" ||
   lang === "prototype" ||
   lang === "argument" ||
+  lang === "deserialize" ||
   lang === "code" ||
   lang === "crlf";

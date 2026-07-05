@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Insecure deserialization analyzer: detects a serialized-object payload across
+  runtimes — a Java stream (`\xac\xed`/`rO0AB`), a PHP object (`O:n:"...":...`),
+  a Python pickle (protocol opcode + STOP/REDUCE, or ASCII protocol 0), a .NET
+  BinaryFormatter blob (`AAEAAAD/////`), and a Ruby Marshal blob — including
+  base64- and hex-encoded forms, distinguishing object instantiation from plain
+  serialized data and flagging known RCE gadget markers (`CommonsCollections`,
+  `ObjectDataProvider`, `__reduce__`, `system`, ...), with payload mutation and
+  CLI (`--lang deserialize`), HTTP API, and web frontend support.
+
 ## [0.9.0] - 2026-07-05
 
 ### Added

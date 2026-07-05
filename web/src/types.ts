@@ -18,6 +18,7 @@ export type Lang =
   | "xxe"
   | "prototype"
   | "argument"
+  | "deserialize"
   | "code"
   | "crlf"
   | "prompt"

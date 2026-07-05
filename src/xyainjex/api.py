@@ -23,6 +23,7 @@ from .argument import analyze_argument, mutate_argument
 from .code import analyze_code, mutate_code, parse_code_lang
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
+from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import BREAKOUT_LANGS, analyze_lang
 from .el import analyze_el, mutate_el
@@ -132,6 +133,7 @@ def _require_lang(lang: str) -> str:
         "xxe",
         "prototype",
         "argument",
+        "deserialize",
         "code",
         "crlf",
         "prompt",
@@ -186,6 +188,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_prototype(req.template, req.payload).to_dict()
         if lang == "argument":
             return analyze_argument(req.template, req.payload).to_dict()
+        if lang == "deserialize":
+            return analyze_deserialize(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -244,6 +248,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_prototype(req.template).to_dict()
         if lang == "argument":
             return mutate_argument(req.template).to_dict()
+        if lang == "deserialize":
+            return mutate_deserialize(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")
