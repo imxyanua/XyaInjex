@@ -648,6 +648,30 @@ def test_mutate_deserialize_endpoint():
     assert resp.json()["valid"] > 0
 
 
+def test_analyze_orm_endpoint():
+    resp = client.post(
+        "/analyze",
+        json={
+            "template": "User.objects.filter({INPUT})",
+            "payload": "user__password__startswith=a",
+            "lang": "orm",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["dialect"] is None
+    assert data["context"] == "orm_lookup_key"
+    assert data["risk"] == "HIGH"
+
+
+def test_mutate_orm_endpoint():
+    resp = client.post(
+        "/mutate", json={"template": "User.objects.filter({INPUT})", "lang": "orm"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["valid"] > 0
+
+
 def test_fuzz_endpoint():
     resp = client.post(
         "/fuzz",

