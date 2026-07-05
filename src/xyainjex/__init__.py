@@ -56,6 +56,7 @@ from .prompt import (
     detect_hidden,
 )
 from .prototype import analyze_prototype, mutate_prototype
+from .redis import analyze_redis, mutate_redis
 from .shell.breakout import render
 from .sql import analyze_sql, mutate_sql
 from .ssi import analyze_ssi, mutate_ssi
@@ -94,6 +95,7 @@ __all__ = [
     "analyze_deserialize",
     "analyze_orm",
     "analyze_host",
+    "analyze_redis",
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
@@ -127,6 +129,7 @@ __all__ = [
     "mutate_deserialize",
     "mutate_orm",
     "mutate_host",
+    "mutate_redis",
     "parse_code_lang",
     "parse_crlf_kind",
     "CodeLang",

@@ -26,6 +26,7 @@ from .nosql import analyze_nosql, mutate_nosql
 from .orm import analyze_orm, mutate_orm
 from .path import analyze_path, mutate_path
 from .prototype import analyze_prototype, mutate_prototype
+from .redis import analyze_redis, mutate_redis
 from .sql import analyze_sql, mutate_sql
 from .ssi import analyze_ssi, mutate_ssi
 from .ssrf import analyze_ssrf, mutate_ssrf
@@ -57,6 +58,7 @@ _SIMPLE = {
     "deserialize": (analyze_deserialize, mutate_deserialize),
     "orm": (analyze_orm, mutate_orm),
     "host": (analyze_host, mutate_host),
+    "redis": (analyze_redis, mutate_redis),
 }
 
 # Languages whose analyzer selects a dialect / kind (so they can be compared).

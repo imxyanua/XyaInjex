@@ -28,6 +28,7 @@ from .orm import analyze_orm, mutate_orm
 from .path import analyze_path, mutate_path
 from .prompt import analyze_prompt
 from .prototype import analyze_prototype, mutate_prototype
+from .redis import analyze_redis, mutate_redis
 from .report import to_json, visualize
 from .sql import analyze_sql, mutate_sql
 from .ssi import analyze_ssi, mutate_ssi
@@ -96,8 +97,8 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "injection language: shell (default), sql, template, xpath, ldap, "
             "nosql, xml, yaml, graphql, el, csv, ssi, xss, ssrf, path, mail, "
-            "xxe, prototype, argument, deserialize, orm, host, code, crlf, "
-            "prompt, or agent"
+            "xxe, prototype, argument, deserialize, orm, host, redis, code, "
+            "crlf, prompt, or agent"
         ),
     )
     parser.add_argument(
@@ -151,6 +152,7 @@ def main(argv: list[str] | None = None) -> int:
         "deserialize",
         "orm",
         "host",
+        "redis",
         "code",
         "crlf",
         "prompt",
@@ -179,6 +181,7 @@ def main(argv: list[str] | None = None) -> int:
         "deserialize": (analyze_deserialize, mutate_deserialize),
         "orm": (analyze_orm, mutate_orm),
         "host": (analyze_host, mutate_host),
+        "redis": (analyze_redis, mutate_redis),
     }
 
     try:

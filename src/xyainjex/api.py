@@ -39,6 +39,7 @@ from .orm import analyze_orm, mutate_orm
 from .path import analyze_path, mutate_path
 from .prompt import analyze_prompt
 from .prototype import analyze_prototype, mutate_prototype
+from .redis import analyze_redis, mutate_redis
 from .sql import analyze_sql, mutate_sql
 from .ssi import analyze_ssi, mutate_ssi
 from .ssrf import analyze_ssrf, mutate_ssrf
@@ -138,6 +139,7 @@ def _require_lang(lang: str) -> str:
         "deserialize",
         "orm",
         "host",
+        "redis",
         "code",
         "crlf",
         "prompt",
@@ -198,6 +200,8 @@ def analyze_endpoint(req: AnalyzeRequest) -> dict:
             return analyze_orm(req.template, req.payload).to_dict()
         if lang == "host":
             return analyze_host(req.template, req.payload).to_dict()
+        if lang == "redis":
+            return analyze_redis(req.template, req.payload).to_dict()
         if lang == "code":
             code_lang = parse_code_lang(req.dialect or "python")
             return analyze_code(req.template, req.payload, code_lang).to_dict()
@@ -262,6 +266,8 @@ def mutate_endpoint(req: MutateRequest) -> dict:
             return mutate_orm(req.template).to_dict()
         if lang == "host":
             return mutate_host(req.template).to_dict()
+        if lang == "redis":
+            return mutate_redis(req.template).to_dict()
         if lang == "code":
             return mutate_code(
                 req.template, parse_code_lang(req.dialect or "python")

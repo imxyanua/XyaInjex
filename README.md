@@ -62,6 +62,17 @@ GraphQL injection:
   introspection field, with field, directive, and introspection payload
   mutation.
 
+Redis / RESP injection:
+
+- Analyzes an input that reaches a Redis command (directly, or smuggled through a
+  gopher:// SSRF), classifying whether it is a command argument (needing a CRLF
+  to break onto a new command line) or the inline command line. Detects an
+  injected command and rates it: an RCE command (`EVAL`, `MODULE`, `SLAVEOF` /
+  `REPLICAOF`, `CONFIG SET dir` / `dbfilename` for a webshell) critical, a write /
+  destructive command (`SET`, `FLUSHALL`, `CONFIG`, `RENAME`, ...) high, and a
+  read command medium — also recognizing raw RESP array framing and encoded CRLF,
+  with per-context payload mutation.
+
 ORM lookup injection:
 
 - Analyzes an input that becomes a Django-style ORM filter, classifying whether
@@ -387,6 +398,12 @@ Analyze ORM lookup injection with `--lang orm`:
 
 ```bash
 xyainjex -l orm 'User.objects.filter({INPUT})' 'user__password__startswith=a'
+```
+
+Analyze Redis / RESP injection with `--lang redis`:
+
+```bash
+xyainjex -l redis '{INPUT}' 'CONFIG SET dir /var/www/html'
 ```
 
 Analyze prototype pollution with `--lang prototype`:
