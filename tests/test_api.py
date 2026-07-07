@@ -11,7 +11,12 @@ client = TestClient(app)
 def test_health():
     resp = client.get("/health")
     assert resp.status_code == 200
-    assert resp.json() == {"status": "ok"}
+    data = resp.json()
+    assert data["status"] == "ok"
+    assert data["version"] == "0.12.0"
+    assert "flow" in data["features"]
+    assert "mcp" in data["features"]
+    assert "benchmark" in data["features"]
 
 
 def test_cors_allows_dev_origin():

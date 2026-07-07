@@ -9,7 +9,7 @@ Run the backend with CORS allowing the dev server origin:
 
 ```bash
 pip install -e ".[api]"
-uvicorn xyainjex.api:app --port 8000
+uvicorn xyainjex.api:app --reload --port 8000
 ```
 
 The backend allows `http://localhost:5173` by default. Override with the

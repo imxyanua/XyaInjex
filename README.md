@@ -618,7 +618,7 @@ Results can be exported as Markdown or JSON. Run the API with CORS allowing the
 dev server, then start the frontend:
 
 ```bash
-uvicorn xyainjex.api:app --port 8000
+uvicorn xyainjex.api:app --reload --port 8000
 cd web && npm install && npm run dev   # http://localhost:5173
 ```
 

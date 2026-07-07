@@ -11,6 +11,7 @@ import {
   fuzz,
   mutate,
   suggest,
+  ensureApiReady,
 } from "./api";
 import {
   DIALECTS,
@@ -90,6 +91,7 @@ export default function App() {
   const [mcpTools, setMcpTools] = useState<string>(MCP_TOOLS_EXAMPLE);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [apiWarning, setApiWarning] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [theme, setTheme] = useState<Theme>(initialTheme);
 
@@ -101,6 +103,14 @@ export default function App() {
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    ensureApiReady()
+      .then(() => setApiWarning(null))
+      .catch((e) =>
+        setApiWarning(e instanceof Error ? e.message : String(e)),
+      );
+  }, []);
 
   function clearOutputs() {
     setResult(null);
@@ -438,6 +448,7 @@ export default function App() {
       </div>
 
       {error && <div className="error">Error: {error}</div>}
+      {apiWarning && <div className="error">API: {apiWarning}</div>}
 
       {result?.kind === "breakout" && <BreakoutView result={result} />}
       {result?.kind === "agent" && agentMode === "message" && (

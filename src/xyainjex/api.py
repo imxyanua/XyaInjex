@@ -55,8 +55,9 @@ from .xpath import analyze_xpath, mutate_xpath
 from .xss import analyze_xss, mutate_xss
 from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
+from . import __version__
 
-app = FastAPI(title="XyaInjex", version="0.12.0")
+app = FastAPI(title="XyaInjex", version=__version__)
 
 # Allow the web frontend to call the API from the browser. Origins are taken
 # from XYAINJEX_CORS_ORIGINS (comma separated) and default to the local Vite
@@ -186,7 +187,11 @@ def _require_lang(lang: str) -> str:
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "version": __version__,
+        "features": ["flow", "mcp", "benchmark"],
+    }
 
 
 @app.post("/analyze")

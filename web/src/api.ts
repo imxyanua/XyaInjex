@@ -148,3 +148,34 @@ export async function analyzeMcp(
 }
 
 export { BASE as API_BASE };
+
+export interface ApiHealth {
+  status: string;
+  version?: string;
+  features?: string[];
+}
+
+const REQUIRED_FEATURES = ["flow", "mcp", "benchmark"] as const;
+
+/** Fail fast when the backend is down or running an outdated build without new routes. */
+export async function ensureApiReady(): Promise<ApiHealth> {
+  let resp: Response;
+  try {
+    resp = await fetch(`${BASE}/health`);
+  } catch {
+    throw new Error(
+      `Cannot reach API at ${BASE}. Start it with: uvicorn xyainjex.api:app --reload --port 8000`,
+    );
+  }
+  const data = (await resp.json()) as ApiHealth;
+  if (!resp.ok) {
+    throw new Error(data?.status || `API health check failed (${resp.status})`);
+  }
+  const missing = REQUIRED_FEATURES.filter((f) => !data.features?.includes(f));
+  if (missing.length > 0) {
+    throw new Error(
+      `API server is outdated (missing ${missing.join(", ")}). Restart with: uvicorn xyainjex.api:app --reload --port 8000`,
+    );
+  }
+  return data;
+}
