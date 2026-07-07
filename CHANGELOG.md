@@ -7,20 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-07-08
+
 ### Added
 
-- Payload encoder (`--encode`, `/encode`): emit filter / WAF evasion encodings of
-  a payload (case folding, whitespace swaps, SQL inline comments, single and
-  double percent encoding). When a template is given, each variant is validated
-  by the analyzer and marked with whether it still breaks out — so the result
-  shows which encodings bypass a naive filter while still executing, rather than
-  guessing.
 - Payload builder (`--build`, `/build`): the inverse of the analyzer. Given a
   template and a `--goal` (a command, an expression, a target URL, a file, or a
   header — per language), it constructs candidate breakout payloads, validates
   each with the analyzer, and returns the one that actually breaks out of the
   template's context. Supports shell, sql, template, code, xss, ssrf, path,
   redis, xxe, crlf, and mail.
+- Payload encoder (`--encode`, `/encode`): emit filter / WAF evasion encodings of
+  a payload (case folding, whitespace swaps, SQL inline comments, single and
+  double percent encoding). When a template is given, each variant is validated
+  by the analyzer and marked with whether it still breaks out.
+- MCP security analyzer (`/mcp`): parse an MCP or OpenAI-style tool catalog,
+  flag dangerous tool names and hijackable descriptions, and detect tool-call
+  shapes in untrusted content — validating calls against the catalog when one is
+  supplied.
+- Multi-agent trust graph: `analyze_flow` now returns a graph of hops and edges;
+  the HTTP API exposes it at `/flow` for ordered `(source, content)` steps.
+- Web frontend: **Build** and **Encode** panels, vertical execution-flow graph
+  view, Markdown/JSON report export on result panels, and agent tab modes for
+  single message, multi-hop flow (trust graph), and MCP analysis.
 
 ## [0.10.0] - 2026-07-05
 
@@ -325,7 +334,8 @@ reports how a payload escapes it and what execution path the breakout creates.
   and format configuration, a GitHub Actions CI workflow, and a test suite of
   233 cases.
 
-[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/imxyanua/XyaInjex/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/imxyanua/XyaInjex/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/imxyanua/XyaInjex/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/imxyanua/XyaInjex/compare/v0.7.0...v0.8.0
