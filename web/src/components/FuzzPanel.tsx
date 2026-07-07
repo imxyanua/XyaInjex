@@ -1,4 +1,6 @@
+import { formatFuzzReport } from "../report";
 import { FuzzResult } from "../types";
+import { ReportActions } from "./ReportActions";
 import { RiskBadge } from "./RiskBadge";
 
 export function FuzzPanel({
@@ -11,10 +13,17 @@ export function FuzzPanel({
   return (
     <div className="mutation">
       <div className="mutation-summary">
-        Generated {result.generated}, {result.valid} reached a breakout.
-        {result.contexts_reached.length > 0 && (
-          <> Contexts: {result.contexts_reached.join(", ")}.</>
-        )}
+        <span>
+          Generated {result.generated}, {result.valid} reached a breakout.
+          {result.contexts_reached.length > 0 && (
+            <> Contexts: {result.contexts_reached.join(", ")}.</>
+          )}
+        </span>
+        <ReportActions
+          markdown={formatFuzzReport(result)}
+          json={result}
+          basename="xyainjex-fuzz"
+        />
       </div>
 
       {result.strategies.length > 0 && (

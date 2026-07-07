@@ -253,7 +253,8 @@ body::before {
 }
 
 textarea,
-select {
+select,
+input[type="text"] {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -264,12 +265,18 @@ select {
   resize: vertical;
 }
 
+input[type="text"] {
+  resize: none;
+  width: 100%;
+}
+
 textarea::selection {
   background: var(--accent-dim);
 }
 
 textarea:focus,
-select:focus {
+select:focus,
+input[type="text"]:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent-dim), 0 0 12px var(--accent-dim);
@@ -412,6 +419,7 @@ button.copy:hover {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
   margin-bottom: 14px;
 }
 
@@ -575,6 +583,53 @@ button.copy:hover {
   padding: 0 4px;
 }
 
+.flow-wrap {
+  margin: 16px 0 4px;
+}
+
+.flow-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.flow-toggle::before,
+.flow-toggle::after {
+  content: none !important;
+}
+
+.flow-graph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.flow-graph-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.flow-graph-arrow {
+  color: var(--accent);
+  line-height: 1;
+  font-size: 12px;
+}
+
+.report-actions {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
 .notes {
   margin: 12px 0 0;
   padding-left: 0;
@@ -638,6 +693,11 @@ button.copy:hover {
 /* --- mutation / fuzz / suggest candidates --- */
 
 .mutation-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
   color: var(--muted);
   font-size: 13px;
   margin-bottom: 12px;
@@ -671,6 +731,10 @@ button.copy:hover {
 
 .candidate:hover {
   border-color: var(--accent);
+}
+
+.candidate.filtered {
+  opacity: 0.55;
 }
 
 .candidate code {

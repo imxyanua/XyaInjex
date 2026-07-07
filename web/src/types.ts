@@ -168,6 +168,38 @@ export interface ExplainResult {
   explanation: string;
 }
 
+export interface BuildResult {
+  template: string;
+  lang: string;
+  dialect: string | null;
+  goal: string | null;
+  payload: string;
+  rendered: string;
+  validated: boolean;
+  risk: Risk;
+  context: string;
+  strategy: string;
+  tried: number;
+  notes: string[];
+}
+
+export interface EncodeVariant {
+  payload: string;
+  strategy: string;
+  validated: boolean | null;
+  risk: Risk | null;
+}
+
+export interface EncodeResult {
+  payload: string;
+  lang: string;
+  dialect: string | null;
+  template: string | null;
+  total: number;
+  surviving: number;
+  variants: EncodeVariant[];
+}
+
 export function classify(raw: Record<string, unknown>): AnalysisResult {
   if ("findings" in raw && "role_context" in raw) {
     return { kind: "prompt", ...(raw as object) } as PromptResult;

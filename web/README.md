@@ -1,16 +1,7 @@
 # XyaInjex web
 
-A small React (Vite + TypeScript) frontend for the XyaInjex analyzer. It calls
-the FastAPI backend and visualizes the breakout: the rendered command with the
-injected payload highlighted and a caret at the breakout point, context and risk
-badges, an execution flow diagram, prompt and agent findings, and ranked payload
-mutations. It also runs the fuzzing engine (ranked exploit paths with their
-breakout stages), the cross-dialect differential (a per-dialect table that
-highlights a parser divergence), and the LLM-assisted suggest / explain (with an
-engine-validated payload list and a natural-language write-up, backed by the
-`/suggest` and `/explain` endpoints). The current inputs are mirrored into the
-URL, so an analysis is shareable by link (Ctrl / Cmd + Enter analyzes), and a
-light / dark theme toggle is provided.
+A React (Vite + TypeScript) frontend for the XyaInjex analyzer. It calls the
+FastAPI backend and visualizes injection breakouts across **26 languages**.
 
 ## Prerequisites
 
@@ -45,14 +36,48 @@ npm run build      # tsc --noEmit then vite build, output in dist/
 npm run typecheck  # types only
 ```
 
-## What it does
+## Features
 
-- Tabs select the injection language: shell, SQL, template (SSTI), prompt, and
-  agent / MCP.
+### Analysis
+
+- **26 injection languages** grouped by category (Command/Query, Markup/Web,
+  Serialization, Web request, LLM).
 - Enter a template with the `{INPUT}` marker and a payload (for agent analysis
-  the single field is the untrusted content and the source is chosen instead).
-- Analyze renders the verdict. For shell, SQL, and template it shows the
-  rendered string with a breakout caret, the context and risk, a flow diagram,
-  and notes. For prompt and agent it lists the findings.
-- Mutate (shell, SQL, template) lists ranked breakout payloads; clicking one
-  loads it into the payload field.
+  the single field is untrusted content and the source is chosen instead).
+- **Analyze** renders the verdict: breakout caret, context/risk badges, an
+  execution flow diagram (linear or vertical graph view), and notes.
+- Prompt and agent modes list scored findings.
+
+### Payload tools
+
+| Action | Description |
+|--------|-------------|
+| **Mutate** | Ranked breakout payloads for the current context |
+| **Build** | Inverse analyzer — construct a payload from a **goal** (command, SQL union, URL, path, header…) |
+| **Encode** | WAF/filter evasion variants; marks which still break out when a template is given |
+| **Fuzz** | Ranked exploit paths with breakout stages |
+| **Differential** | Per-dialect parser divergence table |
+| **AI Suggest / Explain** | LLM-assisted payloads and explanations (engine-validated) |
+
+### Reporting
+
+Every result panel includes **Export MD** and **Export JSON** buttons. Markdown
+reports include rendered output, breakout facts, execution flow, and notes.
+
+### UX
+
+- Shareable analyses: language, dialect, template, and payload are mirrored into
+  the URL; **Copy link** restores the exact inputs.
+- **Ctrl / Cmd + Enter** runs Analyze.
+- Light / dark theme toggle (persisted, honors system preference).
+
+## Supported build languages
+
+`shell`, `sql`, `template`, `code`, `xss`, `ssrf`, `path`, `redis`, `xxe`,
+`crlf`, `mail` — each accepts an optional goal; sensible defaults apply when
+empty.
+
+## API endpoints used
+
+`POST /analyze`, `/mutate`, `/build`, `/encode`, `/fuzz`, `/differential`,
+`/suggest`, `/explain`
