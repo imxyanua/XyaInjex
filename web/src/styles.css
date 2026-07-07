@@ -253,7 +253,8 @@ body::before {
 }
 
 textarea,
-select {
+select,
+input[type="text"] {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -264,12 +265,18 @@ select {
   resize: vertical;
 }
 
+input[type="text"] {
+  resize: none;
+  width: 100%;
+}
+
 textarea::selection {
   background: var(--accent-dim);
 }
 
 textarea:focus,
-select:focus {
+select:focus,
+input[type="text"]:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent-dim), 0 0 12px var(--accent-dim);
@@ -412,6 +419,7 @@ button.copy:hover {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
   margin-bottom: 14px;
 }
 
@@ -575,6 +583,146 @@ button.copy:hover {
   padding: 0 4px;
 }
 
+.flow-wrap {
+  margin: 16px 0 4px;
+}
+
+.flow-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.flow-toggle::before,
+.flow-toggle::after {
+  content: none !important;
+}
+
+.flow-graph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.flow-graph-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.flow-graph-arrow {
+  color: var(--accent);
+  line-height: 1;
+  font-size: 12px;
+}
+
+.report-actions {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.trust-graph {
+  margin: 12px 0;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.trust-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.trust-hop {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trust-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  background: var(--panel-2);
+}
+
+.trust-node.compromised {
+  border-color: #7a2b2b;
+  background: rgba(255, 77, 77, 0.08);
+}
+
+.trust-node.agent {
+  border-color: var(--accent);
+}
+
+.trust-kind {
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.trust-label {
+  font-size: 13px;
+}
+
+.trust-arrow {
+  color: var(--accent);
+}
+
+.trust-warn {
+  margin: 10px 0 0;
+  color: #ff8a8a;
+  font-size: 13px;
+}
+
+.agent-modes {
+  margin-bottom: 12px;
+}
+
+.flow-step {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.flow-step-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.flow-step-content {
+  margin-bottom: 8px;
+}
+
+.mcp-calls {
+  margin-bottom: 12px;
+}
+
+.mcp-call {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
 .notes {
   margin: 12px 0 0;
   padding-left: 0;
@@ -638,6 +786,11 @@ button.copy:hover {
 /* --- mutation / fuzz / suggest candidates --- */
 
 .mutation-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
   color: var(--muted);
   font-size: 13px;
   margin-bottom: 12px;
@@ -671,6 +824,10 @@ button.copy:hover {
 
 .candidate:hover {
   border-color: var(--accent);
+}
+
+.candidate.filtered {
+  opacity: 0.55;
 }
 
 .candidate code {

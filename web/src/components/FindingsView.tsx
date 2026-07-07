@@ -1,4 +1,6 @@
+import { formatAgentReport, formatPromptReport } from "../report";
 import { AgentResult, Finding, PromptResult } from "../types";
+import { ReportActions } from "./ReportActions";
 import { RiskBadge } from "./RiskBadge";
 
 function FindingCard({ finding }: { finding: Finding }) {
@@ -32,6 +34,17 @@ export function FindingsView({
           {meta.label}: {meta.value}
         </span>
         <span className="badge">{result.findings.length} finding(s)</span>
+        <ReportActions
+          markdown={
+            result.kind === "prompt"
+              ? formatPromptReport(result)
+              : formatAgentReport(result)
+          }
+          json={result}
+          basename={
+            result.kind === "prompt" ? "xyainjex-prompt" : "xyainjex-agent"
+          }
+        />
       </div>
 
       {result.findings.length === 0 ? (

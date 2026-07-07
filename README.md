@@ -597,9 +597,11 @@ for s in suggested.validated:
 
 A React (Vite + TypeScript) frontend lives in [web/](web/). It calls the HTTP
 API and visualizes the breakout (with the injected payload highlighted),
-findings, and payload mutations, and runs the fuzzing (ranked exploit paths) and
-cross-dialect differential (per-dialect divergence table) engines. Run the API
-with CORS allowing the dev server, then start the frontend:
+findings, and payload mutations. It also runs **Build** (goal-driven payload
+construction), **Encode** (WAF evasion with breakout validation), fuzzing
+(ranked exploit paths), cross-dialect differential, and LLM suggest/explain.
+Results can be exported as Markdown or JSON. Run the API with CORS allowing the
+dev server, then start the frontend:
 
 ```bash
 uvicorn xyainjex.api:app --port 8000
@@ -621,8 +623,8 @@ curl -s localhost:8000/analyze \
   -d '{"template": "curl \"{INPUT}\"", "payload": "\"; id ; #"}'
 ```
 
-Endpoints: `/analyze`, `/mutate`, `/build`, `/encode`, `/fuzz`, `/differential`, `/suggest`, and
-`/explain`. The `/suggest` and `/explain` endpoints take a `provider` (mock,
+Endpoints: `/analyze`, `/mutate`, `/build`, `/encode`, `/fuzz`, `/differential`,
+`/suggest`, `/explain`, `/flow`, and `/mcp`. The `/suggest` and `/explain` endpoints take a `provider` (mock,
 openai, claude, ollama) and, as on the CLI, the engine still validates every
 LLM-suggested payload.
 

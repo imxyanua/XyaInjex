@@ -11,6 +11,7 @@ from .agent import (
     analyze_flow,
     parse_source,
 )
+from .mcp import McpAnalysis, McpFinding, analyze_mcp
 from .analyzer import analyze
 from .argument import analyze_argument, mutate_argument
 from .build import BUILD_LANGS, BuildResult, build
@@ -101,12 +102,15 @@ __all__ = [
     "analyze_prompt",
     "analyze_agent",
     "analyze_flow",
+    "analyze_mcp",
     "detect_hidden",
     "parse_source",
     "AgentSource",
     "AgentThreat",
     "AgentAnalysis",
     "AgentFinding",
+    "McpAnalysis",
+    "McpFinding",
     "mutate",
     "mutate_sql",
     "mutate_template",

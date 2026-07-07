@@ -1,30 +1,55 @@
 import { KeyboardEvent, useEffect, useState } from "react";
-import { analyze, differential, explain, fuzz, mutate, suggest } from "./api";
+import {
+  analyze,
+  analyzeFlow,
+  analyzeMcp,
+  build,
+  differential,
+  encode,
+  explain,
+  fuzz,
+  mutate,
+  suggest,
+} from "./api";
 import {
   DIALECTS,
   EXAMPLES,
+  FLOW_EXAMPLE,
   LANG_GROUPS,
+  MCP_TOOLS_EXAMPLE,
   PROVIDERS,
   SOURCES,
+  supportsBuild,
   supportsDifferential,
+  supportsEncode,
   supportsFuzz,
   supportsMutation,
+  BUILD_GOAL_HINTS,
 } from "./constants";
 import {
+  AgentMode,
   AnalysisResult,
+  BuildResult,
   DifferentialResult,
+  EncodeResult,
+  FlowResult,
   FuzzResult,
   Lang,
+  McpResult,
   MutationResult,
   SuggestResult,
 } from "./types";
 import { initialTheme, applyTheme, Theme } from "./theme";
 import { readUrlState, shareLink, writeUrlState } from "./url";
 import { BreakoutView } from "./components/BreakoutView";
+import { BuildPanel } from "./components/BuildPanel";
 import { CopyButton } from "./components/CopyButton";
 import { DifferentialPanel } from "./components/DifferentialPanel";
+import { EncodePanel } from "./components/EncodePanel";
 import { FindingsView } from "./components/FindingsView";
+import { FlowPanel } from "./components/FlowPanel";
 import { FuzzPanel } from "./components/FuzzPanel";
+import { McpPanel } from "./components/McpPanel";
 import { MutationPanel } from "./components/MutationPanel";
 import { SuggestPanel } from "./components/SuggestPanel";
 
@@ -44,11 +69,18 @@ export default function App() {
     initial.payload ?? EXAMPLES[initialLang].payload,
   );
   const [provider, setProvider] = useState<string>(PROVIDERS[0]);
+  const [goal, setGoal] = useState<string>("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [mutation, setMutation] = useState<MutationResult | null>(null);
   const [fuzzResult, setFuzzResult] = useState<FuzzResult | null>(null);
   const [diff, setDiff] = useState<DifferentialResult | null>(null);
   const [suggestion, setSuggestion] = useState<SuggestResult | null>(null);
+  const [buildResult, setBuildResult] = useState<BuildResult | null>(null);
+  const [encodeResult, setEncodeResult] = useState<EncodeResult | null>(null);
+  const [flowResult, setFlowResult] = useState<FlowResult | null>(null);
+  const [mcpResult, setMcpResult] = useState<McpResult | null>(null);
+  const [agentMode, setAgentMode] = useState<AgentMode>("message");
+  const [mcpTools, setMcpTools] = useState<string>(MCP_TOOLS_EXAMPLE);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -69,7 +101,23 @@ export default function App() {
     setFuzzResult(null);
     setDiff(null);
     setSuggestion(null);
+    setBuildResult(null);
+    setEncodeResult(null);
+    setFlowResult(null);
+    setMcpResult(null);
     setExplanation(null);
+  }
+
+  function switchAgentMode(mode: AgentMode) {
+    setAgentMode(mode);
+    clearOutputs();
+    setError(null);
+    if (mode === "flow") setTemplate(FLOW_EXAMPLE);
+    if (mode === "mcp") {
+      setTemplate(EXAMPLES.agent.template);
+      setMcpTools(MCP_TOOLS_EXAMPLE);
+    }
+    if (mode === "message") setTemplate(EXAMPLES.agent.template);
   }
 
   function switchLang(next: Lang) {
@@ -78,6 +126,7 @@ export default function App() {
     setSource(SOURCES[0]);
     setTemplate(EXAMPLES[next].template);
     setPayload(EXAMPLES[next].payload);
+    if (next === "agent") switchAgentMode("message");
     clearOutputs();
     setError(null);
   }
@@ -87,23 +136,43 @@ export default function App() {
     | "mutate"
     | "fuzz"
     | "differential"
+    | "build"
+    | "encode"
     | "suggest"
     | "explain";
+
+  async function runAnalyze() {
+    setError(null);
+    clearOutputs();
+    if (isAgent && agentMode === "flow") {
+      setFlowResult(await analyzeFlow(template));
+    } else if (isAgent && agentMode === "mcp") {
+      setMcpResult(await analyzeMcp(template, mcpTools));
+    } else {
+      setResult(await analyze({ lang, template, payload, dialect, source }));
+    }
+  }
 
   async function run(action: Action) {
     setBusy(true);
     setError(null);
     try {
       const args = { lang, template, payload, dialect, source };
-      clearOutputs();
+      if (action !== "analyze") clearOutputs();
       if (action === "analyze") {
-        setResult(await analyze(args));
-      } else if (action === "mutate") {
+        await runAnalyze();
+        return;
+      }
+      if (action === "mutate") {
         setMutation(await mutate(args));
       } else if (action === "fuzz") {
         setFuzzResult(await fuzz(args));
       } else if (action === "differential") {
         setDiff(await differential(args, DIALECTS[lang]));
+      } else if (action === "build") {
+        setBuildResult(await build(args, goal));
+      } else if (action === "encode") {
+        setEncodeResult(await encode(args));
       } else if (action === "suggest") {
         setSuggestion(await suggest(args, provider));
       } else {
@@ -119,7 +188,7 @@ export default function App() {
   function onKey(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && !busy) {
       e.preventDefault();
-      run("analyze");
+      runAnalyze();
     }
   }
 
@@ -130,13 +199,22 @@ export default function App() {
     fuzzResult !== null ||
     diff !== null ||
     suggestion !== null ||
+    buildResult !== null ||
+    encodeResult !== null ||
+    flowResult !== null ||
+    mcpResult !== null ||
     explanation !== null;
   const isAgent = lang === "agent";
-  const templateLabel = isAgent
-    ? "Untrusted content"
-    : lang === "prompt"
-      ? "Prompt template — mark input with {INPUT}"
-      : "Template — mark input with {INPUT}";
+  const templateLabel =
+    isAgent && agentMode === "flow"
+      ? "Flow steps (JSON array of {source, content})"
+      : isAgent && agentMode === "mcp"
+        ? "Untrusted content (may contain tool calls)"
+        : isAgent
+          ? "Untrusted content"
+          : lang === "prompt"
+            ? "Prompt template — mark input with {INPUT}"
+            : "Template — mark input with {INPUT}";
 
   return (
     <div className="app">
@@ -185,6 +263,26 @@ export default function App() {
       </div>
 
       <div className="controls">
+        {isAgent && (
+          <div className="agent-modes tabs" role="tablist" aria-label="Agent mode">
+            {(
+              [
+                ["message", "Message"],
+                ["flow", "Flow"],
+                ["mcp", "MCP"],
+              ] as const
+            ).map(([mode, label]) => (
+              <button
+                key={mode}
+                className={`tab ${agentMode === mode ? "active" : ""}`}
+                onClick={() => switchAgentMode(mode)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <label className="field">
           <span>{templateLabel}</span>
           <textarea
@@ -192,9 +290,21 @@ export default function App() {
             onChange={(e) => setTemplate(e.target.value)}
             onKeyDown={onKey}
             spellCheck={false}
-            rows={2}
+            rows={isAgent && agentMode === "flow" ? 6 : 2}
           />
         </label>
+
+        {isAgent && agentMode === "mcp" && (
+          <label className="field">
+            <span>MCP tool catalog (JSON)</span>
+            <textarea
+              value={mcpTools}
+              onChange={(e) => setMcpTools(e.target.value)}
+              spellCheck={false}
+              rows={5}
+            />
+          </label>
+        )}
 
         {!isAgent && (
           <label className="field">
@@ -205,6 +315,19 @@ export default function App() {
               onKeyDown={onKey}
               spellCheck={false}
               rows={2}
+            />
+          </label>
+        )}
+
+        {!isAgent && supportsBuild(lang) && (
+          <label className="field">
+            <span>Build goal (command, expression, URL, path, header…)</span>
+            <input
+              type="text"
+              value={goal}
+              onChange={(e) => setGoal(e.target.value)}
+              placeholder={BUILD_GOAL_HINTS[lang] ?? "optional — uses sensible default"}
+              spellCheck={false}
             />
           </label>
         )}
@@ -223,7 +346,7 @@ export default function App() {
             </label>
           )}
 
-          {isAgent && (
+          {isAgent && agentMode === "message" && (
             <label className="inline">
               <span>Source</span>
               <select value={source} onChange={(e) => setSource(e.target.value)}>
@@ -252,6 +375,16 @@ export default function App() {
           {supportsDifferential(lang) && (
             <button onClick={() => run("differential")} disabled={busy}>
               Differential
+            </button>
+          )}
+          {!isAgent && supportsBuild(lang) && (
+            <button onClick={() => run("build")} disabled={busy}>
+              Build
+            </button>
+          )}
+          {!isAgent && supportsEncode(lang) && (
+            <button onClick={() => run("encode")} disabled={busy || !payload}>
+              Encode
             </button>
           )}
           <CopyButton text={shareUrl} label="Copy link" />
@@ -290,9 +423,12 @@ export default function App() {
       {error && <div className="error">Error: {error}</div>}
 
       {result?.kind === "breakout" && <BreakoutView result={result} />}
-      {(result?.kind === "prompt" || result?.kind === "agent") && (
+      {result?.kind === "agent" && agentMode === "message" && (
         <FindingsView result={result} />
       )}
+      {result?.kind === "prompt" && <FindingsView result={result} />}
+      {flowResult && <FlowPanel result={flowResult} />}
+      {mcpResult && <McpPanel result={mcpResult} />}
       {mutation && (
         <MutationPanel result={mutation} onPick={(p) => setPayload(p)} />
       )}
@@ -302,6 +438,12 @@ export default function App() {
       {diff && <DifferentialPanel result={diff} />}
       {suggestion && (
         <SuggestPanel result={suggestion} onPick={(p) => setPayload(p)} />
+      )}
+      {buildResult && (
+        <BuildPanel result={buildResult} onPick={(p) => setPayload(p)} />
+      )}
+      {encodeResult && (
+        <EncodePanel result={encodeResult} onPick={(p) => setPayload(p)} />
       )}
       {explanation !== null && (
         <div className="result explain">

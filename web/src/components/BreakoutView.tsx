@@ -1,7 +1,9 @@
+import { formatBreakoutReport } from "../report";
 import { BreakoutResult } from "../types";
 import { CopyButton } from "./CopyButton";
-import { RiskBadge } from "./RiskBadge";
 import { FlowDiagram } from "./FlowDiagram";
+import { ReportActions } from "./ReportActions";
+import { RiskBadge } from "./RiskBadge";
 
 function Caret({ rendered, index }: { rendered: string; index: number | null }) {
   if (index === null || index > rendered.length) return null;
@@ -38,6 +40,11 @@ export function BreakoutView({ result }: { result: BreakoutResult }) {
         <span className={`badge ${result.syntax_valid ? "ok" : "warn"}`}>
           {result.syntax_valid ? "syntax valid" : "syntax invalid"}
         </span>
+        <ReportActions
+          markdown={formatBreakoutReport(result)}
+          json={result}
+          basename="xyainjex-analysis"
+        />
       </div>
 
       <div className="rendered">

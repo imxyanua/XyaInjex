@@ -1,9 +1,13 @@
 import {
   AnalysisResult,
+  BuildResult,
   DifferentialResult,
+  EncodeResult,
   ExplainResult,
+  FlowResult,
   FuzzResult,
   Lang,
+  McpResult,
   MutationResult,
   SuggestResult,
   classify,
@@ -55,6 +59,29 @@ export async function fuzz(args: AnalyzeArgs): Promise<FuzzResult> {
   return (await post("/fuzz", body)) as unknown as FuzzResult;
 }
 
+export async function build(
+  args: AnalyzeArgs,
+  goal: string,
+): Promise<BuildResult> {
+  const body: Record<string, unknown> = {
+    template: args.template,
+    lang: args.lang,
+  };
+  if (goal) body.goal = goal;
+  if (args.dialect) body.dialect = args.dialect;
+  return (await post("/build", body)) as unknown as BuildResult;
+}
+
+export async function encode(args: AnalyzeArgs): Promise<EncodeResult> {
+  const body: Record<string, unknown> = {
+    payload: args.payload,
+    lang: args.lang,
+    template: args.template,
+  };
+  if (args.dialect) body.dialect = args.dialect;
+  return (await post("/encode", body)) as unknown as EncodeResult;
+}
+
 export async function differential(
   args: AnalyzeArgs,
   dialects: string[],
@@ -93,6 +120,21 @@ export async function explain(
   };
   if (args.dialect) body.dialect = args.dialect;
   return (await post("/explain", body)) as unknown as ExplainResult;
+}
+
+export async function analyzeFlow(stepsJson: string): Promise<FlowResult> {
+  const steps = JSON.parse(stepsJson) as { source: string; content: string }[];
+  return (await post("/flow", { steps })) as unknown as FlowResult;
+}
+
+export async function analyzeMcp(
+  content: string,
+  toolsJson: string,
+): Promise<McpResult> {
+  const body: Record<string, unknown> = { content };
+  const trimmed = toolsJson.trim();
+  if (trimmed) body.tools = JSON.parse(trimmed);
+  return (await post("/mcp", body)) as unknown as McpResult;
 }
 
 export { BASE as API_BASE };
