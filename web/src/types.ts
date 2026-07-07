@@ -92,6 +92,70 @@ export interface AgentResult {
   notes: string[];
 }
 
+export interface TrustNode {
+  id: string;
+  label: string;
+  kind: string;
+  source: string;
+  risk: Risk;
+  compromised: boolean;
+  hop: number;
+}
+
+export interface TrustEdge {
+  from: string;
+  to: string;
+  label: string;
+  risk: Risk;
+  compromised: boolean;
+}
+
+export interface TrustGraph {
+  nodes: TrustNode[];
+  edges: TrustEdge[];
+}
+
+export interface FlowStepResult {
+  content: string;
+  source: string;
+  risk: Risk;
+  findings: Finding[];
+  notes: string[];
+}
+
+export interface FlowResult {
+  risk: Risk;
+  steps: FlowStepResult[];
+  notes: string[];
+  graph: TrustGraph;
+}
+
+export interface McpFinding {
+  kind: string;
+  severity: Risk;
+  title: string;
+  evidence: string;
+  tool_name: string | null;
+}
+
+export interface McpToolCall {
+  name: string;
+  raw: string;
+  allowed: boolean | null;
+  dangerous: boolean;
+}
+
+export interface McpResult {
+  content: string;
+  tools: Record<string, unknown>[] | null;
+  risk: Risk;
+  findings: McpFinding[];
+  tool_calls: McpToolCall[];
+  notes: string[];
+}
+
+export type AgentMode = "message" | "flow" | "mcp";
+
 export type AnalysisResult = BreakoutResult | PromptResult | AgentResult;
 
 export interface MutationCandidate {

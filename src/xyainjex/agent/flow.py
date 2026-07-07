@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 
 from ..models import Risk
 from .analyzer import analyze_agent
+from .graph import TrustGraph, build_trust_graph
 from .threats import AgentAnalysis, AgentSource, max_risk
 
 _HIGH = (Risk.HIGH, Risk.CRITICAL)
@@ -15,6 +16,7 @@ _HIGH = (Risk.HIGH, Risk.CRITICAL)
 class FlowAnalysis:
     steps: list[AgentAnalysis] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    graph: TrustGraph = field(default_factory=TrustGraph)
 
     @property
     def risk(self) -> Risk:
@@ -26,6 +28,7 @@ class FlowAnalysis:
             "risk": self.risk.value,
             "steps": [s.to_dict() for s in self.steps],
             "notes": self.notes,
+            "graph": self.graph.to_dict(),
         }
 
 
@@ -37,6 +40,8 @@ def analyze_flow(steps: list[tuple[AgentSource, str]]) -> FlowAnalysis:
     consume it downstream.
     """
     analyses = [analyze_agent(content, source) for source, content in steps]
+    risks = [a.risk for a in analyses]
+    graph = build_trust_graph(steps, risks)
     notes: list[str] = [f"Flow has {len(analyses)} hop(s)."]
 
     for i, analysis in enumerate(analyses):
@@ -53,4 +58,4 @@ def analyze_flow(steps: list[tuple[AgentSource, str]]) -> FlowAnalysis:
                 "future turns."
             )
 
-    return FlowAnalysis(steps=analyses, notes=notes)
+    return FlowAnalysis(steps=analyses, notes=notes, graph=graph)

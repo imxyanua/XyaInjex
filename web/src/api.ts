@@ -4,8 +4,10 @@ import {
   DifferentialResult,
   EncodeResult,
   ExplainResult,
+  FlowResult,
   FuzzResult,
   Lang,
+  McpResult,
   MutationResult,
   SuggestResult,
   classify,
@@ -118,6 +120,21 @@ export async function explain(
   };
   if (args.dialect) body.dialect = args.dialect;
   return (await post("/explain", body)) as unknown as ExplainResult;
+}
+
+export async function analyzeFlow(stepsJson: string): Promise<FlowResult> {
+  const steps = JSON.parse(stepsJson) as { source: string; content: string }[];
+  return (await post("/flow", { steps })) as unknown as FlowResult;
+}
+
+export async function analyzeMcp(
+  content: string,
+  toolsJson: string,
+): Promise<McpResult> {
+  const body: Record<string, unknown> = { content };
+  const trimmed = toolsJson.trim();
+  if (trimmed) body.tools = JSON.parse(trimmed);
+  return (await post("/mcp", body)) as unknown as McpResult;
 }
 
 export { BASE as API_BASE };

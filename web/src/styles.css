@@ -630,6 +630,99 @@ button.copy:hover {
   margin-left: auto;
 }
 
+.trust-graph {
+  margin: 12px 0;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.trust-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.trust-hop {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trust-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  background: var(--panel-2);
+}
+
+.trust-node.compromised {
+  border-color: #7a2b2b;
+  background: rgba(255, 77, 77, 0.08);
+}
+
+.trust-node.agent {
+  border-color: var(--accent);
+}
+
+.trust-kind {
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.trust-label {
+  font-size: 13px;
+}
+
+.trust-arrow {
+  color: var(--accent);
+}
+
+.trust-warn {
+  margin: 10px 0 0;
+  color: #ff8a8a;
+  font-size: 13px;
+}
+
+.agent-modes {
+  margin-bottom: 12px;
+}
+
+.flow-step {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.flow-step-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.flow-step-content {
+  margin-bottom: 8px;
+}
+
+.mcp-calls {
+  margin-bottom: 12px;
+}
+
+.mcp-call {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
 .notes {
   margin: 12px 0 0;
   padding-left: 0;

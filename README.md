@@ -623,8 +623,8 @@ curl -s localhost:8000/analyze \
   -d '{"template": "curl \"{INPUT}\"", "payload": "\"; id ; #"}'
 ```
 
-Endpoints: `/analyze`, `/mutate`, `/build`, `/encode`, `/fuzz`, `/differential`, `/suggest`, and
-`/explain`. The `/suggest` and `/explain` endpoints take a `provider` (mock,
+Endpoints: `/analyze`, `/mutate`, `/build`, `/encode`, `/fuzz`, `/differential`,
+`/suggest`, `/explain`, `/flow`, and `/mcp`. The `/suggest` and `/explain` endpoints take a `provider` (mock,
 openai, claude, ollama) and, as on the CLI, the engine still validates every
 LLM-suggested payload.
 

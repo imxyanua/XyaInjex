@@ -6,6 +6,7 @@ Run with ``uvicorn xyainjex.api:app --reload``.
 
 from __future__ import annotations
 
+import json
 import os
 
 try:
@@ -18,6 +19,8 @@ except ImportError as exc:  # pragma: no cover - import guard
     ) from exc
 
 from .agent import analyze_agent, parse_source
+from .agent.flow import analyze_flow
+from .mcp import analyze_mcp
 from .analyzer import analyze
 from .argument import analyze_argument, mutate_argument
 from .build import build
@@ -128,6 +131,20 @@ class ExplainRequest(BaseModel):
     lang: str = "shell"
     dialect: str | None = None
     provider: str = "mock"
+
+
+class FlowStep(BaseModel):
+    source: str
+    content: str
+
+
+class FlowRequest(BaseModel):
+    steps: list[FlowStep]
+
+
+class McpRequest(BaseModel):
+    content: str
+    tools: str | list | None = None
 
 
 def _require_lang(lang: str) -> str:
@@ -394,3 +411,24 @@ def explain_endpoint(req: ExplainRequest) -> dict:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:  # provider/runtime failure (e.g. LLM unreachable)
         raise HTTPException(status_code=502, detail=f"provider error: {exc}") from exc
+
+
+@app.post("/flow")
+def flow_endpoint(req: FlowRequest) -> dict:
+    """Analyze a multi-agent message flow and return a trust graph."""
+    if not req.steps:
+        raise HTTPException(status_code=400, detail="at least one flow step is required")
+    try:
+        steps = [(parse_source(s.source), s.content) for s in req.steps]
+        return analyze_flow(steps).to_dict()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/mcp")
+def mcp_endpoint(req: McpRequest) -> dict:
+    """Analyze untrusted content and an optional MCP tool catalog."""
+    try:
+        return analyze_mcp(req.content, tools=req.tools).to_dict()
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

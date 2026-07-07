@@ -47,6 +47,8 @@ npm run typecheck  # types only
 - **Analyze** renders the verdict: breakout caret, context/risk badges, an
   execution flow diagram (linear or vertical graph view), and notes.
 - Prompt and agent modes list scored findings.
+- **Agent / MCP modes:** single message, multi-hop **Flow** (trust graph), or
+  **MCP** (tool catalog + hijacking analysis).
 
 ### Payload tools
 
@@ -80,4 +82,4 @@ empty.
 ## API endpoints used
 
 `POST /analyze`, `/mutate`, `/build`, `/encode`, `/fuzz`, `/differential`,
-`/suggest`, `/explain`
+`/suggest`, `/explain`, `/flow`, `/mcp`
