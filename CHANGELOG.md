@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-07-08
+
+### Added
+
+- Built-in parser-divergence benchmark corpora for **shell** (20 cases) and
+  **SQL** (18 cases), embedded in Python under `xyainjex.corpus` (no JSON data
+  files).
+- `xyainjex.corpus.benchmark()`, CLI `--benchmark`, and `GET /benchmark/{lang}`
+  to run regression cases and report expected vs actual cross-dialect divergence.
+- Web **Benchmark** button for shell and SQL (expandable per-case dialect table).
+- Optional **tree-sitter bash** parser spike (`pip install -e ".[parser]"`) to
+  cross-check POSIX shell lexical analysis against a real parse tree.
+
 ## [0.11.0] - 2026-07-08
 
 ### Added
@@ -334,7 +347,8 @@ reports how a payload escapes it and what execution path the breakout creates.
   and format configuration, a GitHub Actions CI workflow, and a test suite of
   233 cases.
 
-[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/imxyanua/XyaInjex/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/imxyanua/XyaInjex/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/imxyanua/XyaInjex/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/imxyanua/XyaInjex/compare/v0.8.0...v0.9.0

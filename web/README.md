@@ -59,6 +59,7 @@ npm run typecheck  # types only
 | **Encode** | WAF/filter evasion variants; marks which still break out when a template is given |
 | **Fuzz** | Ranked exploit paths with breakout stages |
 | **Differential** | Per-dialect parser divergence table |
+| **Benchmark** | Run built-in shell/SQL divergence regression corpus |
 | **AI Suggest / Explain** | LLM-assisted payloads and explanations (engine-validated) |
 
 ### Reporting
@@ -82,4 +83,4 @@ empty.
 ## API endpoints used
 
 `POST /analyze`, `/mutate`, `/build`, `/encode`, `/fuzz`, `/differential`,
-`/suggest`, `/explain`, `/flow`, `/mcp`
+`/suggest`, `/explain`, `/flow`, `/mcp`, `GET /benchmark/{lang}`

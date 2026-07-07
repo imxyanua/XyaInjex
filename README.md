@@ -612,7 +612,8 @@ A React (Vite + TypeScript) frontend lives in [web/](web/). It calls the HTTP
 API and visualizes the breakout (with the injected payload highlighted),
 findings, and payload mutations. It also runs **Build** (goal-driven payload
 construction), **Encode** (WAF evasion with breakout validation), fuzzing
-(ranked exploit paths), cross-dialect differential, and LLM suggest/explain.
+(ranked exploit paths), cross-dialect differential, parser-divergence **Benchmark**
+regression runs, and LLM suggest/explain.
 Results can be exported as Markdown or JSON. Run the API with CORS allowing the
 dev server, then start the frontend:
 
@@ -637,13 +638,13 @@ curl -s localhost:8000/analyze \
 ```
 
 Endpoints: `/analyze`, `/mutate`, `/build`, `/encode`, `/fuzz`, `/differential`,
-`/suggest`, `/explain`, `/flow`, and `/mcp`. The `/suggest` and `/explain` endpoints take a `provider` (mock,
+`/benchmark/{lang}`, `/suggest`, `/explain`, `/flow`, and `/mcp`. The `/suggest` and `/explain` endpoints take a `provider` (mock,
 openai, claude, ollama) and, as on the CLI, the engine still validates every
 LLM-suggested payload.
 
 ## Changelog
 
-Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.11.0.
+Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.12.0.
 
 ## License
 

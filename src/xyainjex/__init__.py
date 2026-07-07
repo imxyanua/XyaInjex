@@ -21,7 +21,7 @@ from .csv import analyze_csv, mutate_csv
 from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
-from .corpus import BenchmarkResult, benchmark
+from .corpus import BENCHMARK_LANGS, BenchmarkResult, benchmark
 from .encode import EncodeResult, encode
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
@@ -72,7 +72,7 @@ from .xss import analyze_xss, mutate_xss
 from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
 
-__version__ = "0.11.0"
+__version__ = "0.12.0"
 
 __all__ = [
     "analyze",
@@ -144,6 +144,7 @@ __all__ = [
     "fuzz",
     "differential",
     "benchmark",
+    "BENCHMARK_LANGS",
     "BenchmarkResult",
     "build",
     "BuildResult",
