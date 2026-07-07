@@ -3,6 +3,7 @@ import {
   analyze,
   analyzeFlow,
   analyzeMcp,
+  benchmark,
   build,
   differential,
   encode,
@@ -20,6 +21,7 @@ import {
   PROVIDERS,
   SOURCES,
   supportsBuild,
+  supportsBenchmark,
   supportsDifferential,
   supportsEncode,
   supportsFuzz,
@@ -29,6 +31,7 @@ import {
 import {
   AgentMode,
   AnalysisResult,
+  BenchmarkResult,
   BuildResult,
   DifferentialResult,
   EncodeResult,
@@ -41,6 +44,7 @@ import {
 } from "./types";
 import { initialTheme, applyTheme, Theme } from "./theme";
 import { readUrlState, shareLink, writeUrlState } from "./url";
+import { BenchmarkPanel } from "./components/BenchmarkPanel";
 import { BreakoutView } from "./components/BreakoutView";
 import { BuildPanel } from "./components/BuildPanel";
 import { CopyButton } from "./components/CopyButton";
@@ -77,6 +81,9 @@ export default function App() {
   const [suggestion, setSuggestion] = useState<SuggestResult | null>(null);
   const [buildResult, setBuildResult] = useState<BuildResult | null>(null);
   const [encodeResult, setEncodeResult] = useState<EncodeResult | null>(null);
+  const [benchmarkResult, setBenchmarkResult] = useState<BenchmarkResult | null>(
+    null,
+  );
   const [flowResult, setFlowResult] = useState<FlowResult | null>(null);
   const [mcpResult, setMcpResult] = useState<McpResult | null>(null);
   const [agentMode, setAgentMode] = useState<AgentMode>("message");
@@ -103,6 +110,7 @@ export default function App() {
     setSuggestion(null);
     setBuildResult(null);
     setEncodeResult(null);
+    setBenchmarkResult(null);
     setFlowResult(null);
     setMcpResult(null);
     setExplanation(null);
@@ -136,6 +144,7 @@ export default function App() {
     | "mutate"
     | "fuzz"
     | "differential"
+    | "benchmark"
     | "build"
     | "encode"
     | "suggest"
@@ -169,6 +178,8 @@ export default function App() {
         setFuzzResult(await fuzz(args));
       } else if (action === "differential") {
         setDiff(await differential(args, DIALECTS[lang]));
+      } else if (action === "benchmark") {
+        setBenchmarkResult(await benchmark(lang));
       } else if (action === "build") {
         setBuildResult(await build(args, goal));
       } else if (action === "encode") {
@@ -201,6 +212,7 @@ export default function App() {
     suggestion !== null ||
     buildResult !== null ||
     encodeResult !== null ||
+    benchmarkResult !== null ||
     flowResult !== null ||
     mcpResult !== null ||
     explanation !== null;
@@ -377,6 +389,11 @@ export default function App() {
               Differential
             </button>
           )}
+          {supportsBenchmark(lang) && (
+            <button onClick={() => run("benchmark")} disabled={busy}>
+              Benchmark
+            </button>
+          )}
           {!isAgent && supportsBuild(lang) && (
             <button onClick={() => run("build")} disabled={busy}>
               Build
@@ -436,6 +453,7 @@ export default function App() {
         <FuzzPanel result={fuzzResult} onPick={(p) => setPayload(p)} />
       )}
       {diff && <DifferentialPanel result={diff} />}
+      {benchmarkResult && <BenchmarkPanel result={benchmarkResult} />}
       {suggestion && (
         <SuggestPanel result={suggestion} onPick={(p) => setPayload(p)} />
       )}

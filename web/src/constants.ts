@@ -263,6 +263,11 @@ export const DIFFERENTIAL_LANGS: Lang[] = [
 export const supportsDifferential = (lang: Lang): boolean =>
   DIFFERENTIAL_LANGS.includes(lang);
 
+export const BENCHMARK_LANGS: Lang[] = ["shell", "sql"];
+
+export const supportsBenchmark = (lang: Lang): boolean =>
+  BENCHMARK_LANGS.includes(lang);
+
 // The payload builder covers the languages with a clear goal to aim at.
 export const BUILD_LANGS: Lang[] = [
   "shell",

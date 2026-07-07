@@ -31,6 +31,7 @@ from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import BREAKOUT_LANGS, analyze_lang
 from .el import analyze_el, mutate_el
+from .corpus import benchmark as run_benchmark
 from .encode import encode
 from .fuzz import differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
@@ -356,6 +357,14 @@ def fuzz_endpoint(req: FuzzRequest) -> dict:
             dialect=req.dialect,
             command=req.command,
         ).to_dict()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/benchmark/{lang}")
+def benchmark_endpoint(lang: str) -> dict:
+    try:
+        return run_benchmark(lang.strip().lower()).to_dict()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

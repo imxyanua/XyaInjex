@@ -1,6 +1,7 @@
 import {
   AnalysisResult,
   BuildResult,
+  BenchmarkResult,
   DifferentialResult,
   EncodeResult,
   ExplainResult,
@@ -80,6 +81,15 @@ export async function encode(args: AnalyzeArgs): Promise<EncodeResult> {
   };
   if (args.dialect) body.dialect = args.dialect;
   return (await post("/encode", body)) as unknown as EncodeResult;
+}
+
+export async function benchmark(lang: Lang): Promise<BenchmarkResult> {
+  const resp = await fetch(`${BASE}/benchmark/${lang}`);
+  const data = await resp.json();
+  if (!resp.ok) {
+    throw new Error(data?.detail || `request failed (${resp.status})`);
+  }
+  return data as BenchmarkResult;
 }
 
 export async function differential(

@@ -211,6 +211,26 @@ export interface DifferentialResult {
   per_dialect: Record<string, DialectVerdict>;
 }
 
+export interface BenchmarkCaseResult {
+  case_id: string;
+  template: string;
+  payload: string;
+  expected_divergent: boolean;
+  actual_divergent: boolean;
+  passed: boolean;
+  per_dialect: Record<string, DialectVerdict>;
+  note: string;
+}
+
+export interface BenchmarkResult {
+  lang: string;
+  dialects: string[];
+  total: number;
+  passed: number;
+  failed: number;
+  results: BenchmarkCaseResult[];
+}
+
 export interface Suggestion {
   payload: string;
   risk: Risk;

@@ -790,6 +790,28 @@ def test_fuzz_path_endpoint():
     assert "url-encode" in resp.json()["strategies"]
 
 
+def test_benchmark_shell_endpoint():
+    resp = client.get("/benchmark/shell")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["lang"] == "shell"
+    assert data["failed"] == 0
+    assert data["total"] >= 20
+
+
+def test_benchmark_sql_endpoint():
+    resp = client.get("/benchmark/sql")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["lang"] == "sql"
+    assert data["failed"] == 0
+
+
+def test_benchmark_rejects_unknown_lang():
+    resp = client.get("/benchmark/ssrf")
+    assert resp.status_code == 400
+
+
 def test_differential_endpoint():
     resp = client.post(
         "/differential",

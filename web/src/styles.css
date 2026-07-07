@@ -918,6 +918,34 @@ button.copy:hover {
   color: var(--muted);
 }
 
+.benchmark-case {
+  border-top: 1px solid var(--border);
+}
+
+.benchmark-case summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.benchmark-case summary::-webkit-details-marker {
+  display: none;
+}
+
+.benchmark-case .case-note {
+  margin: 0;
+  padding: 0 12px 8px;
+  font-size: 12px;
+}
+
+.benchmark-table .diff-row.fail {
+  background: rgba(255, 107, 107, 0.12);
+}
+
+.diff-table.nested {
+  margin: 0 12px 12px;
+  border-radius: 4px;
+}
+
 .divergent {
   color: #f2c14e;
 }
