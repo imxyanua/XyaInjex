@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from .models import CorpusCase
 from .shell import SHELL_CASES, SHELL_DIALECTS
+from .sql import SQL_CASES, SQL_DIALECTS
 
-BENCHMARK_LANGS: tuple[str, ...] = ("shell",)
+BENCHMARK_LANGS: tuple[str, ...] = ("shell", "sql")
 
 _CORPORA: dict[str, tuple[tuple[CorpusCase, ...], list[str]]] = {
     "shell": (SHELL_CASES, SHELL_DIALECTS),
+    "sql": (SQL_CASES, SQL_DIALECTS),
 }
 
 

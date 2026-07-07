@@ -535,7 +535,7 @@ required). Cases ship in the Python package:
 
 ```bash
 xyainjex --benchmark -l shell
-xyainjex --benchmark -l shell --json
+xyainjex --benchmark -l sql --json
 ```
 
 Ask an LLM for payloads and keep the ones the engine validates (needs a
