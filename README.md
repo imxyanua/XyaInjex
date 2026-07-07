@@ -530,6 +530,14 @@ xyainjex --fuzz -l ssrf 'http://api.example.com/fetch?url={INPUT}'
 xyainjex --fuzz -l path '/var/www/uploads/{INPUT}'
 ```
 
+Run the parser-divergence regression corpus with `--benchmark` (no template
+required). Cases ship in the Python package:
+
+```bash
+xyainjex --benchmark -l shell
+xyainjex --benchmark -l shell --json
+```
+
 Ask an LLM for payloads and keep the ones the engine validates (needs a
 provider; `ollama` is the default, `openai` and `claude` need their SDKs):
 
@@ -584,6 +592,11 @@ print(paths.valid, "exploit paths", paths.strategies)
 diff = differential("ping {INPUT}", "; whoami", lang="shell",
                     dialects=["posix", "cmd"])
 print(diff.divergent)               # True
+
+from xyainjex import benchmark
+
+report = benchmark("shell")
+print(report.passed, "of", report.total, "corpus cases passed")
 
 from xyainjex import suggest_payloads, get_provider
 

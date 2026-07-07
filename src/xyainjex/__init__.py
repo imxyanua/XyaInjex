@@ -21,6 +21,7 @@ from .csv import analyze_csv, mutate_csv
 from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
+from .corpus import BenchmarkResult, benchmark
 from .encode import EncodeResult, encode
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
@@ -142,6 +143,8 @@ __all__ = [
     "CrlfKind",
     "fuzz",
     "differential",
+    "benchmark",
+    "BenchmarkResult",
     "build",
     "BuildResult",
     "BUILD_LANGS",

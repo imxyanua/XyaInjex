@@ -18,6 +18,7 @@ from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import analyze_lang
 from .el import analyze_el, mutate_el
 from .encode import encode
+from .corpus import BENCHMARK_LANGS, benchmark as run_benchmark
 from .fuzz import FUZZ_LANGS, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .host import analyze_host, mutate_host
@@ -50,6 +51,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "template",
+        nargs="?",
+        default=None,
         help="command template with the {INPUT} marker, e.g. 'curl \"{INPUT}\"'",
     )
     parser.add_argument(
@@ -71,6 +74,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--fuzz",
         action="store_true",
         help="expand and test payloads to discover exploit paths (any breakout lang)",
+    )
+    parser.add_argument(
+        "--benchmark",
+        action="store_true",
+        help="run parser-divergence regression corpus for --lang (shell today)",
     )
     parser.add_argument(
         "--build",
@@ -206,6 +214,21 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     try:
+        if args.benchmark:
+            if lang not in BENCHMARK_LANGS:
+                parser.error(
+                    "--benchmark supports: " + ", ".join(BENCHMARK_LANGS)
+                )
+            result = run_benchmark(lang)
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_benchmark(result))
+            return 0 if result.ok else 1
+
+        if args.template is None:
+            parser.error("template is required unless --benchmark is used")
+
         if args.fuzz:
             if lang not in FUZZ_LANGS:
                 parser.error("--fuzz supports: " + ", ".join(FUZZ_LANGS))
@@ -422,6 +445,27 @@ def _render_encode(result) -> str:
             tag = "[ok] " if v.validated else "[--] "
         risk = f"  {v.risk}" if v.risk else ""
         lines.append(f"  {tag}{v.payload!r}  ({v.strategy}){risk}")
+    return "\n".join(lines)
+
+
+def _render_benchmark(result) -> str:
+    lines = ["XyaInjex parser divergence benchmark", "=" * 40]
+    lines.append(f"Lang     : {result.lang}")
+    lines.append(f"Dialects : {', '.join(result.dialects)}")
+    lines.append(f"Cases    : {result.total}   Passed: {result.passed}   Failed: {result.failed}")
+    lines.append("")
+    for case in result.results:
+        mark = "OK" if case.passed else "FAIL"
+        div = "divergent" if case.actual_divergent else "uniform"
+        lines.append(f"  [{mark:4}] {case.case_id} ({div})")
+        if case.note:
+            lines.append(f"         {case.note}")
+        if not case.passed:
+            expected = "divergent" if case.expected_divergent else "uniform"
+            lines.append(f"         expected {expected}")
+            for dialect, info in case.per_dialect.items():
+                inj = "inject" if info["command_injected"] else "no-inject"
+                lines.append(f"         {dialect}: {inj} ({info['risk']})")
     return "\n".join(lines)
 
 
