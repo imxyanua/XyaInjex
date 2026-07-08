@@ -11,7 +11,7 @@ CODE_CASES: tuple[CorpusCase, ...] = (
         id="js-template-literal-eval",
         template="eval(`{INPUT}`)",
         payload="${7*7}",
-        note="JavaScript template-literal substitution; python and php do not parse backticks.",
+        note="JS template-literal substitution; python and php ignore backticks.",
         divergent=True,
     ),
     CorpusCase(

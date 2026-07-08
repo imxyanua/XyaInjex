@@ -3,16 +3,21 @@ import { RiskBadge } from "./RiskBadge";
 
 export function DifferentialPanel({ result }: { result: DifferentialResult }) {
   const dialects = Object.keys(result.per_dialect);
+  const metric = result.metric ?? (result.lang === "crlf" ? "risk" : "command_injected");
   return (
     <div className="mutation">
       <div className="mutation-summary">
         {result.divergent ? (
           <span className="divergent">
-            Parser divergence: the same payload is code to one dialect and data to
-            another.
+            {metric === "risk"
+              ? "Risk divergence: the same payload is rated differently across sink kinds."
+              : "Parser divergence: the same payload is code to one dialect and data to another."}
           </span>
         ) : (
-          <>No divergence: every dialect agrees on this payload.</>
+          <>
+            No divergence: every {metric === "risk" ? "sink kind" : "dialect"} agrees on
+            this payload.
+          </>
         )}
       </div>
 

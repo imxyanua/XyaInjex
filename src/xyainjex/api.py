@@ -18,20 +18,20 @@ except ImportError as exc:  # pragma: no cover - import guard
         'The HTTP API requires FastAPI. Install with: pip install -e ".[api]"'
     ) from exc
 
+from . import __version__
 from .agent import analyze_agent, parse_source
 from .agent.flow import analyze_flow
-from .mcp import analyze_mcp
 from .analyzer import analyze
 from .argument import analyze_argument, mutate_argument
 from .build import build
 from .code import analyze_code, mutate_code, parse_code_lang
+from .corpus import benchmark as run_benchmark
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
 from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import BREAKOUT_LANGS, analyze_lang
 from .el import analyze_el, mutate_el
-from .corpus import benchmark as run_benchmark
 from .encode import encode
 from .fuzz import differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
@@ -39,6 +39,7 @@ from .host import analyze_host, mutate_host
 from .ldap import analyze_ldap, mutate_ldap
 from .llm import explain, get_provider, suggest_payloads
 from .mail import analyze_mail, mutate_mail
+from .mcp import analyze_mcp
 from .mutation import mutate
 from .nosql import analyze_nosql, mutate_nosql
 from .orm import analyze_orm, mutate_orm
@@ -55,7 +56,6 @@ from .xpath import analyze_xpath, mutate_xpath
 from .xss import analyze_xss, mutate_xss
 from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
-from . import __version__
 
 app = FastAPI(title="XyaInjex", version=__version__)
 
@@ -431,7 +431,9 @@ def explain_endpoint(req: ExplainRequest) -> dict:
 def flow_endpoint(req: FlowRequest) -> dict:
     """Analyze a multi-agent message flow and return a trust graph."""
     if not req.steps:
-        raise HTTPException(status_code=400, detail="at least one flow step is required")
+        raise HTTPException(
+            status_code=400, detail="at least one flow step is required"
+        )
     try:
         steps = [(parse_source(s.source), s.content) for s in req.steps]
         return analyze_flow(steps).to_dict()

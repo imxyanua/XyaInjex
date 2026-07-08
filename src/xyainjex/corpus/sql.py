@@ -11,14 +11,14 @@ SQL_CASES: tuple[CorpusCase, ...] = (
         id="mysql-backslash-escape",
         template="SELECT * FROM users WHERE name = '{INPUT}'",
         payload="\\' OR 1=1 -- ",
-        note="MySQL treats backslash as an escape inside strings; other dialects do not.",
+        note="MySQL treats backslash as escape inside strings; others do not.",
         divergent=True,
     ),
     CorpusCase(
         id="postgres-dollar-quote",
         template="SELECT * FROM users WHERE name = $${INPUT}$$",
         payload="1; SELECT 1",
-        note="Postgres dollar-quoted strings leave the payload in a string; others see numeric SQL.",
+        note="Postgres dollar quotes keep payload in a string; others see numeric SQL.",
         divergent=True,
     ),
     CorpusCase(

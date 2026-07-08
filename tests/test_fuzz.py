@@ -210,6 +210,18 @@ def test_differential_crlf_kinds():
     )
     assert result.per_dialect["header"]["risk"] == "CRITICAL"
     assert result.per_dialect["log"]["risk"] == "HIGH"
+    assert result.divergent
+    assert result.metric == "risk"
+
+
+def test_differential_crlf_lf_uniform():
+    result = differential(
+        "Location: {INPUT}",
+        "x\nSet-Cookie: y",
+        lang="crlf",
+        dialects=["header", "log"],
+    )
+    assert not result.divergent
 
 
 def test_differential_rejects_no_dialect_lang():

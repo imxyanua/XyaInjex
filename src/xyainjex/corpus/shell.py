@@ -18,7 +18,7 @@ SHELL_CASES: tuple[CorpusCase, ...] = (
         id="double-quote-curl",
         template='curl "{INPUT}"',
         payload='"; id ; #',
-        note="Close a double-quoted argument and inject; cmd lacks # comment truncation.",
+        note="Close a double-quoted argument and inject; cmd has no # comment.",
         divergent=True,
     ),
     CorpusCase(

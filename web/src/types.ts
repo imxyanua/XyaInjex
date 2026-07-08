@@ -208,6 +208,7 @@ export interface DifferentialResult {
   payload: string;
   lang: string;
   divergent: boolean;
+  metric?: string;
   per_dialect: Record<string, DialectVerdict>;
 }
 

@@ -35,6 +35,7 @@ def _dangerous_name(name: str) -> bool:
     lower = name.lower()
     return any(tok in lower for tok in _DANGEROUS_TOKENS)
 
+
 # Hijackable instruction phrasing inside a tool description.
 _DESCRIPTION_RISK = re.compile(
     r"(?i)(ignore\s+(all\s+)?previous|disregard\s+the\s+system|"

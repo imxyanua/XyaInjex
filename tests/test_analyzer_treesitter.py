@@ -8,7 +8,6 @@ from xyainjex import analyze
 from xyainjex.dialects import Dialect
 from xyainjex.shell import treesitter
 
-
 pytestmark = pytest.mark.skipif(
     not treesitter.available(), reason="tree-sitter optional extra not installed"
 )

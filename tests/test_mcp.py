@@ -7,7 +7,6 @@ import pytest
 from xyainjex.mcp import analyze_mcp
 from xyainjex.mcp.schema import parse_tools, schema_risks
 
-
 TOOLS = json.dumps(
     [
         {

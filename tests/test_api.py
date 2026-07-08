@@ -568,7 +568,7 @@ def test_analyze_xxe_endpoint():
         json={
             "template": "{INPUT}",
             "payload": (
-                '<!DOCTYPE r [<!ENTITY xxe SYSTEM '
+                "<!DOCTYPE r [<!ENTITY xxe SYSTEM "
                 '"php://filter/read=/etc/passwd">]><r>&xxe;</r>'
             ),
             "lang": "xxe",
@@ -788,9 +788,7 @@ def test_fuzz_ssrf_endpoint():
 
 
 def test_fuzz_path_endpoint():
-    resp = client.post(
-        "/fuzz", json={"template": "/var/www/{INPUT}", "lang": "path"}
-    )
+    resp = client.post("/fuzz", json={"template": "/var/www/{INPUT}", "lang": "path"})
     assert resp.status_code == 200
     assert "url-encode" in resp.json()["strategies"]
 
@@ -867,6 +865,24 @@ def test_differential_code_endpoint():
     assert data["per_dialect"]["javascript"]["command_injected"] is True
 
 
+def test_differential_crlf_endpoint():
+    resp = client.post(
+        "/differential",
+        json={
+            "template": "Location: {INPUT}",
+            "payload": "x\r\nSet-Cookie: y",
+            "lang": "crlf",
+            "dialects": ["header", "log"],
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["divergent"] is True
+    assert data["metric"] == "risk"
+    assert data["per_dialect"]["header"]["risk"] == "CRITICAL"
+    assert data["per_dialect"]["log"]["risk"] == "HIGH"
+
+
 def test_differential_rejects_no_dialect_lang():
     resp = client.post(
         "/differential",
@@ -885,9 +901,7 @@ def test_differential_rejects_no_dialect_lang():
 
 def test_suggest_endpoint_mock_empty():
     # The default mock provider returns nothing, so nothing is validated.
-    resp = client.post(
-        "/suggest", json={"template": 'curl "{INPUT}"', "lang": "shell"}
-    )
+    resp = client.post("/suggest", json={"template": 'curl "{INPUT}"', "lang": "shell"})
     assert resp.status_code == 200
     assert resp.json()["valid"] == 0
 

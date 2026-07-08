@@ -141,17 +141,26 @@ def fuzz(
     )
 
 
+def parser_divergent(per_dialect: dict[str, dict], metric: str) -> bool:
+    """Return True when dialects disagree on the chosen divergence metric."""
+    if metric == "risk":
+        values = {info["risk"] for info in per_dialect.values()}
+    else:
+        values = {info["command_injected"] for info in per_dialect.values()}
+    return len(values) > 1
+
+
 @dataclass
 class DifferentialResult:
     template: str
     payload: str
     lang: str
     per_dialect: dict[str, dict] = field(default_factory=dict)
+    metric: str = "command_injected"
 
     @property
     def divergent(self) -> bool:
-        injected = {v["command_injected"] for v in self.per_dialect.values()}
-        return len(injected) > 1
+        return parser_divergent(self.per_dialect, self.metric)
 
     def to_dict(self) -> dict:
         return {
@@ -159,12 +168,17 @@ class DifferentialResult:
             "payload": self.payload,
             "lang": self.lang,
             "divergent": self.divergent,
+            "metric": self.metric,
             "per_dialect": self.per_dialect,
         }
 
 
 def differential(
-    template: str, payload: str, lang: str, dialects: list[str]
+    template: str,
+    payload: str,
+    lang: str,
+    dialects: list[str],
+    metric: str | None = None,
 ) -> DifferentialResult:
     """Analyze one payload across several dialects to reveal parser divergence.
 
@@ -178,6 +192,9 @@ def differential(
             "differential supports " + ", ".join(_DIALECT_LANGS) + f", not {lang!r}"
         )
 
+    if metric is None:
+        metric = "risk" if lang == "crlf" else "command_injected"
+
     per: dict[str, dict] = {}
     for dialect in dialects:
         result = analyze_lang(template, payload, lang, dialect)
@@ -187,5 +204,9 @@ def differential(
             "context": result.context.value,
         }
     return DifferentialResult(
-        template=template, payload=payload, lang=lang, per_dialect=per
+        template=template,
+        payload=payload,
+        lang=lang,
+        per_dialect=per,
+        metric=metric,
     )

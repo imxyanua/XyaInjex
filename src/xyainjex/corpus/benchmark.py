@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ..fuzz import differential
+from ..fuzz.engine import parser_divergent
 from .models import CorpusCase
 from .registry import BENCHMARK_LANGS, get_corpus
 
@@ -74,14 +75,6 @@ def load_corpus(lang: str) -> tuple[list[CorpusCase], list[str]]:
     return list(cases), list(dialects)
 
 
-def _divergent(per_dialect: dict[str, dict], metric: str) -> bool:
-    if metric == "risk":
-        values = {info["risk"] for info in per_dialect.values()}
-    else:
-        values = {info["command_injected"] for info in per_dialect.values()}
-    return len(values) > 1
-
-
 def benchmark(lang: str = "shell") -> BenchmarkResult:
     """Run every corpus case for ``lang`` and check expected parser divergence."""
     lang = lang.strip().lower()
@@ -90,7 +83,7 @@ def benchmark(lang: str = "shell") -> BenchmarkResult:
 
     for case in cases:
         diff = differential(case.template, case.payload, lang, dialects)
-        actual = _divergent(diff.per_dialect, case.metric)
+        actual = parser_divergent(diff.per_dialect, case.metric)
         passed = actual == case.divergent
         results.append(
             CaseResult(

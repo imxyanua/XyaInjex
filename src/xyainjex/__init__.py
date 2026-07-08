@@ -11,17 +11,16 @@ from .agent import (
     analyze_flow,
     parse_source,
 )
-from .mcp import McpAnalysis, McpFinding, analyze_mcp
 from .analyzer import analyze
 from .argument import analyze_argument, mutate_argument
 from .build import BUILD_LANGS, BuildResult, build
 from .code import analyze_code, mutate_code, parse_code_lang
+from .corpus import BENCHMARK_LANGS, BenchmarkResult, benchmark
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
 from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
-from .corpus import BENCHMARK_LANGS, BenchmarkResult, benchmark
 from .encode import EncodeResult, encode
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
@@ -36,6 +35,7 @@ from .llm import (
     suggest_payloads,
 )
 from .mail import analyze_mail, mutate_mail
+from .mcp import McpAnalysis, McpFinding, analyze_mcp
 from .models import (
     AnalysisResult,
     Balance,

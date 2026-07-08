@@ -11,6 +11,8 @@ from .analyzer import analyze
 from .argument import analyze_argument, mutate_argument
 from .build import BUILD_LANGS, build
 from .code import analyze_code, mutate_code, parse_code_lang
+from .corpus import BENCHMARK_LANGS
+from .corpus import benchmark as run_benchmark
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
 from .deserialize import analyze_deserialize, mutate_deserialize
@@ -18,7 +20,6 @@ from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import analyze_lang
 from .el import analyze_el, mutate_el
 from .encode import encode
-from .corpus import BENCHMARK_LANGS, benchmark as run_benchmark
 from .fuzz import FUZZ_LANGS, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .host import analyze_host, mutate_host
@@ -216,9 +217,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.benchmark:
             if lang not in BENCHMARK_LANGS:
-                parser.error(
-                    "--benchmark supports: " + ", ".join(BENCHMARK_LANGS)
-                )
+                parser.error("--benchmark supports: " + ", ".join(BENCHMARK_LANGS))
             result = run_benchmark(lang)
             if args.json:
                 print(json.dumps(result.to_dict(), indent=2))
@@ -420,9 +419,7 @@ def _render_build(result) -> str:
     goal = result.goal if result.goal is not None else "(default)"
     lines.append(f"Goal     : {goal}")
     ok = "yes" if result.validated else "no (best effort)"
-    lines.append(
-        f"Breakout : {ok}   Risk: {result.risk}   Context: {result.context}"
-    )
+    lines.append(f"Breakout : {ok}   Risk: {result.risk}   Context: {result.context}")
     lines.append(f"Strategy : {result.strategy}")
     lines.append("")
     lines.append(f"Payload  : {result.payload!r}")
@@ -452,7 +449,9 @@ def _render_benchmark(result) -> str:
     lines = ["XyaInjex parser divergence benchmark", "=" * 40]
     lines.append(f"Lang     : {result.lang}")
     lines.append(f"Dialects : {', '.join(result.dialects)}")
-    lines.append(f"Cases    : {result.total}   Passed: {result.passed}   Failed: {result.failed}")
+    lines.append(
+        f"Cases    : {result.total}   Passed: {result.passed}   Failed: {result.failed}"
+    )
     lines.append("")
     for case in result.results:
         mark = "OK" if case.passed else "FAIL"

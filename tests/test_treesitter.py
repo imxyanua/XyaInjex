@@ -6,7 +6,6 @@ import pytest
 
 from xyainjex.shell import treesitter
 
-
 pytestmark = pytest.mark.skipif(
     not treesitter.available(), reason="tree-sitter optional extra not installed"
 )
