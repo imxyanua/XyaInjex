@@ -70,6 +70,22 @@ def test_fuzz_rejects_prompt_lang():
         fuzz("{INPUT}", lang="prompt")
 
 
+def test_fuzz_seeds_matching_corpus_template():
+    result = fuzz(SHELL_TMPL, lang="shell")
+    assert any(p.strategy == "corpus:double-quote-curl" for p in result.paths)
+    assert any(p.payload == '"; id ; #' for p in result.paths)
+
+
+def test_fuzz_skips_corpus_seeds_for_unknown_template():
+    result = fuzz("custom {INPUT}", lang="shell")
+    assert not any(p.strategy.startswith("corpus:") for p in result.paths)
+
+
+def test_fuzz_sql_corpus_seed_strategy():
+    result = fuzz(SQL_TMPL, lang="sql", dialect="postgres")
+    assert any(p.strategy.startswith("corpus:") for p in result.paths)
+
+
 # --- fuzz across the breakout analyzers ---
 
 

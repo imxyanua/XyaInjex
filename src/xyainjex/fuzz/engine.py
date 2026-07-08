@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from ..corpus.seeds import corpus_seeds
 from ..dispatch import BREAKOUT_LANGS, DIALECT_LANGS, analyze_lang, seed_payloads
 from ..models import AnalysisResult, Risk
 from .mutators import expand
@@ -93,23 +94,29 @@ def fuzz(
 ) -> FuzzResult:
     """Discover breakout payloads for ``template`` by expanding and testing.
 
-    Seed payloads come from the language's mutation engine (context aware) plus
-    any ``extra_seeds``. Each seed is expanded with obfuscation mutators, every
-    variant is analyzed, and the ones that inject a command are returned as
-    exploit paths, deduplicated and ranked by risk.
+    Seed payloads come from the language's mutation engine, matching divergent
+    benchmark corpus cases for the same template, plus any ``extra_seeds``. Each
+    seed is expanded with obfuscation mutators, every variant is analyzed, and
+    the ones that inject a command are returned as exploit paths, deduplicated
+    and ranked by risk.
     """
     if lang not in _FUZZ_LANGS:
         raise ValueError(
             "fuzzing supports " + ", ".join(_FUZZ_LANGS) + f", not {lang!r}"
         )
 
-    seeds = seed_payloads(template, lang, dialect, command)
-    seeds += extra_seeds or []
-
     corpus: dict[str, str] = {}  # payload -> strategy (first seen wins)
+    for payload, strategy in corpus_seeds(template, lang, dialect):
+        corpus.setdefault(payload, strategy)
+
+    seeds = seed_payloads(template, lang, dialect, command)
     for seed in seeds:
         for payload, strategy in expand(seed, lang):
             corpus.setdefault(payload, strategy)
+
+    for seed in extra_seeds or []:
+        for payload, _strategy in expand(seed, lang):
+            corpus.setdefault(payload, "extra")
 
     paths: list[ExploitPath] = []
     for payload, strategy in corpus.items():

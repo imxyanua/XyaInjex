@@ -8,10 +8,12 @@ from .benchmark import (
     load_corpus,
 )
 from .models import CorpusCase
+from .seeds import corpus_seeds
 
 __all__ = [
     "BENCHMARK_LANGS",
     "benchmark",
+    "corpus_seeds",
     "load_corpus",
     "BenchmarkResult",
     "CaseResult",
