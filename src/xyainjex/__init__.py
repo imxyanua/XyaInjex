@@ -72,7 +72,7 @@ from .xss import analyze_xss, mutate_xss
 from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
 
-__version__ = "0.12.0"
+__version__ = "0.13.0"
 
 __all__ = [
     "analyze",

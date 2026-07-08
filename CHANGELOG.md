@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-07-08
+
 ### Added
 
 - Parser-divergence benchmark corpora for **template** (13 cases), **code** (10
   cases), and **crlf** (10 cases).
-- CI runs `xyainjex --benchmark` for all five dialect-selecting languages.
+- CI runs `xyainjex --benchmark` for all five dialect-selecting languages
+  (shell, sql, template, code, crlf).
+- Web **Benchmark** button extended to template, code, and crlf.
 
 ## [0.12.0] - 2026-07-08
 
@@ -353,7 +357,8 @@ reports how a payload escapes it and what execution path the breakout creates.
   and format configuration, a GitHub Actions CI workflow, and a test suite of
   233 cases.
 
-[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/imxyanua/XyaInjex/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/imxyanua/XyaInjex/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/imxyanua/XyaInjex/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/imxyanua/XyaInjex/compare/v0.9.0...v0.10.0
