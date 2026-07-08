@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-07-08
+
 ### Changed
 
 - POSIX shell analysis adjusts **risk** when tree-sitter bash disagrees with the
   lexical model: extra parse-tree commands raise risk to at least HIGH; lexical
-  false positives are downgraded one step.
+  false positives (e.g. leading `||` or `|`) are downgraded one step.
 
 ## [0.15.0] - 2026-07-08
 
@@ -389,7 +391,8 @@ reports how a payload escapes it and what execution path the breakout creates.
   and format configuration, a GitHub Actions CI workflow, and a test suite of
   233 cases.
 
-[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/imxyanua/XyaInjex/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/imxyanua/XyaInjex/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/imxyanua/XyaInjex/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/imxyanua/XyaInjex/compare/v0.12.0...v0.13.0
