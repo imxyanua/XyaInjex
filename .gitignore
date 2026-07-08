@@ -11,6 +11,7 @@ __pycache__/
 build/
 dist/
 .pytest_cache/
+tests/data/write_corpus/
 .venv/
 venv/
 env/

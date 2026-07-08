@@ -9,6 +9,7 @@ from .benchmark import (
 )
 from .models import CorpusCase
 from .seeds import corpus_seeds
+from .write import WriteCorpusResult, write_corpus_discoveries
 
 __all__ = [
     "BENCHMARK_LANGS",
@@ -18,4 +19,6 @@ __all__ = [
     "BenchmarkResult",
     "CaseResult",
     "CorpusCase",
+    "WriteCorpusResult",
+    "write_corpus_discoveries",
 ]

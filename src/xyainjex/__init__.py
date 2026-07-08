@@ -15,7 +15,13 @@ from .analyzer import analyze
 from .argument import analyze_argument, mutate_argument
 from .build import BUILD_LANGS, BuildResult, build
 from .code import analyze_code, mutate_code, parse_code_lang
-from .corpus import BENCHMARK_LANGS, BenchmarkResult, benchmark
+from .corpus import (
+    BENCHMARK_LANGS,
+    BenchmarkResult,
+    WriteCorpusResult,
+    benchmark,
+    write_corpus_discoveries,
+)
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
 from .deserialize import analyze_deserialize, mutate_deserialize
@@ -81,7 +87,7 @@ from .xss import analyze_xss, mutate_xss
 from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
 
-__version__ = "0.18.0"
+__version__ = "0.18.1"
 
 __all__ = [
     "analyze",
@@ -153,6 +159,8 @@ __all__ = [
     "fuzz",
     "differential",
     "benchmark",
+    "WriteCorpusResult",
+    "write_corpus_discoveries",
     "BENCHMARK_LANGS",
     "BenchmarkResult",
     "evolve",

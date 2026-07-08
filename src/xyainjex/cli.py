@@ -11,7 +11,7 @@ from .analyzer import analyze
 from .argument import analyze_argument, mutate_argument
 from .build import BUILD_LANGS, build
 from .code import analyze_code, mutate_code, parse_code_lang
-from .corpus import BENCHMARK_LANGS
+from .corpus import BENCHMARK_LANGS, write_corpus_discoveries
 from .corpus import benchmark as run_benchmark
 from .crlf import analyze_crlf, mutate_crlf, parse_crlf_kind
 from .csv import analyze_csv, mutate_csv
@@ -97,6 +97,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--emit-corpus",
         action="store_true",
         help="with --evolve, print CorpusCase snippets for discoveries",
+    )
+    parser.add_argument(
+        "--write-corpus",
+        action="store_true",
+        help=(
+            "with --evolve, append discoveries to corpus/*.py and run benchmark "
+            "(dev-only; reverts on failure)"
+        ),
     )
     parser.add_argument(
         "--max-candidates",
@@ -273,10 +281,15 @@ def main(argv: list[str] | None = None) -> int:
                 max_candidates=args.max_candidates,
                 timeout=args.timeout,
             )
+            write_result = None
+            if args.write_corpus and result.discoveries:
+                write_result = write_corpus_discoveries(result)
+
             if args.json:
-                print(
-                    json.dumps(result.to_dict(emit_corpus=args.emit_corpus), indent=2)
-                )
+                payload = result.to_dict(emit_corpus=args.emit_corpus)
+                if write_result is not None:
+                    payload["write_corpus"] = write_result.to_dict()
+                print(json.dumps(payload, indent=2))
             else:
                 print(_render_evolve(result))
                 if args.emit_corpus and result.discoveries:
@@ -284,7 +297,16 @@ def main(argv: list[str] | None = None) -> int:
                     for item in corpus_snippets(result):
                         print(item["snippet"])
                         print()
-            return 0 if result.found == 0 else 2
+                if write_result is not None:
+                    print(_render_write_corpus(write_result))
+
+            if write_result is not None and not write_result.ok:
+                return 1
+
+            exit_code = 0 if result.found == 0 else 2
+            if write_result is not None and write_result.written:
+                exit_code = 0
+            return exit_code
 
         if args.template is None:
             parser.error("template is required unless --benchmark or --evolve is used")
@@ -550,6 +572,37 @@ def _render_evolve(result) -> str:
             )
             lines.append(f"         template: {item.template!r}")
             lines.append(f"         payload : {item.payload!r}")
+    return "\n".join(lines)
+
+
+def _render_write_corpus(result) -> str:
+    lines = ["XyaInjex write-corpus", "=" * 40]
+    if not result.written:
+        lines.append("No discoveries written to the corpus file.")
+        if result.skipped:
+            lines.append("")
+            lines.append("Skipped:")
+            for item in result.skipped:
+                lines.append(f"  {item.case_id}: {item.reason}")
+        return "\n".join(lines)
+
+    lines.append(
+        f"Written   : {len(result.written)} case(s) to corpus/{result.lang}.py"
+    )
+    for item in result.written:
+        lines.append(f"  {item.case_id}")
+    if result.skipped:
+        lines.append("")
+        lines.append(f"Skipped   : {len(result.skipped)}")
+        for item in result.skipped:
+            lines.append(f"  {item.case_id}: {item.reason}")
+    lines.append("")
+    lines.append(
+        f"Benchmark : {result.benchmark_total - result.benchmark_failed}/"
+        f"{result.benchmark_total} passed"
+    )
+    if result.reverted:
+        lines.append("Reverted corpus file after benchmark failure.")
     return "\n".join(lines)
 
 
