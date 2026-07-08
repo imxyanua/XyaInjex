@@ -28,6 +28,7 @@ class CaseResult:
     passed: bool
     per_dialect: dict[str, dict]
     note: str
+    metric: str
 
     def to_dict(self) -> dict:
         return {
@@ -39,6 +40,7 @@ class CaseResult:
             "passed": self.passed,
             "per_dialect": self.per_dialect,
             "note": self.note,
+            "metric": self.metric,
         }
 
 
@@ -72,6 +74,14 @@ def load_corpus(lang: str) -> tuple[list[CorpusCase], list[str]]:
     return list(cases), list(dialects)
 
 
+def _divergent(per_dialect: dict[str, dict], metric: str) -> bool:
+    if metric == "risk":
+        values = {info["risk"] for info in per_dialect.values()}
+    else:
+        values = {info["command_injected"] for info in per_dialect.values()}
+    return len(values) > 1
+
+
 def benchmark(lang: str = "shell") -> BenchmarkResult:
     """Run every corpus case for ``lang`` and check expected parser divergence."""
     lang = lang.strip().lower()
@@ -80,17 +90,19 @@ def benchmark(lang: str = "shell") -> BenchmarkResult:
 
     for case in cases:
         diff = differential(case.template, case.payload, lang, dialects)
-        passed = diff.divergent == case.divergent
+        actual = _divergent(diff.per_dialect, case.metric)
+        passed = actual == case.divergent
         results.append(
             CaseResult(
                 case_id=case.id,
                 template=case.template,
                 payload=case.payload,
                 expected_divergent=case.divergent,
-                actual_divergent=diff.divergent,
+                actual_divergent=actual,
                 passed=passed,
                 per_dialect=diff.per_dialect,
                 note=case.note,
+                metric=case.metric,
             )
         )
 

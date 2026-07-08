@@ -21,6 +21,12 @@ def test_crlf_benchmark_all_pass():
     assert result.total == len(CRLF_CASES)
     assert result.failed == 0
     assert result.ok
+    assert sum(1 for r in result.results if r.expected_divergent) == 5
+
+
+def test_crlf_uses_risk_metric():
+    result = benchmark("crlf")
+    assert all(r.metric == "risk" for r in result.results)
 
 
 def test_all_benchmark_corpora_pass():

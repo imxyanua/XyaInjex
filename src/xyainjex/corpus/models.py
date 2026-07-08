@@ -12,3 +12,4 @@ class CorpusCase:
     payload: str
     note: str
     divergent: bool
+    metric: str = "command_injected"
