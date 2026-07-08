@@ -1,6 +1,7 @@
 import {
   AgentResult,
   AnalysisResult,
+  BenchmarkResult,
   BreakoutResult,
   BuildResult,
   EncodeResult,
@@ -185,6 +186,38 @@ export function formatFuzzReport(result: FuzzResult): string {
       `- [${p.risk}] \`${p.payload}\` (${p.strategy})`,
       `  - ${p.stages.join(" → ")}`,
     );
+  }
+  return lines.join("\n");
+}
+
+export function formatBenchmarkReport(result: BenchmarkResult): string {
+  const lines = [
+    "# XyaInjex benchmark report",
+    "",
+    `- Language: ${result.lang}`,
+    `- Dialects: ${result.dialects.join(", ")}`,
+    `- Passed: ${result.passed}/${result.total}`,
+    `- Failed: ${result.failed}`,
+    "",
+    "## Cases",
+  ];
+  for (const c of result.results) {
+    const mark = c.passed ? "pass" : "FAIL";
+    const metric = c.metric ?? "command_injected";
+    lines.push(
+      `### ${c.case_id} (${mark})`,
+      `- Expected divergent (${metric}): ${c.expected_divergent}`,
+      `- Actual divergent: ${c.actual_divergent}`,
+      `- Template: \`${c.template}\``,
+      `- Payload: \`${c.payload}\``,
+    );
+    if (c.note) lines.push(`- Note: ${c.note}`);
+    for (const [dialect, info] of Object.entries(c.per_dialect)) {
+      lines.push(
+        `  - ${dialect}: inject=${info.command_injected} risk=${info.risk} context=${info.context}`,
+      );
+    }
+    lines.push("");
   }
   return lines.join("\n");
 }

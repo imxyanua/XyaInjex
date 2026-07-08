@@ -206,6 +206,22 @@ export default function App() {
     }
   }
 
+  async function openBenchmarkInDifferential(tmpl: string, pl: string) {
+    setTemplate(tmpl);
+    setPayload(pl);
+    setBusy(true);
+    setError(null);
+    clearOutputs();
+    try {
+      const args = { lang, template: tmpl, payload: pl, dialect, source };
+      setDiff(await differential(args, DIALECTS[lang]));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function onKey(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && !busy) {
       e.preventDefault();
@@ -464,7 +480,14 @@ export default function App() {
         <FuzzPanel result={fuzzResult} onPick={(p) => setPayload(p)} />
       )}
       {diff && <DifferentialPanel result={diff} />}
-      {benchmarkResult && <BenchmarkPanel result={benchmarkResult} />}
+      {benchmarkResult && (
+        <BenchmarkPanel
+          result={benchmarkResult}
+          onOpenInDifferential={
+            supportsDifferential(lang) ? openBenchmarkInDifferential : undefined
+          }
+        />
+      )}
       {suggestion && (
         <SuggestPanel result={suggestion} onPick={(p) => setPayload(p)} />
       )}

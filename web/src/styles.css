@@ -941,6 +941,10 @@ button.copy:hover {
   background: rgba(255, 107, 107, 0.12);
 }
 
+.benchmark-actions {
+  padding: 0 12px 8px;
+}
+
 .diff-table.nested {
   margin: 0 12px 12px;
   border-radius: 4px;

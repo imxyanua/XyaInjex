@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- CRLF benchmark uses **risk** divergence (header CRITICAL vs log HIGH).
+- Web benchmark: export MD/JSON and **Open in Differential** per case.
+- POSIX shell analysis adds a note when tree-sitter bash disagrees with the
+  lexical model (optional `[parser]` extra).
+- CI job for tree-sitter tests with `pip install -e ".[dev,parser]"`.
+
 ## [0.13.0] - 2026-07-08
 
 ### Added

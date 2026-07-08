@@ -21,7 +21,7 @@ def analyze(
     bal = balance(rendered, dialect)
     risk = score_risk(breakout, bal.syntax_valid)
 
-    notes = _build_notes(breakout, bal, risk)
+    notes = _build_notes(template, payload, dialect, breakout, bal, risk)
 
     return AnalysisResult(
         template=template,
@@ -36,7 +36,14 @@ def analyze(
     )
 
 
-def _build_notes(breakout, bal, risk: Risk) -> list[str]:
+def _build_notes(
+    template: str,
+    payload: str,
+    dialect: Dialect,
+    breakout,
+    bal,
+    risk: Risk,
+) -> list[str]:
     notes: list[str] = []
     ctx = breakout.context
 
@@ -75,5 +82,16 @@ def _build_notes(breakout, bal, risk: Risk) -> list[str]:
         notes.append("Rendered command has " + "; ".join(problems) + ".")
     else:
         notes.append("Rendered command is syntactically balanced.")
+
+    if dialect == Dialect.POSIX:
+        from .shell import treesitter
+
+        cmp = treesitter.compare_posix(template, payload)
+        if cmp and not cmp.agrees:
+            notes.append(
+                "Tree-sitter bash disagrees with the lexical model on command "
+                f"injection (lexical={cmp.lexical_injected}, "
+                f"treesitter={cmp.treesitter_injected})."
+            )
 
     return notes

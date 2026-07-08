@@ -220,6 +220,7 @@ export interface BenchmarkCaseResult {
   passed: boolean;
   per_dialect: Record<string, DialectVerdict>;
   note: string;
+  metric?: string;
 }
 
 export interface BenchmarkResult {
