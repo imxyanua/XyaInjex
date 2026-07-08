@@ -99,6 +99,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="with --evolve, print CorpusCase snippets for discoveries",
     )
     parser.add_argument(
+        "--max-candidates",
+        type=int,
+        default=None,
+        help="with --evolve, stop after this many candidate tests",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=None,
+        help="with --evolve, stop after this many seconds",
+    )
+    parser.add_argument(
+        "--cross-template",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="with --evolve, try payloads on other corpus templates (default: on)",
+    )
+    parser.add_argument(
         "--build",
         action="store_true",
         help="construct a payload that breaks out and achieves --goal",
@@ -251,6 +269,9 @@ def main(argv: list[str] | None = None) -> int:
                 dialect=args.dialect,
                 max_rounds=args.rounds,
                 goal=args.goal,
+                cross_template=args.cross_template,
+                max_candidates=args.max_candidates,
+                timeout=args.timeout,
             )
             if args.json:
                 print(
@@ -259,9 +280,7 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(_render_evolve(result))
                 if args.emit_corpus and result.discoveries:
-                    print(
-                        "\n# CorpusCase snippets — review before adding to corpus\n"
-                    )
+                    print("\n# CorpusCase snippets — review before adding to corpus\n")
                     for item in corpus_snippets(result):
                         print(item["snippet"])
                         print()
@@ -519,12 +538,16 @@ def _render_evolve(result) -> str:
     lines.append(f"Rounds    : {result.rounds_run}")
     lines.append(f"Tried     : {result.candidates_tried}")
     lines.append(f"Discovered: {result.found}")
+    if result.stopped_reason:
+        lines.append(f"Stopped   : {result.stopped_reason}")
     lines.append("")
     if not result.discoveries:
         lines.append("No novel parser divergences beyond the benchmark corpus.")
     else:
         for item in result.discoveries:
-            lines.append(f"  [round {item.round}] {item.strategy}")
+            lines.append(
+                f"  [round {item.round} score {item.score:.0f}] {item.strategy}"
+            )
             lines.append(f"         template: {item.template!r}")
             lines.append(f"         payload : {item.payload!r}")
     return "\n".join(lines)

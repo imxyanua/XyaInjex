@@ -13,7 +13,7 @@ def test_health():
     assert resp.status_code == 200
     data = resp.json()
     assert data["status"] == "ok"
-    assert data["version"] == "0.17.1"
+    assert data["version"] == "0.18.0"
     assert "flow" in data["features"]
     assert "mcp" in data["features"]
     assert "benchmark" in data["features"]
@@ -854,13 +854,15 @@ def test_evolve_emit_corpus():
             "template": 'curl "{INPUT}"',
             "max_rounds": 1,
             "emit_corpus": True,
+            "max_candidates": 10,
         },
     )
     assert resp.status_code == 200
     data = resp.json()
+    assert "stopped_reason" in data
     if data["found"] > 0:
         assert "corpus_snippets" in data
-        assert data["corpus_snippets"][0]["snippet"].startswith("    CorpusCase(")
+        assert "score" in data["discoveries"][0]
 
 
 def test_evolve_rejects_unknown_lang():

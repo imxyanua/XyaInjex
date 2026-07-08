@@ -101,6 +101,9 @@ export async function evolve(
     maxRounds?: number;
     goal?: string;
     emitCorpus?: boolean;
+    crossTemplate?: boolean;
+    maxCandidates?: number;
+    timeout?: number;
   },
 ): Promise<EvolveResult> {
   const body: Record<string, unknown> = {
@@ -108,9 +111,12 @@ export async function evolve(
     template,
     max_rounds: options?.maxRounds ?? 3,
     emit_corpus: options?.emitCorpus ?? true,
+    cross_template: options?.crossTemplate ?? true,
   };
   if (options?.dialect) body.dialect = options.dialect;
   if (options?.goal) body.goal = options.goal;
+  if (options?.maxCandidates != null) body.max_candidates = options.maxCandidates;
+  if (options?.timeout != null) body.timeout = options.timeout;
   return (await post("/evolve", body)) as unknown as EvolveResult;
 }
 

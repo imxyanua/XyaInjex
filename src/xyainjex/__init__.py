@@ -28,6 +28,7 @@ from .evolve import (
     EvolveResult,
     corpus_case_snippet,
     corpus_snippets,
+    discovery_score,
     evolve,
 )
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
@@ -80,7 +81,7 @@ from .xss import analyze_xss, mutate_xss
 from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
 
-__version__ = "0.17.1"
+__version__ = "0.18.0"
 
 __all__ = [
     "analyze",
@@ -160,6 +161,7 @@ __all__ = [
     "EvolveResult",
     "corpus_case_snippet",
     "corpus_snippets",
+    "discovery_score",
     "build",
     "BuildResult",
     "BUILD_LANGS",

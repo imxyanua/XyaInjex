@@ -29,6 +29,9 @@ export function EvolvePanel({
         />
       </div>
       <p className="muted mono">Dialects: {result.dialects.join(", ")}</p>
+      {result.stopped_reason && (
+        <p className="muted">Stopped early: {result.stopped_reason}</p>
+      )}
 
       {!result.discoveries.length ? (
         <p className="muted">No novel divergences beyond the benchmark corpus.</p>
@@ -36,6 +39,7 @@ export function EvolvePanel({
         <div className="diff-table benchmark-table" role="table">
           <div className="diff-row diff-head" role="row">
             <span>Round</span>
+            <span>Score</span>
             <span>Strategy</span>
             <span>Metric</span>
             <span>Actions</span>
@@ -46,6 +50,7 @@ export function EvolvePanel({
               <details className="benchmark-case" key={`${item.round}-${index}`}>
                 <summary className="diff-row hit">
                   <span className="mono">{item.round}</span>
+                  <span className="mono">{item.score.toFixed(0)}</span>
                   <span className="mono">{item.strategy}</span>
                   <span>{item.metric}</span>
                   <span className="yes">new</span>

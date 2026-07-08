@@ -239,6 +239,7 @@ export interface EvolveDiscovery {
   metric: string;
   strategy: string;
   round: number;
+  score: number;
   per_dialect: Record<string, DialectVerdict>;
 }
 
@@ -254,6 +255,7 @@ export interface EvolveResult {
   rounds_run: number;
   candidates_tried: number;
   found: number;
+  stopped_reason?: string | null;
   discoveries: EvolveDiscovery[];
   corpus_snippets?: CorpusSnippet[];
 }

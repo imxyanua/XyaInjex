@@ -382,6 +382,9 @@ class EvolveRequest(BaseModel):
     max_rounds: int = 3
     goal: str | None = None
     emit_corpus: bool = False
+    cross_template: bool = True
+    max_candidates: int | None = None
+    timeout: float | None = None
 
 
 @app.post("/evolve")
@@ -393,6 +396,9 @@ def evolve_endpoint(req: EvolveRequest) -> dict:
             dialect=req.dialect,
             max_rounds=req.max_rounds,
             goal=req.goal,
+            cross_template=req.cross_template,
+            max_candidates=req.max_candidates,
+            timeout=req.timeout,
         ).to_dict(emit_corpus=req.emit_corpus)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

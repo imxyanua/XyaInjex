@@ -235,6 +235,9 @@ export function formatEvolveReport(result: EvolveResult): string {
     `- Discoveries: ${result.found}`,
     "",
   ];
+  if (result.stopped_reason) {
+    lines.push(`- Stopped early: ${result.stopped_reason}`, "");
+  }
   if (!result.discoveries.length) {
     lines.push("No novel parser divergences beyond the benchmark corpus.");
     return lines.join("\n");
@@ -242,7 +245,7 @@ export function formatEvolveReport(result: EvolveResult): string {
   lines.push("## Discoveries");
   for (const d of result.discoveries) {
     lines.push(
-      `### Round ${d.round} — ${d.strategy}`,
+      `### Round ${d.round} — ${d.strategy} (score ${d.score.toFixed(0)})`,
       `- Metric: ${d.metric}`,
       `- Template: \`${d.template}\``,
       `- Payload: \`${d.payload}\``,

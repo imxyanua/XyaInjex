@@ -12,6 +12,7 @@ from xyainjex.evolve import (
     EvolveDiscovery,
     EvolveResult,
     corpus_case_snippet,
+    discovery_score,
     evolve,
 )
 
@@ -108,3 +109,95 @@ def test_cli_emit_corpus(capsys):
     assert code in (0, 2)
     if "CorpusCase snippets" in out:
         assert "CorpusCase(" in out
+
+
+def test_discovery_score_inject_split():
+    per = {
+        "bash": {"command_injected": True, "risk": "HIGH"},
+        "sh": {"command_injected": False, "risk": "LOW"},
+        "zsh": {"command_injected": True, "risk": "HIGH"},
+    }
+    assert discovery_score(per, "command_injected") > discovery_score(
+        {
+            "bash": {"command_injected": True, "risk": "HIGH"},
+            "sh": {"command_injected": True, "risk": "HIGH"},
+        },
+        "command_injected",
+    )
+
+
+def test_discovery_score_risk_spread():
+    per = {
+        "header": {"command_injected": True, "risk": "CRITICAL"},
+        "log": {"command_injected": True, "risk": "HIGH"},
+    }
+    assert discovery_score(per, "risk") == 20.0
+
+
+def test_evolve_discoveries_sorted_by_score():
+    result = evolve(lang="shell", template='curl "{INPUT}"', max_rounds=1)
+    if len(result.discoveries) >= 2:
+        scores = [d.score for d in result.discoveries]
+        assert scores == sorted(scores, reverse=True)
+
+
+def test_evolve_respects_max_candidates():
+    result = evolve(
+        lang="shell",
+        template='curl "{INPUT}"',
+        max_rounds=3,
+        max_candidates=5,
+    )
+    assert result.candidates_tried <= 5
+    assert result.stopped_reason == "max_candidates"
+
+
+def test_evolve_cross_template_can_be_disabled():
+    with_cross = evolve(
+        lang="shell",
+        template='curl "{INPUT}"',
+        max_rounds=1,
+        cross_template=True,
+        max_candidates=200,
+    )
+    without_cross = evolve(
+        lang="shell",
+        template='curl "{INPUT}"',
+        max_rounds=1,
+        cross_template=False,
+        max_candidates=200,
+    )
+    assert without_cross.candidates_tried <= with_cross.candidates_tried
+
+
+def test_evolve_crlf_uses_risk_metric():
+    result = evolve(
+        lang="crlf", template="Host: {INPUT}", max_rounds=1, max_candidates=20
+    )
+    assert result.discoveries or result.candidates_tried > 0
+    for discovery in result.discoveries:
+        assert discovery.metric == "risk"
+
+
+def test_evolve_to_dict_includes_score_and_stopped_reason():
+    discovery = EvolveDiscovery(
+        template="ping {INPUT}",
+        payload="; id",
+        metric="command_injected",
+        strategy="test",
+        round=1,
+        per_dialect={},
+        score=42.0,
+    )
+    result = EvolveResult(
+        lang="shell",
+        template="ping {INPUT}",
+        dialects=["bash"],
+        rounds_run=1,
+        candidates_tried=1,
+        discoveries=[discovery],
+        stopped_reason="max_candidates",
+    )
+    data = result.to_dict()
+    assert data["discoveries"][0]["score"] == 42.0
+    assert data["stopped_reason"] == "max_candidates"
