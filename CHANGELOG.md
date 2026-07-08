@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- SQL benchmark corpus extended with **Oracle** dialect and four q-quote divergence
+  cases (bracket, bang, and paren closers plus a contained benign case).
+- Template benchmark corpus extended with **blade**, **razor**, **go template**,
+  **EJS**, and **Thymeleaf** engines plus ten new parser-divergence cases.
+
 ## [0.14.0] - 2026-07-08
 
 ### Added

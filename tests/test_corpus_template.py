@@ -12,7 +12,7 @@ from xyainjex.corpus.template import TEMPLATE_CASES
 def test_template_corpus_loads():
     cases, dialects = load_corpus("template")
     assert len(cases) == len(TEMPLATE_CASES)
-    assert len(dialects) == 9
+    assert len(dialects) == 14
     assert {c.id for c in cases} == {c.id for c in TEMPLATE_CASES}
 
 
@@ -28,7 +28,9 @@ def test_template_corpus_divergent_cases():
     divergent = {r.case_id for r in result.results if r.expected_divergent}
     assert "jinja-mustache-hello" in divergent
     assert "freemarker-dollar" in divergent
-    assert len(divergent) >= 8
+    assert "razor-at-expression" in divergent
+    assert "thymeleaf-bracket-expr" in divergent
+    assert len(divergent) >= 18
 
 
 def test_cli_benchmark_template_json(capsys):

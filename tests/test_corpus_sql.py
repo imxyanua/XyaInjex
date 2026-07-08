@@ -12,7 +12,7 @@ from xyainjex.corpus.sql import SQL_CASES
 def test_sql_corpus_loads():
     cases, dialects = load_corpus("sql")
     assert len(cases) == len(SQL_CASES)
-    assert dialects == ["mysql", "postgres", "mssql", "sqlite", "ansi"]
+    assert dialects == ["mysql", "postgres", "mssql", "sqlite", "ansi", "oracle"]
     assert {c.id for c in cases} == {c.id for c in SQL_CASES}
 
 
@@ -28,7 +28,8 @@ def test_sql_corpus_divergent_cases():
     divergent = {r.case_id for r in result.results if r.expected_divergent}
     assert "mysql-backslash-escape" in divergent
     assert "postgres-dollar-quote" in divergent
-    assert len(divergent) >= 4
+    assert "oracle-q-bracket-close" in divergent
+    assert len(divergent) >= 7
 
 
 def test_cli_benchmark_sql_json(capsys):

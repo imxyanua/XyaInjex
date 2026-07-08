@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from .models import CorpusCase
 
-SQL_DIALECTS = ["mysql", "postgres", "mssql", "sqlite", "ansi"]
+SQL_DIALECTS = ["mysql", "postgres", "mssql", "sqlite", "ansi", "oracle"]
 
 SQL_CASES: tuple[CorpusCase, ...] = (
     CorpusCase(
@@ -131,6 +131,34 @@ SQL_CASES: tuple[CorpusCase, ...] = (
         template="SELECT * FROM users WHERE name = '{INPUT}'",
         payload="' OR ''='",
         note="Empty-string tautology variant without comment truncation.",
+        divergent=False,
+    ),
+    CorpusCase(
+        id="oracle-q-bracket-close",
+        template="SELECT * FROM t WHERE n = q'[{INPUT}]'",
+        payload="'] OR 1=1 -- ",
+        note="Oracle q'[...]' keeps ]' inside the quote; others treat it as breakout.",
+        divergent=True,
+    ),
+    CorpusCase(
+        id="oracle-q-bang-close",
+        template="SELECT * FROM t WHERE n = q'!{INPUT}!'",
+        payload="' OR 1=1 -- ",
+        note="Oracle q'!...!' allows embedded single quotes; others break out.",
+        divergent=True,
+    ),
+    CorpusCase(
+        id="oracle-q-paren-close",
+        template="SELECT * FROM t WHERE n = q'({INPUT})'",
+        payload="') OR 1=1 -- ",
+        note="Oracle q'(...)' keeps )' contained; other dialects inject.",
+        divergent=True,
+    ),
+    CorpusCase(
+        id="oracle-q-bracket-contained",
+        template="SELECT * FROM t WHERE n = q'[{INPUT}]'",
+        payload="safe text",
+        note="Benign payload inside Oracle alternative quoting.",
         divergent=False,
     ),
 )
