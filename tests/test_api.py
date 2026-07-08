@@ -812,6 +812,24 @@ def test_benchmark_sql_endpoint():
     assert data["failed"] == 0
 
 
+def test_benchmark_template_endpoint():
+    resp = client.get("/benchmark/template")
+    assert resp.status_code == 200
+    assert resp.json()["failed"] == 0
+
+
+def test_benchmark_code_endpoint():
+    resp = client.get("/benchmark/code")
+    assert resp.status_code == 200
+    assert resp.json()["failed"] == 0
+
+
+def test_benchmark_crlf_endpoint():
+    resp = client.get("/benchmark/crlf")
+    assert resp.status_code == 200
+    assert resp.json()["failed"] == 0
+
+
 def test_benchmark_rejects_unknown_lang():
     resp = client.get("/benchmark/ssrf")
     assert resp.status_code == 400

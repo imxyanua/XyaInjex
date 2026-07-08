@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Parser-divergence benchmark corpora for **template** (13 cases), **code** (10
+  cases), and **crlf** (10 cases).
+- CI runs `xyainjex --benchmark` for all five dialect-selecting languages.
+
 ## [0.12.0] - 2026-07-08
 
 ### Added

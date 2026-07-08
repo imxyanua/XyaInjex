@@ -263,7 +263,7 @@ export const DIFFERENTIAL_LANGS: Lang[] = [
 export const supportsDifferential = (lang: Lang): boolean =>
   DIFFERENTIAL_LANGS.includes(lang);
 
-export const BENCHMARK_LANGS: Lang[] = ["shell", "sql"];
+export const BENCHMARK_LANGS: Lang[] = ["shell", "sql", "template", "code", "crlf"];
 
 export const supportsBenchmark = (lang: Lang): boolean =>
   BENCHMARK_LANGS.includes(lang);

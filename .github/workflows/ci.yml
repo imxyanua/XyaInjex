@@ -30,6 +30,12 @@ jobs:
       - name: Run tests
         run: python -m pytest -q
 
+      - name: Run parser divergence benchmarks
+        run: |
+          for lang in shell sql template code crlf; do
+            xyainjex --benchmark -l "$lang" || exit 1
+          done
+
   lint:
     name: lint and format
     runs-on: ubuntu-latest
