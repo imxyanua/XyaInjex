@@ -13,7 +13,7 @@ def test_health():
     assert resp.status_code == 200
     data = resp.json()
     assert data["status"] == "ok"
-    assert data["version"] == "0.13.0"
+    assert data["version"] == "0.14.0"
     assert "flow" in data["features"]
     assert "mcp" in data["features"]
     assert "benchmark" in data["features"]
