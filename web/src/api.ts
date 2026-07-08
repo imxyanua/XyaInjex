@@ -155,7 +155,7 @@ export interface ApiHealth {
   features?: string[];
 }
 
-const REQUIRED_FEATURES = ["flow", "mcp", "benchmark"] as const;
+const REQUIRED_FEATURES = ["flow", "mcp", "benchmark", "evolve"] as const;
 
 /** Fail fast when the backend is down or running an outdated build without new routes. */
 export async function ensureApiReady(): Promise<ApiHealth> {

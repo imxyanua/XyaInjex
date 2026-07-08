@@ -13,10 +13,11 @@ def test_health():
     assert resp.status_code == 200
     data = resp.json()
     assert data["status"] == "ok"
-    assert data["version"] == "0.16.0"
+    assert data["version"] == "0.17.0"
     assert "flow" in data["features"]
     assert "mcp" in data["features"]
     assert "benchmark" in data["features"]
+    assert "evolve" in data["features"]
 
 
 def test_cors_allows_dev_origin():
@@ -830,6 +831,23 @@ def test_benchmark_crlf_endpoint():
 
 def test_benchmark_rejects_unknown_lang():
     resp = client.get("/benchmark/ssrf")
+    assert resp.status_code == 400
+
+
+def test_evolve_endpoint():
+    resp = client.post(
+        "/evolve",
+        json={"lang": "shell", "template": 'curl "{INPUT}"', "max_rounds": 1},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["lang"] == "shell"
+    assert data["rounds_run"] == 1
+    assert data["candidates_tried"] > 0
+
+
+def test_evolve_rejects_unknown_lang():
+    resp = client.post("/evolve", json={"lang": "xss", "template": "{INPUT}"})
     assert resp.status_code == 400
 
 

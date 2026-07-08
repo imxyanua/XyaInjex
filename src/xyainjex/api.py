@@ -33,6 +33,7 @@ from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import BREAKOUT_LANGS, analyze_lang
 from .el import analyze_el, mutate_el
 from .encode import encode
+from .evolve import evolve
 from .fuzz import differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .host import analyze_host, mutate_host
@@ -190,7 +191,7 @@ def health() -> dict:
     return {
         "status": "ok",
         "version": __version__,
-        "features": ["flow", "mcp", "benchmark"],
+        "features": ["flow", "mcp", "benchmark", "evolve"],
     }
 
 
@@ -370,6 +371,28 @@ def fuzz_endpoint(req: FuzzRequest) -> dict:
 def benchmark_endpoint(lang: str) -> dict:
     try:
         return run_benchmark(lang.strip().lower()).to_dict()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+class EvolveRequest(BaseModel):
+    lang: str = "shell"
+    template: str | None = None
+    dialect: str | None = None
+    max_rounds: int = 3
+    goal: str | None = None
+
+
+@app.post("/evolve")
+def evolve_endpoint(req: EvolveRequest) -> dict:
+    try:
+        return evolve(
+            lang=req.lang.strip().lower(),
+            template=req.template,
+            dialect=req.dialect,
+            max_rounds=req.max_rounds,
+            goal=req.goal,
+        ).to_dict()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

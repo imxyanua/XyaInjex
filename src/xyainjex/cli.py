@@ -20,6 +20,7 @@ from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import analyze_lang
 from .el import analyze_el, mutate_el
 from .encode import encode
+from .evolve import EVOLVE_LANGS, evolve
 from .fuzz import FUZZ_LANGS, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .host import analyze_host, mutate_host
@@ -80,6 +81,17 @@ def build_parser() -> argparse.ArgumentParser:
         "--benchmark",
         action="store_true",
         help="run parser-divergence regression corpus for --lang (shell today)",
+    )
+    parser.add_argument(
+        "--evolve",
+        action="store_true",
+        help="discover novel parser-divergence payloads beyond the benchmark corpus",
+    )
+    parser.add_argument(
+        "--rounds",
+        type=int,
+        default=3,
+        help="evolution rounds for --evolve (default: 3, max: 10)",
     )
     parser.add_argument(
         "--build",
@@ -225,8 +237,24 @@ def main(argv: list[str] | None = None) -> int:
                 print(_render_benchmark(result))
             return 0 if result.ok else 1
 
+        if args.evolve:
+            if lang not in EVOLVE_LANGS:
+                parser.error("--evolve supports: " + ", ".join(EVOLVE_LANGS))
+            result = evolve(
+                lang=lang,
+                template=args.template,
+                dialect=args.dialect,
+                max_rounds=args.rounds,
+                goal=args.goal,
+            )
+            if args.json:
+                print(json.dumps(result.to_dict(), indent=2))
+            else:
+                print(_render_evolve(result))
+            return 0 if result.found == 0 else 2
+
         if args.template is None:
-            parser.error("template is required unless --benchmark is used")
+            parser.error("template is required unless --benchmark or --evolve is used")
 
         if args.fuzz:
             if lang not in FUZZ_LANGS:
@@ -465,6 +493,26 @@ def _render_benchmark(result) -> str:
             for dialect, info in case.per_dialect.items():
                 inj = "inject" if info["command_injected"] else "no-inject"
                 lines.append(f"         {dialect}: {inj} ({info['risk']})")
+    return "\n".join(lines)
+
+
+def _render_evolve(result) -> str:
+    lines = ["XyaInjex parser divergence evolution", "=" * 40]
+    lines.append(f"Lang      : {result.lang}")
+    if result.template:
+        lines.append(f"Template  : {result.template}")
+    lines.append(f"Dialects  : {', '.join(result.dialects)}")
+    lines.append(f"Rounds    : {result.rounds_run}")
+    lines.append(f"Tried     : {result.candidates_tried}")
+    lines.append(f"Discovered: {result.found}")
+    lines.append("")
+    if not result.discoveries:
+        lines.append("No novel parser divergences beyond the benchmark corpus.")
+    else:
+        for item in result.discoveries:
+            lines.append(f"  [round {item.round}] {item.strategy}")
+            lines.append(f"         template: {item.template!r}")
+            lines.append(f"         payload : {item.payload!r}")
     return "\n".join(lines)
 
 
