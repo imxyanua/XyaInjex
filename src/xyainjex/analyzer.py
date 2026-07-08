@@ -21,7 +21,14 @@ def analyze(
     bal = balance(rendered, dialect)
     risk = score_risk(breakout, bal.syntax_valid)
 
-    notes = _build_notes(template, payload, dialect, breakout, bal, risk)
+    ts_cmp = None
+    if dialect == Dialect.POSIX:
+        from .shell import treesitter
+
+        ts_cmp = treesitter.compare_posix(template, payload)
+        risk = treesitter.adjust_risk(risk, ts_cmp)
+
+    notes = _build_notes(template, payload, dialect, breakout, bal, risk, ts_cmp)
 
     return AnalysisResult(
         template=template,
@@ -43,6 +50,7 @@ def _build_notes(
     breakout,
     bal,
     risk: Risk,
+    ts_cmp=None,
 ) -> list[str]:
     notes: list[str] = []
     ctx = breakout.context
@@ -83,15 +91,12 @@ def _build_notes(
     else:
         notes.append("Rendered command is syntactically balanced.")
 
-    if dialect == Dialect.POSIX:
-        from .shell import treesitter
-
-        cmp = treesitter.compare_posix(template, payload)
-        if cmp and not cmp.agrees:
-            notes.append(
-                "Tree-sitter bash disagrees with the lexical model on command "
-                f"injection (lexical={cmp.lexical_injected}, "
-                f"treesitter={cmp.treesitter_injected})."
-            )
+    if dialect == Dialect.POSIX and ts_cmp is not None and not ts_cmp.agrees:
+        notes.append(
+            "Tree-sitter bash disagrees with the lexical model on command "
+            f"injection (lexical={ts_cmp.lexical_injected}, "
+            f"treesitter={ts_cmp.treesitter_injected}); risk reflects the "
+            "parse-tree verdict."
+        )
 
     return notes

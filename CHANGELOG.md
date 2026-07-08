@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- POSIX shell analysis adjusts **risk** when tree-sitter bash disagrees with the
+  lexical model: extra parse-tree commands raise risk to at least HIGH; lexical
+  false positives are downgraded one step.
+
 ## [0.15.0] - 2026-07-08
 
 ### Added

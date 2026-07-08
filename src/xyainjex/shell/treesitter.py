@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ..dialects import Dialect
+from ..models import Risk
 from ..shell.context import split_template
 from .breakout import detect_breakout
 
@@ -107,3 +108,35 @@ def compare_posix(template: str, payload: str) -> TreesitterCompareResult | None
         treesitter_injected=treesitter_injected,
         agrees=lexical.command_injected == treesitter_injected,
     )
+
+
+def adjust_risk(risk: Risk, cmp: TreesitterCompareResult | None) -> Risk:
+    """Raise or lower ``risk`` when tree-sitter disagrees with the lexical model.
+
+    When the bash parse tree shows an extra top-level command the lexer missed,
+    risk is raised to at least HIGH. When the lexer reports injection but the
+    parse tree does not, risk is lowered one step because exploitability is
+    less certain under a real bash parser.
+    """
+    if cmp is None or cmp.agrees:
+        return risk
+    if cmp.treesitter_injected and not cmp.lexical_injected:
+        return _max_risk(risk, Risk.HIGH)
+    if cmp.lexical_injected and not cmp.treesitter_injected:
+        return _lower_risk(risk)
+    return risk
+
+
+def _max_risk(a: Risk, b: Risk) -> Risk:
+    order = {Risk.LOW: 0, Risk.MEDIUM: 1, Risk.HIGH: 2, Risk.CRITICAL: 3}
+    return a if order[a] >= order[b] else b
+
+
+def _lower_risk(risk: Risk) -> Risk:
+    if risk == Risk.CRITICAL:
+        return Risk.HIGH
+    if risk == Risk.HIGH:
+        return Risk.MEDIUM
+    if risk == Risk.MEDIUM:
+        return Risk.LOW
+    return Risk.LOW
