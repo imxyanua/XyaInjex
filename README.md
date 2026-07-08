@@ -647,7 +647,7 @@ LLM-suggested payload.
 
 ## Changelog
 
-Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.16.0.
+Release notes are in [CHANGELOG.md](CHANGELOG.md). The current release is 0.17.0.
 
 ## License
 

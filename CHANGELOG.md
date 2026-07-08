@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-07-08
+
+### Added
+
+- **Self-evolving payload loop** (`--evolve`, `POST /evolve`): starting from
+  benchmark corpus seeds, fuzz and build candidate payloads across rounds and
+  report novel parser-divergence pairs not yet in the regression corpus.
+- CLI `--rounds` controls evolution depth (default 3, max 10).
+
 ## [0.16.0] - 2026-07-08
 
 ### Changed
@@ -391,7 +400,8 @@ reports how a payload escapes it and what execution path the breakout creates.
   and format configuration, a GitHub Actions CI workflow, and a test suite of
   233 cases.
 
-[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/imxyanua/XyaInjex/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/imxyanua/XyaInjex/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/imxyanua/XyaInjex/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/imxyanua/XyaInjex/compare/v0.13.0...v0.14.0
