@@ -20,7 +20,7 @@ from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .dispatch import analyze_lang
 from .el import analyze_el, mutate_el
 from .encode import encode
-from .evolve import EVOLVE_LANGS, evolve
+from .evolve import EVOLVE_LANGS, corpus_snippets, evolve
 from .fuzz import FUZZ_LANGS, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .host import analyze_host, mutate_host
@@ -92,6 +92,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=3,
         help="evolution rounds for --evolve (default: 3, max: 10)",
+    )
+    parser.add_argument(
+        "--emit-corpus",
+        action="store_true",
+        help="with --evolve, print CorpusCase snippets for discoveries",
     )
     parser.add_argument(
         "--build",
@@ -248,9 +253,18 @@ def main(argv: list[str] | None = None) -> int:
                 goal=args.goal,
             )
             if args.json:
-                print(json.dumps(result.to_dict(), indent=2))
+                print(
+                    json.dumps(result.to_dict(emit_corpus=args.emit_corpus), indent=2)
+                )
             else:
                 print(_render_evolve(result))
+                if args.emit_corpus and result.discoveries:
+                    print(
+                        "\n# CorpusCase snippets — review before adding to corpus\n"
+                    )
+                    for item in corpus_snippets(result):
+                        print(item["snippet"])
+                        print()
             return 0 if result.found == 0 else 2
 
         if args.template is None:

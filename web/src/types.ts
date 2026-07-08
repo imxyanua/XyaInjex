@@ -233,6 +233,31 @@ export interface BenchmarkResult {
   results: BenchmarkCaseResult[];
 }
 
+export interface EvolveDiscovery {
+  template: string;
+  payload: string;
+  metric: string;
+  strategy: string;
+  round: number;
+  per_dialect: Record<string, DialectVerdict>;
+}
+
+export interface CorpusSnippet {
+  case_id: string;
+  snippet: string;
+}
+
+export interface EvolveResult {
+  lang: string;
+  template: string | null;
+  dialects: string[];
+  rounds_run: number;
+  candidates_tried: number;
+  found: number;
+  discoveries: EvolveDiscovery[];
+  corpus_snippets?: CorpusSnippet[];
+}
+
 export interface Suggestion {
   payload: string;
   risk: Risk;

@@ -7,6 +7,7 @@ import {
   build,
   differential,
   encode,
+  evolve,
   explain,
   fuzz,
   mutate,
@@ -23,6 +24,7 @@ import {
   SOURCES,
   supportsBuild,
   supportsBenchmark,
+  supportsEvolve,
   supportsDifferential,
   supportsEncode,
   supportsFuzz,
@@ -36,6 +38,7 @@ import {
   BuildResult,
   DifferentialResult,
   EncodeResult,
+  EvolveResult,
   FlowResult,
   FuzzResult,
   Lang,
@@ -46,6 +49,7 @@ import {
 import { initialTheme, applyTheme, Theme } from "./theme";
 import { readUrlState, shareLink, writeUrlState } from "./url";
 import { BenchmarkPanel } from "./components/BenchmarkPanel";
+import { EvolvePanel } from "./components/EvolvePanel";
 import { BreakoutView } from "./components/BreakoutView";
 import { BuildPanel } from "./components/BuildPanel";
 import { CopyButton } from "./components/CopyButton";
@@ -85,6 +89,8 @@ export default function App() {
   const [benchmarkResult, setBenchmarkResult] = useState<BenchmarkResult | null>(
     null,
   );
+  const [evolveResult, setEvolveResult] = useState<EvolveResult | null>(null);
+  const [evolveRounds, setEvolveRounds] = useState(3);
   const [flowResult, setFlowResult] = useState<FlowResult | null>(null);
   const [mcpResult, setMcpResult] = useState<McpResult | null>(null);
   const [agentMode, setAgentMode] = useState<AgentMode>("message");
@@ -121,6 +127,7 @@ export default function App() {
     setBuildResult(null);
     setEncodeResult(null);
     setBenchmarkResult(null);
+    setEvolveResult(null);
     setFlowResult(null);
     setMcpResult(null);
     setExplanation(null);
@@ -155,6 +162,7 @@ export default function App() {
     | "fuzz"
     | "differential"
     | "benchmark"
+    | "evolve"
     | "build"
     | "encode"
     | "suggest"
@@ -190,6 +198,15 @@ export default function App() {
         setDiff(await differential(args, DIALECTS[lang]));
       } else if (action === "benchmark") {
         setBenchmarkResult(await benchmark(lang));
+      } else if (action === "evolve") {
+        setEvolveResult(
+          await evolve(lang, template, {
+            dialect,
+            maxRounds: evolveRounds,
+            goal: goal || undefined,
+            emitCorpus: true,
+          }),
+        );
       } else if (action === "build") {
         setBuildResult(await build(args, goal));
       } else if (action === "encode") {
@@ -239,6 +256,7 @@ export default function App() {
     buildResult !== null ||
     encodeResult !== null ||
     benchmarkResult !== null ||
+    evolveResult !== null ||
     flowResult !== null ||
     mcpResult !== null ||
     explanation !== null;
@@ -420,6 +438,28 @@ export default function App() {
               Benchmark
             </button>
           )}
+          {!isAgent && supportsEvolve(lang) && (
+            <>
+              <label className="inline">
+                <span>Rounds</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={evolveRounds}
+                  onChange={(e) =>
+                    setEvolveRounds(
+                      Math.min(10, Math.max(1, Number(e.target.value) || 1)),
+                    )
+                  }
+                  style={{ width: "3rem" }}
+                />
+              </label>
+              <button onClick={() => run("evolve")} disabled={busy}>
+                Evolve
+              </button>
+            </>
+          )}
           {!isAgent && supportsBuild(lang) && (
             <button onClick={() => run("build")} disabled={busy}>
               Build
@@ -483,6 +523,15 @@ export default function App() {
       {benchmarkResult && (
         <BenchmarkPanel
           result={benchmarkResult}
+          onOpenInDifferential={
+            supportsDifferential(lang) ? openBenchmarkInDifferential : undefined
+          }
+        />
+      )}
+      {evolveResult && (
+        <EvolvePanel
+          result={evolveResult}
+          onPick={(p) => setPayload(p)}
           onOpenInDifferential={
             supportsDifferential(lang) ? openBenchmarkInDifferential : undefined
           }

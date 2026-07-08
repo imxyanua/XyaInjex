@@ -8,7 +8,12 @@ import pytest
 
 from xyainjex.cli import main
 from xyainjex.corpus.shell import SHELL_CASES
-from xyainjex.evolve import evolve
+from xyainjex.evolve import (
+    EvolveDiscovery,
+    EvolveResult,
+    corpus_case_snippet,
+    evolve,
+)
 
 
 def test_evolve_runs_for_shell_template():
@@ -40,8 +45,66 @@ def test_evolve_to_dict():
 
 
 def test_cli_evolve_json(capsys):
-    code = main(["--evolve", "-l", "shell", "--rounds", "1", "--json", 'ping {INPUT}'])
+    code = main(["--evolve", "-l", "shell", "--rounds", "1", "--json", "ping {INPUT}"])
     data = json.loads(capsys.readouterr().out)
     assert code in (0, 2)
     assert data["lang"] == "shell"
     assert data["rounds_run"] == 1
+
+
+def test_corpus_case_snippet_format():
+    discovery = EvolveDiscovery(
+        template='curl "{INPUT}"',
+        payload="; whoami",
+        metric="command_injected",
+        strategy="fuzz:quote",
+        round=1,
+        per_dialect={},
+    )
+    snippet = corpus_case_snippet(discovery, "evolved-shell-1")
+    assert 'id="evolved-shell-1"' in snippet
+    assert "CorpusCase(" in snippet
+    assert discovery.template in snippet
+    assert discovery.payload in snippet
+
+
+def test_to_dict_emit_corpus():
+    discovery = EvolveDiscovery(
+        template="ping {INPUT}",
+        payload="; id",
+        metric="command_injected",
+        strategy="test",
+        round=1,
+        per_dialect={},
+    )
+    result = EvolveResult(
+        lang="shell",
+        template="ping {INPUT}",
+        dialects=["bash", "sh", "zsh"],
+        rounds_run=1,
+        candidates_tried=1,
+        discoveries=[discovery],
+    )
+    data = result.to_dict(emit_corpus=True)
+    assert "corpus_snippets" in data
+    assert len(data["corpus_snippets"]) == 1
+    assert data["corpus_snippets"][0]["case_id"].startswith("evolved-shell-")
+    assert "CorpusCase(" in data["corpus_snippets"][0]["snippet"]
+
+
+def test_cli_emit_corpus(capsys):
+    code = main(
+        [
+            "--evolve",
+            "-l",
+            "shell",
+            "--rounds",
+            "1",
+            "--emit-corpus",
+            "ping {INPUT}",
+        ]
+    )
+    out = capsys.readouterr().out
+    assert code in (0, 2)
+    if "CorpusCase snippets" in out:
+        assert "CorpusCase(" in out

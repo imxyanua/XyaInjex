@@ -13,7 +13,7 @@ def test_health():
     assert resp.status_code == 200
     data = resp.json()
     assert data["status"] == "ok"
-    assert data["version"] == "0.17.0"
+    assert data["version"] == "0.17.1"
     assert "flow" in data["features"]
     assert "mcp" in data["features"]
     assert "benchmark" in data["features"]
@@ -844,6 +844,23 @@ def test_evolve_endpoint():
     assert data["lang"] == "shell"
     assert data["rounds_run"] == 1
     assert data["candidates_tried"] > 0
+
+
+def test_evolve_emit_corpus():
+    resp = client.post(
+        "/evolve",
+        json={
+            "lang": "shell",
+            "template": 'curl "{INPUT}"',
+            "max_rounds": 1,
+            "emit_corpus": True,
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    if data["found"] > 0:
+        assert "corpus_snippets" in data
+        assert data["corpus_snippets"][0]["snippet"].startswith("    CorpusCase(")
 
 
 def test_evolve_rejects_unknown_lang():

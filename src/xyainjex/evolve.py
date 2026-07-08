@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 
 from .build import BUILD_LANGS, build
 from .corpus.registry import BENCHMARK_LANGS, get_corpus
+from .encode import encode
 from .fuzz import differential, fuzz
 from .fuzz.engine import parser_divergent
 
@@ -19,6 +20,7 @@ EVOLVE_LANGS = BENCHMARK_LANGS
 _DEFAULT_ROUNDS = 3
 _MAX_QUEUE = 40
 _MAX_FUZZ_PATHS = 24
+_MAX_ENCODE_VARIANTS = 16
 
 
 @dataclass
@@ -54,8 +56,8 @@ class EvolveResult:
     def found(self) -> int:
         return len(self.discoveries)
 
-    def to_dict(self) -> dict:
-        return {
+    def to_dict(self, *, emit_corpus: bool = False) -> dict:
+        data = {
             "lang": self.lang,
             "template": self.template,
             "dialects": self.dialects,
@@ -64,6 +66,47 @@ class EvolveResult:
             "found": self.found,
             "discoveries": [d.to_dict() for d in self.discoveries],
         }
+        if emit_corpus and self.discoveries:
+            data["corpus_snippets"] = corpus_snippets(self)
+        return data
+
+
+def corpus_case_snippet(
+    discovery: EvolveDiscovery,
+    case_id: str,
+    note: str | None = None,
+) -> str:
+    """Format one discovery as a ``CorpusCase(...)`` Python snippet."""
+    if note is None:
+        note = (
+            f"Evolved via {discovery.strategy} (round {discovery.round}); "
+            "review before adding to the corpus."
+        )
+    return (
+        "    CorpusCase(\n"
+        f'        id="{case_id}",\n'
+        f"        template={discovery.template!r},\n"
+        f"        payload={discovery.payload!r},\n"
+        f"        note={note!r},\n"
+        "        divergent=True,\n"
+        f"        metric={discovery.metric!r},\n"
+        "    ),"
+    )
+
+
+def corpus_snippets(result: EvolveResult, id_prefix: str = "evolved") -> list[dict]:
+    """Return review-ready ``CorpusCase`` snippets for each discovery."""
+    snippets: list[dict] = []
+    for index, discovery in enumerate(result.discoveries, start=1):
+        slug = discovery.strategy.replace(":", "-").replace("/", "-")[:20]
+        case_id = f"{id_prefix}-{result.lang}-{slug}-{index}"
+        snippets.append(
+            {
+                "case_id": case_id,
+                "snippet": corpus_case_snippet(discovery, case_id),
+            }
+        )
+    return snippets
 
 
 def _metric_for_lang(lang: str) -> str:
@@ -183,9 +226,7 @@ def evolve(
             ):
                 next_queue.append((tmpl, payload, strategy))
 
-            fuzz_result = fuzz(
-                tmpl, lang=lang, dialect=dialect, extra_seeds=[payload]
-            )
+            fuzz_result = fuzz(tmpl, lang=lang, dialect=dialect, extra_seeds=[payload])
             for path in fuzz_result.paths[:_MAX_FUZZ_PATHS]:
                 candidates_tried += 1
                 if _record_discovery(
@@ -201,6 +242,28 @@ def evolve(
                     discoveries=discoveries,
                 ):
                     next_queue.append((tmpl, path.payload, path.strategy))
+
+            try:
+                enc = encode(payload, lang=lang, template=tmpl, dialect=dialect)
+            except ValueError:
+                enc = None
+            if enc is not None:
+                for variant in enc.variants[:_MAX_ENCODE_VARIANTS]:
+                    candidates_tried += 1
+                    strategy = f"encode:{variant.strategy}"
+                    if _record_discovery(
+                        template=tmpl,
+                        payload=variant.payload,
+                        lang=lang,
+                        dialects=dialects,
+                        metric=metric,
+                        strategy=strategy,
+                        round_n=round_n,
+                        known=known,
+                        tried=tried,
+                        discoveries=discoveries,
+                    ):
+                        next_queue.append((tmpl, variant.payload, strategy))
 
         queue = next_queue
 

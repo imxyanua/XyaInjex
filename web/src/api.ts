@@ -4,6 +4,7 @@ import {
   BenchmarkResult,
   DifferentialResult,
   EncodeResult,
+  EvolveResult,
   ExplainResult,
   FlowResult,
   FuzzResult,
@@ -90,6 +91,27 @@ export async function benchmark(lang: Lang): Promise<BenchmarkResult> {
     throw new Error(data?.detail || `request failed (${resp.status})`);
   }
   return data as BenchmarkResult;
+}
+
+export async function evolve(
+  lang: Lang,
+  template: string,
+  options?: {
+    dialect?: string;
+    maxRounds?: number;
+    goal?: string;
+    emitCorpus?: boolean;
+  },
+): Promise<EvolveResult> {
+  const body: Record<string, unknown> = {
+    lang,
+    template,
+    max_rounds: options?.maxRounds ?? 3,
+    emit_corpus: options?.emitCorpus ?? true,
+  };
+  if (options?.dialect) body.dialect = options.dialect;
+  if (options?.goal) body.goal = options.goal;
+  return (await post("/evolve", body)) as unknown as EvolveResult;
 }
 
 export async function differential(

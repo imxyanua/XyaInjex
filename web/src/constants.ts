@@ -268,6 +268,8 @@ export const BENCHMARK_LANGS: Lang[] = ["shell", "sql", "template", "code", "crl
 export const supportsBenchmark = (lang: Lang): boolean =>
   BENCHMARK_LANGS.includes(lang);
 
+export const supportsEvolve = (lang: Lang): boolean => BENCHMARK_LANGS.includes(lang);
+
 // The payload builder covers the languages with a clear goal to aim at.
 export const BUILD_LANGS: Lang[] = [
   "shell",

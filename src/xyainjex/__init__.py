@@ -22,7 +22,14 @@ from .deserialize import analyze_deserialize, mutate_deserialize
 from .dialects import parse_dialect, parse_sql_dialect, parse_template_engine
 from .el import analyze_el, mutate_el
 from .encode import EncodeResult, encode
-from .evolve import EVOLVE_LANGS, EvolveResult, evolve
+from .evolve import (
+    EVOLVE_LANGS,
+    EvolveDiscovery,
+    EvolveResult,
+    corpus_case_snippet,
+    corpus_snippets,
+    evolve,
+)
 from .fuzz import DifferentialResult, ExploitPath, FuzzResult, differential, fuzz
 from .graphql import analyze_graphql, mutate_graphql
 from .host import analyze_host, mutate_host
@@ -73,7 +80,7 @@ from .xss import analyze_xss, mutate_xss
 from .xxe import analyze_xxe, mutate_xxe
 from .yaml import analyze_yaml, mutate_yaml
 
-__version__ = "0.17.0"
+__version__ = "0.17.1"
 
 __all__ = [
     "analyze",
@@ -149,7 +156,10 @@ __all__ = [
     "BenchmarkResult",
     "evolve",
     "EVOLVE_LANGS",
+    "EvolveDiscovery",
     "EvolveResult",
+    "corpus_case_snippet",
+    "corpus_snippets",
     "build",
     "BuildResult",
     "BUILD_LANGS",

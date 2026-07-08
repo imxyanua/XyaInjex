@@ -5,6 +5,7 @@ import {
   BreakoutResult,
   BuildResult,
   EncodeResult,
+  EvolveResult,
   FuzzResult,
   PromptResult,
 } from "./types";
@@ -218,6 +219,46 @@ export function formatBenchmarkReport(result: BenchmarkResult): string {
       );
     }
     lines.push("");
+  }
+  return lines.join("\n");
+}
+
+export function formatEvolveReport(result: EvolveResult): string {
+  const lines = [
+    "# XyaInjex evolve report",
+    "",
+    `- Language: ${result.lang}`,
+    `- Template: ${result.template ?? "(all corpus seeds)"}`,
+    `- Dialects: ${result.dialects.join(", ")}`,
+    `- Rounds: ${result.rounds_run}`,
+    `- Candidates tried: ${result.candidates_tried}`,
+    `- Discoveries: ${result.found}`,
+    "",
+  ];
+  if (!result.discoveries.length) {
+    lines.push("No novel parser divergences beyond the benchmark corpus.");
+    return lines.join("\n");
+  }
+  lines.push("## Discoveries");
+  for (const d of result.discoveries) {
+    lines.push(
+      `### Round ${d.round} — ${d.strategy}`,
+      `- Metric: ${d.metric}`,
+      `- Template: \`${d.template}\``,
+      `- Payload: \`${d.payload}\``,
+    );
+    for (const [dialect, info] of Object.entries(d.per_dialect)) {
+      lines.push(
+        `  - ${dialect}: inject=${info.command_injected} risk=${info.risk}`,
+      );
+    }
+    lines.push("");
+  }
+  if (result.corpus_snippets?.length) {
+    lines.push("## Corpus snippets");
+    for (const item of result.corpus_snippets) {
+      lines.push("```python", item.snippet, "```", "");
+    }
   }
   return lines.join("\n");
 }
