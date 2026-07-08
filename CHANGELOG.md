@@ -7,12 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-07-08
+
 ### Added
 
 - SQL benchmark corpus extended with **Oracle** dialect and four q-quote divergence
   cases (bracket, bang, and paren closers plus a contained benign case).
 - Template benchmark corpus extended with **blade**, **razor**, **go template**,
   **EJS**, and **Thymeleaf** engines plus ten new parser-divergence cases.
+- Fuzzing seeds from matching **benchmark corpus** cases (`corpus:<case_id>`
+  strategy) when the template and active dialect produce a known breakout.
+
+### Fixed
+
+- CRLF `/differential` now uses the **risk** metric so header CRITICAL vs log
+  HIGH is reported as parser divergence (web Differential panel updated).
 
 ## [0.14.0] - 2026-07-08
 
@@ -374,7 +383,8 @@ reports how a payload escapes it and what execution path the breakout creates.
   and format configuration, a GitHub Actions CI workflow, and a test suite of
   233 cases.
 
-[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/imxyanua/XyaInjex/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/imxyanua/XyaInjex/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/imxyanua/XyaInjex/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/imxyanua/XyaInjex/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/imxyanua/XyaInjex/compare/v0.11.0...v0.12.0
